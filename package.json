@@ -1,0 +1,15 @@
+{
+  "name": "vinayaka-festival-portal",
+  "version": "1.0.0",
+  "description": "Vinayaka Chavithi Festival Management Portal",
+  "scripts": {
+    "install-all": "npm install --prefix backend && npm install --prefix frontend --legacy-peer-deps",
+    "seed": "npm run seed --prefix backend",
+    "start-backend": "npm start --prefix backend",
+    "start-frontend": "npm run dev --prefix frontend",
+    "start": "npx concurrently \"npm run start-backend\" \"npm run start-frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
