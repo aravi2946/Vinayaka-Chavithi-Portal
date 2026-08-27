@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, getMediaUrl } from '../context/AuthContext';
 import {
   LayoutDashboard,
   Coins,
@@ -22,6 +22,11 @@ import {
 const Sidebar = ({ mobileOpen, setMobileOpen }) => {
   const { user, logout, settings } = useAuth();
   const navigate = useNavigate();
+  const [logoError, setLogoError] = useState(false);
+
+  useEffect(() => {
+    setLogoError(false);
+  }, [settings.logoUrl]);
 
   if (!user) return null;
 
@@ -119,11 +124,22 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
   return (
     <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
       <div className="sidebar-logo">
-        <span style={{ fontSize: '1.5rem', flexShrink: 0 }}>🕉️</span>
+        {settings.logoUrl && !logoError ? (
+          <img
+            src={getMediaUrl(settings.logoUrl)}
+            alt={settings.festivalName || 'Festival Logo'}
+            onError={() => setLogoError(true)}
+            style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+          />
+        ) : (
+          <span style={{ fontSize: '1.5rem', flexShrink: 0, lineHeight: 1 }}>🕉️</span>
+        )}
         <div style={{ flexGrow: 1, minWidth: 0 }}>
-          <h2>Festival Portal</h2>
-          <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', display: 'block' }}>
-            {settings.festivalYear} celebration
+          <h2 style={{ fontSize: '1rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', margin: 0 }}>
+            {settings.festivalName || 'Festival Portal'}
+          </h2>
+          <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {settings.committeeName || `${settings.festivalYear} celebration`}
           </span>
         </div>
         <button
