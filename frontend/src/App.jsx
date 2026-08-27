@@ -53,27 +53,37 @@ const CommitteeLayout = () => {
 
   return (
     <div className="app-layout">
+      {/* Mobile Drawer Overlay Backdrop */}
+      {mobileOpen && (
+        <div
+          className="sidebar-overlay open"
+          onClick={() => setMobileOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Sidebar Navigation */}
       <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
 
       {/* Main Panel */}
       <div className="main-content">
-        <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.5rem', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)', position: 'sticky', top: 0, zIndex: 90 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <header className="committee-header">
+          <div className="committee-header-left">
             <button
               className="menu-btn"
-              style={{ display: 'none', border: 'none', background: 'none', color: 'var(--text-main)', cursor: 'pointer' }}
               onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label="Toggle Committee Navigation"
             >
-              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
-            <span style={{ fontWeight: 700, color: 'var(--primary-dark)', fontSize: '0.95rem' }}>
-              Vinayaka Festival Committee Portal
+            <span className="committee-portal-title">
+              Vinayaka Festival Portal
             </span>
           </div>
 
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            Logged in: <strong style={{ color: 'var(--text-main)' }}>@{user?.username}</strong> ({user?.role})
+          <div className="committee-user-info">
+            <span className="committee-user-name">@{user?.username}</span>
+            <span className="badge badge-submitted committee-user-badge">{user?.role}</span>
           </div>
         </header>
         <Outlet />

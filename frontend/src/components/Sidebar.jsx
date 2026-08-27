@@ -15,7 +15,8 @@ import {
   Settings as SettingsIcon,
   LogOut,
   ArrowLeft,
-  UserCheck
+  UserCheck,
+  X
 } from 'lucide-react';
 
 const Sidebar = ({ mobileOpen, setMobileOpen }) => {
@@ -118,13 +119,20 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
   return (
     <aside className={`sidebar ${mobileOpen ? 'mobile-open' : ''}`}>
       <div className="sidebar-logo">
-        <span style={{ fontSize: '1.5rem' }}>🕉️</span>
-        <div>
+        <span style={{ fontSize: '1.5rem', flexShrink: 0 }}>🕉️</span>
+        <div style={{ flexGrow: 1, minWidth: 0 }}>
           <h2>Festival Portal</h2>
           <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', display: 'block' }}>
             {settings.festivalYear} celebration
           </span>
         </div>
+        <button
+          className="sidebar-close-btn"
+          onClick={() => setMobileOpen(false)}
+          aria-label="Close Sidebar Navigation"
+        >
+          <X size={20} />
+        </button>
       </div>
 
       <div className="sidebar-menu">

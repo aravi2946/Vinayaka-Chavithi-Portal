@@ -36,8 +36,8 @@ const PublicCollections = () => {
           {/* Summary Dashboard Card (Only show if publicVisible is true) */}
           {data.publicVisible && (
             <div className="grid-3" style={{ marginBottom: '2rem' }}>
-              <div className="card card-festive-border" style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                <div style={{ background: 'var(--grad-festive)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '56px', height: '56px', borderRadius: 'var(--radius-sm)' }}>
+              <div className="card card-festive-border span-2" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                <div style={{ background: 'var(--grad-festive)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '56px', height: '56px', borderRadius: 'var(--radius-sm)', flexShrink: 0 }}>
                   <Heart size={28} fill="white" />
                 </div>
                 <div>

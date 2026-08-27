@@ -184,7 +184,7 @@ const PublicHome = () => {
 
       <div className="grid-3" style={{ marginBottom: '2.5rem' }}>
         {/* Welcome message card */}
-        <div className="card card-festive-border" style={{ gridColumn: 'span 2' }}>
+        <div className="card card-festive-border span-2">
           <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--primary)' }}>🌺 Welcome & Invitation</h2>
           <p style={{ marginBottom: '1rem', color: 'var(--text-main)', fontSize: '1.05rem' }}>
             Vinayaka Chavithi, the auspicious festival celebrating the birth of Lord Ganesha, represents the initiation of wisdom, prosperity, and the removal of obstacles.
@@ -192,7 +192,7 @@ const PublicHome = () => {
           <p style={{ marginBottom: '1.5rem', color: 'var(--text-muted)' }}>
             This year, our committee is putting together grand decorations, daily special homams, cultural competitions for youth and kids, community Annadanam dinners, and a vibrant immersion procession. We cordially invite you with family and friends to participate in the events, seek the blessings of Vinayaka, and contribute to this local festival.
           </p>
-          <div style={{ display: 'flex', gap: '1rem' }}>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <Link to="/events" className="btn btn-primary btn-sm">View Event Schedule</Link>
             <Link to="/gallery" className="btn btn-secondary btn-sm">See Gallery</Link>
           </div>

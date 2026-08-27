@@ -30,9 +30,17 @@ const Navbar = () => {
         </div>
       </Link>
 
-      <button className="menu-btn" onClick={toggleMobileMenu}>
+      <button className="menu-btn" onClick={toggleMobileMenu} aria-label="Toggle Navigation Menu">
         {mobileOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
+
+      {mobileOpen && (
+        <div
+          className="nav-backdrop"
+          onClick={() => setMobileOpen(false)}
+          aria-hidden="true"
+        />
+      )}
 
       <div className={`public-nav-links ${mobileOpen ? 'mobile-open' : ''}`}>
         <Link to="/" className={`public-nav-link ${isActive('/') ? 'active' : ''}`} onClick={() => setMobileOpen(false)}>

@@ -289,7 +289,7 @@ const ManageExpenses = () => {
 
       <div className="grid-3">
         {/* Left Side: Expense Records List (Span 2) */}
-        <div style={{ gridColumn: 'span 2' }}>
+        <div className="span-2">
           {/* Filters card */}
           <div className="card" style={{ padding: '1rem', marginBottom: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexGrow: 1, minWidth: '180px', background: 'var(--bg-primary)', padding: '0.4rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>

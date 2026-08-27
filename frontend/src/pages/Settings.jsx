@@ -171,7 +171,7 @@ const Settings = () => {
 
       <div className="grid-3">
         {/* Left Column: Form Settings (Span 2) */}
-        <div style={{ gridColumn: 'span 2' }}>
+        <div className="span-2">
           <form onSubmit={handleSubmit} className="card card-festive-border">
             <h2 style={{ fontSize: '1.25rem', marginBottom: '1.25rem', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <SettingsIcon size={18} /> Configuration Details
