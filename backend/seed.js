@@ -82,8 +82,8 @@ const seedData = async () => {
       committeeName: 'Adyar Ganesha Utsav Committee',
       festivalYear: 2026,
       festivalDates: 'September 14 - September 19, 2026',
-      logoUrl: 'https://images.unsplash.com/photo-1609137144814-7221d604b901?auto=format&fit=crop&q=80&w=200', // Ganesha icon
-      ganeshaImageUrl: 'https://images.unsplash.com/photo-1567591971754-075b8a07c086?auto=format&fit=crop&q=80&w=800', // Gorgeous Ganesha painting
+      logoUrl: '', // Defaults to sacred 🕉️ emblem unless custom logo uploaded
+      ganeshaImageUrl: '', // Defaults to built-in celebratory vector banner
       contactInfo: '+91 98450 12345, info@adyarganesha.org',
       publicCollectionVisibility: true,
       registrationSettings: true,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth, getMediaUrl } from '../context/AuthContext';
 import { Menu, X, Landmark, Calendar, Megaphone, Image, FileText, Lock, LayoutDashboard } from 'lucide-react';
@@ -7,6 +7,11 @@ const Navbar = () => {
   const { user, settings } = useAuth();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [logoError, setLogoError] = useState(false);
+
+  useEffect(() => {
+    setLogoError(false);
+  }, [settings.logoUrl]);
 
   const isActive = (path) => location.pathname === path;
 
@@ -15,10 +20,15 @@ const Navbar = () => {
   return (
     <nav className="public-nav">
       <Link to="/" className="public-nav-brand">
-        {settings.logoUrl ? (
-          <img src={getMediaUrl(settings.logoUrl)} alt="Logo" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover' }} />
+        {settings.logoUrl && !logoError ? (
+          <img
+            src={getMediaUrl(settings.logoUrl)}
+            alt={settings.festivalName || 'Logo'}
+            onError={() => setLogoError(true)}
+            style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+          />
         ) : (
-          <span style={{ fontSize: '1.8rem', marginRight: '0.2rem' }}>🕉️</span>
+          <span style={{ fontSize: '1.8rem', marginRight: '0.2rem', lineHeight: 1, flexShrink: 0 }}>🕉️</span>
         )}
         <div>
           <span style={{ display: 'block', fontSize: '1.1rem', fontWeight: 800, fontFamily: 'var(--font-sans)', color: 'var(--primary)' }}>

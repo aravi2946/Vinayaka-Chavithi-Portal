@@ -264,7 +264,12 @@ const Settings = () => {
               </div>
               {form.logoUrl && (
                 <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <img src={getMediaUrl(form.logoUrl)} alt="Preview Logo" style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border-color)' }} />
+                  <img
+                    src={getMediaUrl(form.logoUrl)}
+                    alt="Preview Logo"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border-color)' }}
+                  />
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', wordBreak: 'break-all' }}>Previewing: {form.logoUrl}</span>
                 </div>
               )}
@@ -299,7 +304,12 @@ const Settings = () => {
               </div>
               {form.ganeshaImageUrl && (
                 <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <img src={getMediaUrl(form.ganeshaImageUrl)} alt="Preview Banner" style={{ height: 40, width: 'auto', borderRadius: '4px', objectFit: 'contain', border: '1px solid var(--border-color)' }} />
+                  <img
+                    src={getMediaUrl(form.ganeshaImageUrl)}
+                    alt="Preview Banner"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    style={{ height: 40, width: 'auto', borderRadius: '4px', objectFit: 'contain', border: '1px solid var(--border-color)' }}
+                  />
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', wordBreak: 'break-all' }}>Previewing: {form.ganeshaImageUrl}</span>
                 </div>
               )}
