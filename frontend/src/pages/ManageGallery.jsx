@@ -68,7 +68,7 @@ const ManageGallery = () => {
 
   const handleOpenEdit = (item) => {
     setEditingId(item._id);
-    setUploadMode(item.imageUrl && item.imageUrl.startsWith('/uploads') ? 'file' : 'url');
+    setUploadMode(item.imageUrl && (item.imageUrl.startsWith('/uploads') || item.imageUrl.startsWith('/api/upload')) ? 'file' : 'url');
     setUploading(false);
     setForm({
       imageUrl: item.imageUrl,

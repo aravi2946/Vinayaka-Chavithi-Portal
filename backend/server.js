@@ -30,8 +30,31 @@ app.use('/api/documents', require('./routes/documents'));
 app.use('/api/logs', require('./routes/logs'));
 app.use('/api/upload', require('./routes/upload'));
 
-// Serve uploaded files statically
+const mongoose = require('mongoose');
+
+// Serve uploaded files statically from disk if present, or stream from MongoDB GridFS
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.get('/uploads/:filename', async (req, res, next) => {
+  try {
+    if (!mongoose.connection.db) {
+      return res.status(404).send('File not found');
+    }
+    const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, { bucketName: 'uploads' });
+    const files = await bucket.find({ filename: req.params.filename }).toArray();
+    if (files && files.length > 0) {
+      const file = files[0];
+      res.set('Content-Type', file.contentType || 'application/octet-stream');
+      res.set('Cache-Control', 'public, max-age=31536000, immutable');
+      if (file.length) {
+        res.set('Content-Length', file.length);
+      }
+      return bucket.openDownloadStreamByName(req.params.filename).pipe(res);
+    }
+    return res.status(404).send('File not found');
+  } catch (err) {
+    next(err);
+  }
+});
 
 // Basic status check route
 app.get('/', (req, res) => {

@@ -75,7 +75,7 @@ const ManageDocuments = () => {
 
   const handleOpenEdit = (doc) => {
     setEditingId(doc._id);
-    setUploadMode(doc.fileUrl && doc.fileUrl.startsWith('/uploads') ? 'file' : 'url');
+    setUploadMode(doc.fileUrl && (doc.fileUrl.startsWith('/uploads') || doc.fileUrl.startsWith('/api/upload')) ? 'file' : 'url');
     setUploadingDoc(false);
     setForm({
       documentName: doc.documentName,
