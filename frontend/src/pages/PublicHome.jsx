@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth, API_URL, getMediaUrl, isVideoUrl, getYouTubeEmbedUrl, getYouTubeWatchUrl } from '../context/AuthContext';
-import { Calendar, Bell, ShieldAlert, Phone, Mail, Award, MapPin, Clock, Heart, Users, Radio, Tv, ExternalLink, Share2, Sparkles } from 'lucide-react';
+import { Calendar, Bell, ShieldAlert, Phone, Mail, Award, MapPin, Clock, Heart, Users, Radio, Tv, ExternalLink, Share2, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 
 const PublicHome = () => {
   const { settings, triggerToast } = useAuth();
@@ -9,6 +9,9 @@ const PublicHome = () => {
   const [announcements, setAnnouncements] = useState([]);
   const [gallery, setGallery] = useState([]);
   const [donationsInfo, setDonationsInfo] = useState({ publicVisible: false, totalAmount: 0, collections: [] });
+  const [volunteers, setVolunteers] = useState([]);
+  const [volunteersFilter, setVolunteersFilter] = useState('All');
+  const [showVolunteersGrid, setShowVolunteersGrid] = useState(false);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, finished: false });
 
   useEffect(() => {
@@ -16,6 +19,14 @@ const PublicHome = () => {
     fetch(`${API_URL}/collections`)
       .then((res) => res.json())
       .then((data) => setDonationsInfo(data))
+      .catch((err) => console.error(err));
+
+    // Fetch active volunteers for public honor roll
+    fetch(`${API_URL}/volunteers`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setVolunteers(data);
+      })
       .catch((err) => console.error(err));
 
     // Fetch published events
@@ -104,6 +115,40 @@ const PublicHome = () => {
   }
   if (!phone) phone = '+91 9948050484';
   if (!email) email = 'srinarahari4@gmail.com';
+
+  const getRoleClass = (resp) => {
+    if (!resp) return 'volunteer-role-default';
+    const lower = resp.toLowerCase();
+    if (lower.includes('food')) return 'volunteer-role-food';
+    if (lower.includes('decor')) return 'volunteer-role-decorations';
+    if (lower.includes('puja')) return 'volunteer-role-puja';
+    if (lower.includes('crowd') || lower.includes('security')) return 'volunteer-role-crowd';
+    if (lower.includes('cultur')) return 'volunteer-role-cultural';
+    return 'volunteer-role-default';
+  };
+
+  const getRoleIcon = (resp) => {
+    if (!resp) return '🤝';
+    const lower = resp.toLowerCase();
+    if (lower.includes('food')) return '🍲';
+    if (lower.includes('decor')) return '🎨';
+    if (lower.includes('puja')) return '🪔';
+    if (lower.includes('crowd')) return '👥';
+    if (lower.includes('security')) return '🛡️';
+    if (lower.includes('clean')) return '🧹';
+    if (lower.includes('transp')) return '🚚';
+    if (lower.includes('cultur')) return '🎭';
+    if (lower.includes('event')) return '📋';
+    return '🤝';
+  };
+
+  // Distinct active roles for category tabs
+  const activeRoles = ['All', ...new Set(volunteers.map((v) => v.assignedResponsibility || 'General Seva').filter((r) => r && r !== 'None'))];
+
+  const filteredVolunteers = volunteers.filter((v) => {
+    if (volunteersFilter === 'All') return true;
+    return (v.assignedResponsibility || 'General Seva') === volunteersFilter;
+  });
 
   return (
     <div className="page-container">
@@ -305,6 +350,134 @@ const PublicHome = () => {
           </div>
         </section>
       )}
+
+      {/* =========================================================================
+          TOP SHOWCASE: Festival Volunteers & Sevadals Honor Section (Responsive)
+         ========================================================================= */}
+      <section className="volunteers-top-showcase" id="volunteers-section">
+        <div className="volunteers-header">
+          <div className="volunteers-header-title">
+            <Users size={22} style={{ color: 'var(--primary)' }} />
+            <div>
+              <h2>🤝 Festival Sevadals & Volunteers</h2>
+              <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                Devoted volunteers dedicating their time and seva for Lord Ganesha's celebrations
+              </p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <span className="volunteers-badge-count">
+              <Sparkles size={14} style={{ color: 'var(--primary)' }} />
+              {volunteers.length} Active Sevadals
+            </span>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={() => setShowVolunteersGrid(!showVolunteersGrid)}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+            >
+              {showVolunteersGrid ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+              {showVolunteersGrid ? 'Hide Names' : `Show All Names (${volunteers.length})`}
+            </button>
+            <Link to="/volunteers" className="btn btn-secondary btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+              Full Directory <ExternalLink size={13} />
+            </Link>
+          </div>
+        </div>
+
+        {/* Live Scrolling / Horizontal Ticker of Volunteer Names */}
+        {volunteers.length > 0 && (
+          <div
+            className="volunteers-ticker-wrapper"
+            style={{ cursor: 'pointer', marginBottom: showVolunteersGrid ? '1.25rem' : '0' }}
+            onClick={() => setShowVolunteersGrid(!showVolunteersGrid)}
+            title="Click to expand/collapse all volunteers"
+          >
+            <div className="volunteers-ticker-label">
+              <span>✨ SEVA ON DUTY</span>
+            </div>
+            <div className="volunteers-ticker-track">
+              {volunteers.map((vol, index) => (
+                <div key={vol._id || index} className="volunteers-ticker-item">
+                  <span>{getRoleIcon(vol.assignedResponsibility)}</span>
+                  <span>{vol.name}</span>
+                  {vol.assignedResponsibility && vol.assignedResponsibility !== 'None' && (
+                    <span className="duty">({vol.assignedResponsibility})</span>
+                  )}
+                  {vol.area && <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>• {vol.area}</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Expandable Category Filters & Grid when user clicks */}
+        {showVolunteersGrid && (
+          <div style={{ marginTop: '1.25rem', animation: 'fadeIn 0.25s ease-out' }}>
+            {/* Category Filters */}
+            {activeRoles.length > 2 && (
+              <div className="volunteers-filter-bar">
+                {activeRoles.map((role) => (
+                  <button
+                    key={role}
+                    type="button"
+                    className={`volunteers-filter-btn ${volunteersFilter === role ? 'active' : ''}`}
+                    onClick={() => setVolunteersFilter(role)}
+                  >
+                    {role !== 'All' && <span>{getRoleIcon(role)}</span>}
+                    <span>{role}</span>
+                    <span style={{ opacity: 0.75, fontSize: '0.75rem' }}>
+                      ({role === 'All' ? volunteers.length : volunteers.filter((v) => (v.assignedResponsibility || 'General Seva') === role).length})
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Responsive Grid of Volunteer Cards */}
+            {volunteers.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '1.5rem 1rem', background: 'var(--bg-primary)', borderRadius: 'var(--radius-sm)', border: '1px dashed var(--border-color)' }}>
+                <p style={{ color: 'var(--text-muted)', fontStyle: 'italic', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                  Volunteers list is being updated by the organizing committee.
+                </p>
+                <p style={{ fontSize: '0.85rem', color: 'var(--primary)' }}>
+                  Interested in joining as a volunteer? Reach out at <strong>{phone}</strong>!
+                </p>
+              </div>
+            ) : filteredVolunteers.length === 0 ? (
+              <p style={{ color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center', padding: '1rem' }}>
+                No volunteers in the "{volunteersFilter}" category yet.
+              </p>
+            ) : (
+              <div className="volunteers-public-grid">
+                {filteredVolunteers.map((vol, idx) => (
+                  <div key={vol._id || idx} className="volunteer-public-card">
+                    <div className="volunteer-avatar-circle">
+                      {vol.name ? vol.name.charAt(0).toUpperCase() : 'V'}
+                    </div>
+                    <div className="volunteer-info-box">
+                      <div className="volunteer-name-text" title={vol.name}>
+                        {vol.name}
+                      </div>
+                      <div className="volunteer-meta-row">
+                        <span className={`volunteer-role-pill ${getRoleClass(vol.assignedResponsibility)}`}>
+                          <span>{getRoleIcon(vol.assignedResponsibility)}</span>
+                          <span>{vol.assignedResponsibility && vol.assignedResponsibility !== 'None' ? vol.assignedResponsibility : 'General Seva'}</span>
+                        </span>
+                        {vol.area && (
+                          <span className="volunteer-area-tag" title={vol.area}>
+                            <MapPin size={11} /> {vol.area}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </section>
 
       {/* Grid: Welcome & Donations */}
       <div className="grid-3" style={{ marginBottom: '2.5rem' }}>

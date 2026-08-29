@@ -13,6 +13,7 @@ import PublicCollections from './pages/PublicCollections';
 import PublicAnnouncements from './pages/PublicAnnouncements';
 import PublicGallery from './pages/PublicGallery';
 import PublicDocuments from './pages/PublicDocuments';
+import PublicVolunteers from './pages/PublicVolunteers';
 import Login from './pages/Login';
 
 // Import Committee Pages
@@ -125,6 +126,7 @@ function App() {
           <Route element={<PublicLayout />}>
             <Route path="/" element={<PublicHome />} />
             <Route path="/events" element={<PublicEvents />} />
+            <Route path="/volunteers" element={<PublicVolunteers />} />
             <Route path="/collections" element={<PublicCollections />} />
             <Route path="/announcements" element={<PublicAnnouncements />} />
             <Route path="/gallery" element={<PublicGallery />} />

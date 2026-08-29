@@ -72,12 +72,16 @@ const Navbar = () => {
           </a>
         )}
         
-        <Link to="/collections" className={`public-nav-link ${isActive('/collections') ? 'active' : ''}`} onClick={() => setMobileOpen(false)}>
-          Donations
+        <Link to="/volunteers" className={`public-nav-link ${isActive('/volunteers') ? 'active' : ''}`} onClick={() => setMobileOpen(false)}>
+          Volunteers
         </Link>
 
         <Link to="/events" className={`public-nav-link ${isActive('/events') ? 'active' : ''}`} onClick={() => setMobileOpen(false)}>
           Events
+        </Link>
+
+        <Link to="/collections" className={`public-nav-link ${isActive('/collections') ? 'active' : ''}`} onClick={() => setMobileOpen(false)}>
+          Donations
         </Link>
 
         {settings?.announcementSettings && (

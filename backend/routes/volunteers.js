@@ -4,17 +4,36 @@ const Volunteer = require('../models/Volunteer');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const logActivity = require('../utils/logger');
 
-// Restrict to Super Admin and Volunteer Manager
-router.use(protect);
-router.use(authorize('Super Admin', 'Volunteer Manager'));
-
 // @route   GET /api/volunteers
-// @desc    Get all volunteers
-// @access  Private (Super Admin, Volunteer Manager)
+// @desc    Get volunteers (Public sees active volunteers; Committee sees all)
+// @access  Public / Private
 router.get('/', async (req, res, next) => {
   try {
-    const volunteers = await Volunteer.find({}).sort({ createdAt: -1 });
-    res.json(volunteers);
+    const isCommittee = req.headers.authorization && req.headers.authorization.startsWith('Bearer');
+    let user = null;
+
+    if (isCommittee) {
+      try {
+        const token = req.headers.authorization.split(' ')[1];
+        const jwt = require('jsonwebtoken');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_vinayaka_key_123');
+        const User = require('../models/User');
+        user = await User.findById(decoded.id);
+      } catch (err) {
+        // failed token, treat as public
+      }
+    }
+
+    if (user && ['Super Admin', 'Volunteer Manager'].includes(user.role)) {
+      const volunteers = await Volunteer.find({}).sort({ createdAt: -1 });
+      return res.json(volunteers);
+    } else {
+      // Public sees active volunteers with their name, responsibility, and area
+      const volunteers = await Volunteer.find({ status: 'Active' })
+        .select('name assignedResponsibility area skills')
+        .sort({ name: 1 });
+      return res.json(volunteers);
+    }
   } catch (error) {
     next(error);
   }
@@ -23,7 +42,7 @@ router.get('/', async (req, res, next) => {
 // @route   POST /api/volunteers
 // @desc    Create new volunteer
 // @access  Private (Super Admin, Volunteer Manager)
-router.post('/', async (req, res, next) => {
+router.post('/', protect, authorize('Super Admin', 'Volunteer Manager'), async (req, res, next) => {
   const { name, phone, area, skills, availability, assignedResponsibility, status } = req.body;
 
   try {
@@ -54,7 +73,7 @@ router.post('/', async (req, res, next) => {
 // @route   PUT /api/volunteers/:id
 // @desc    Update volunteer details/assignment
 // @access  Private (Super Admin, Volunteer Manager)
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', protect, authorize('Super Admin', 'Volunteer Manager'), async (req, res, next) => {
   try {
     const volunteer = await Volunteer.findById(req.params.id);
 
@@ -84,7 +103,7 @@ router.put('/:id', async (req, res, next) => {
 // @route   DELETE /api/volunteers/:id
 // @desc    Delete volunteer
 // @access  Private (Super Admin, Volunteer Manager)
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', protect, authorize('Super Admin', 'Volunteer Manager'), async (req, res, next) => {
   try {
     const volunteer = await Volunteer.findById(req.params.id);
 
