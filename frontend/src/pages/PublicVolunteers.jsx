@@ -56,6 +56,7 @@ const PublicVolunteers = () => {
   const filteredVolunteers = volunteers.filter((vol) => {
     const matchesSearch =
       vol.name?.toLowerCase().includes(search.toLowerCase()) ||
+      vol.phone?.toLowerCase().includes(search.toLowerCase()) ||
       vol.area?.toLowerCase().includes(search.toLowerCase()) ||
       vol.assignedResponsibility?.toLowerCase().includes(search.toLowerCase());
 
@@ -106,6 +107,11 @@ const PublicVolunteers = () => {
                 {vol.assignedResponsibility && vol.assignedResponsibility !== 'None' && (
                   <span className="duty">({vol.assignedResponsibility})</span>
                 )}
+                {vol.phone && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: 'var(--primary)', fontWeight: 600 }}>
+                    <Phone size={11} /> {vol.phone}
+                  </span>
+                )}
                 {vol.area && <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>• {vol.area}</span>}
               </div>
             ))}
@@ -122,7 +128,7 @@ const PublicVolunteers = () => {
               type="text"
               className="form-control"
               style={{ paddingLeft: '2.5rem' }}
-              placeholder="Search volunteers by name, duty, or area..."
+              placeholder="Search volunteers by name, phone, duty, or area..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -197,6 +203,28 @@ const PublicVolunteers = () => {
                     <span>{getRoleIcon(vol.assignedResponsibility)}</span>
                     <span>{vol.assignedResponsibility && vol.assignedResponsibility !== 'None' ? vol.assignedResponsibility : 'General Seva'}</span>
                   </span>
+                  {vol.phone && (
+                    <a
+                      href={`tel:${vol.phone}`}
+                      className="volunteer-phone-tag"
+                      title={`Call ${vol.name} (${vol.phone})`}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        color: 'var(--primary)',
+                        textDecoration: 'none',
+                        background: 'hsl(20, 100%, 96%)',
+                        border: '1px solid hsl(20, 90%, 88%)',
+                        borderRadius: '4px',
+                        padding: '0.15rem 0.45rem',
+                      }}
+                    >
+                      <Phone size={11} /> {vol.phone}
+                    </a>
+                  )}
                   {vol.area && (
                     <span className="volunteer-area-tag" title={vol.area}>
                       <MapPin size={11} /> {vol.area}

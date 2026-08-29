@@ -28,9 +28,9 @@ router.get('/', async (req, res, next) => {
       const volunteers = await Volunteer.find({}).sort({ createdAt: -1 });
       return res.json(volunteers);
     } else {
-      // Public sees active volunteers with their name, responsibility, and area
+      // Public sees active volunteers with their name, responsibility, area, and phone number
       const volunteers = await Volunteer.find({ status: 'Active' })
-        .select('name assignedResponsibility area skills')
+        .select('name assignedResponsibility area skills phone')
         .sort({ name: 1 });
       return res.json(volunteers);
     }
