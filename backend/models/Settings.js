@@ -85,6 +85,36 @@ const settingsSchema = new mongoose.Schema(
       required: true,
       default: true,
     },
+    // Vinayaka Idol Sponsor Details
+    idolSponsorActive: {
+      type: Boolean,
+      default: true,
+    },
+    idolSponsorName: {
+      type: String,
+      default: 'UPPUTURI VENKATA GANESH',
+    },
+    idolSponsorDetails: {
+      type: String,
+      default: 'Grand 9ft Eco-Friendly Clay Ganesha Idol Seva',
+    },
+    idolSponsorMessage: {
+      type: String,
+      default: 'Heartfelt gratitude and Lord Vinayaka blessings to the sponsor family for divine patronage.',
+    },
+    idolSponsorAmount: {
+      type: String,
+      default: '',
+    },
+    // Instagram & Social Media
+    instagramUrl: {
+      type: String,
+      default: 'https://instagram.com/',
+    },
+    instagramHandle: {
+      type: String,
+      default: '@vinayaka_utsav',
+    },
   },
   {
     timestamps: true,

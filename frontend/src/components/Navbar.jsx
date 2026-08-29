@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth, getMediaUrl } from '../context/AuthContext';
+import { useAuth, getMediaUrl, formatInstagramUrl, InstagramIcon } from '../context/AuthContext';
 import { Menu, X, Landmark, Calendar, Megaphone, Image, FileText, Lock, LayoutDashboard, Radio } from 'lucide-react';
 
 const Navbar = () => {
@@ -93,6 +93,20 @@ const Navbar = () => {
         <Link to="/gallery" className={`public-nav-link ${isActive('/gallery') ? 'active' : ''}`} onClick={() => setMobileOpen(false)}>
           Gallery
         </Link>
+
+        {settings?.instagramUrl && (
+          <a
+            href={formatInstagramUrl(settings.instagramUrl)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="instagram-nav-icon"
+            title={`Follow on Instagram (${settings.instagramHandle || 'Instagram'})`}
+            aria-label="Instagram Profile"
+            onClick={() => setMobileOpen(false)}
+          >
+            <InstagramIcon size={18} />
+          </a>
+        )}
 
         {user ? (
           <Link to="/dashboard" className="btn btn-primary btn-sm" onClick={() => setMobileOpen(false)}>

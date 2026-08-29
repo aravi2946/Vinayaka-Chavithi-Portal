@@ -1958,3 +1958,290 @@ textarea.form-control {
   }
 }
 
+/* ==========================================================================
+   FEATURE: Vinayaka Idol Sponsor Button, Banner & Festive Modal
+   ========================================================================== */
+.idol-sponsor-hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 1.4rem;
+  background: linear-gradient(135deg, #FFE082 0%, #FFB300 40%, #FF8F00 100%);
+  color: #3E1B00;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: var(--radius-full);
+  border: 2px solid #FFF8E1;
+  box-shadow: 0 4px 18px rgba(255, 179, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.idol-sponsor-hero-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 25px rgba(255, 179, 0, 0.6), 0 0 20px rgba(255, 224, 130, 0.6);
+  background: linear-gradient(135deg, #FFF8E1 0%, #FFC107 40%, #FFA000 100%);
+  color: #271000;
+}
+
+.idol-sponsor-hero-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.idol-sponsor-shine-dot {
+  width: 9px;
+  height: 9px;
+  background: #D84315;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #FF3D00;
+  animation: pulse-dot 1.5s infinite;
+}
+
+/* Idol Sponsor Banner Card */
+.idol-sponsor-card {
+  background: linear-gradient(135deg, hsl(38, 100%, 97%) 0%, hsl(30, 100%, 95%) 100%);
+  border: 2px solid hsl(38, 90%, 75%);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 6px 20px rgba(255, 152, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.idol-sponsor-card::before {
+  content: '🕉️';
+  position: absolute;
+  right: -10px;
+  bottom: -15px;
+  font-size: 5rem;
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+.idol-sponsor-icon-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FFB300, #FF6F00);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(255, 111, 0, 0.35);
+  flex-shrink: 0;
+}
+
+/* Sponsor Modal Overlay & Dialog */
+.sponsor-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 7, 3, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 9999;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.sponsor-modal-dialog {
+  background: #FFFDF9;
+  border: 2px solid #FFB300;
+  border-radius: var(--radius-lg);
+  max-width: 520px;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(255, 179, 0, 0.35);
+  animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.sponsor-modal-header {
+  background: linear-gradient(135deg, #D84315 0%, #E65100 50%, #FF8F00 100%);
+  color: white;
+  padding: 1.5rem 1.5rem 1.25rem;
+  text-align: center;
+  position: relative;
+}
+
+.sponsor-modal-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sponsor-modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: rotate(90deg);
+}
+
+.sponsor-modal-body {
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+}
+
+.sponsor-name-highlight {
+  background: linear-gradient(135deg, hsl(35, 100%, 96%) 0%, hsl(45, 100%, 94%) 100%);
+  border: 1.5px solid hsl(38, 90%, 75%);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1rem;
+  margin: 1rem 0;
+  box-shadow: 0 4px 14px rgba(255, 152, 0, 0.1);
+}
+
+.sponsor-name-highlight h2 {
+  color: #B71C1C;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  margin: 0.25rem 0;
+  word-break: break-word;
+}
+
+/* ==========================================================================
+   FEATURE: Donors Search Box & Filtering
+   ========================================================================== */
+.donors-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 460px;
+}
+
+.donors-search-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--primary);
+  pointer-events: none;
+}
+
+.donors-search-input {
+  width: 100%;
+  padding: 0.75rem 2.6rem 0.75rem 2.6rem;
+  font-size: 0.95rem;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-main);
+  transition: all 0.25s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.donors-search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.18), var(--shadow-md);
+}
+
+.donors-search-clear {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.donors-search-clear:hover {
+  color: var(--danger);
+  background: rgba(255, 0, 0, 0.08);
+}
+
+.donor-highlight-match {
+  background: #FFF59D;
+  padding: 0.1rem 0.25rem;
+  border-radius: 3px;
+}
+
+/* ==========================================================================
+   FEATURE: Instagram Branding Buttons & Badges
+   ========================================================================== */
+.instagram-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  color: white !important;
+  font-weight: 600;
+  font-size: 0.88rem;
+  border-radius: var(--radius-full);
+  border: none;
+  box-shadow: 0 4px 12px rgba(220, 39, 67, 0.3);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.instagram-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(220, 39, 67, 0.5);
+  color: white !important;
+  filter: brightness(1.08);
+}
+
+.instagram-nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(220, 39, 67, 0.35);
+  transition: all 0.25s ease;
+  text-decoration: none;
+}
+
+.instagram-nav-icon:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 4px 14px rgba(220, 39, 67, 0.55);
+}
+
+.contact-tile-instagram {
+  border-color: rgba(225, 48, 108, 0.3) !important;
+}
+
+.contact-tile-instagram:hover {
+  border-color: #E1306C !important;
+  box-shadow: 0 8px 24px rgba(225, 48, 108, 0.18) !important;
+}
+
+.contact-tile-instagram .contact-icon-box {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  color: white;
+}
+

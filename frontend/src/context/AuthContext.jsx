@@ -43,6 +43,35 @@ export const getYouTubeWatchUrl = (url) => {
   return `https://www.youtube.com/watch?v=${videoId}`;
 };
 
+export const formatInstagramUrl = (url) => {
+  if (!url) return '';
+  const trimmed = url.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  const cleanHandle = trimmed.replace(/^@/, '');
+  return `https://instagram.com/${cleanHandle}`;
+};
+
+export const InstagramIcon = ({ size = 18, color = 'currentColor', className = '' }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={color}
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    style={{ flexShrink: 0 }}
+  >
+    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+  </svg>
+);
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -66,6 +95,13 @@ export const AuthProvider = ({ children }) => {
     announcementSettings: true,
     paymentNumber: '9948050484',
     accountName: 'UPPUTURI VENKATA GANESH',
+    idolSponsorActive: true,
+    idolSponsorName: 'UPPUTURI VENKATA GANESH',
+    idolSponsorDetails: 'Grand 9ft Eco-Friendly Clay Ganesha Idol Seva',
+    idolSponsorMessage: 'Heartfelt gratitude and Lord Vinayaka blessings to the sponsor family for divine patronage.',
+    idolSponsorAmount: '',
+    instagramUrl: 'https://instagram.com/',
+    instagramHandle: '@vinayaka_utsav',
   });
   const [toasts, setToasts] = useState([]);
 

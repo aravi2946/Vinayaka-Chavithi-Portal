@@ -90,6 +90,12 @@ const seedData = async () => {
       announcementSettings: true,
       paymentNumber: '9948050484',
       accountName: 'UPPUTURI VENKATA GANESH',
+      idolSponsorActive: true,
+      idolSponsorName: 'UPPUTURI VENKATA GANESH',
+      idolSponsorDetails: 'Grand 9ft Eco-Friendly Clay Ganesha Idol Seva',
+      idolSponsorMessage: 'Heartfelt gratitude and Lord Vinayaka blessings to the sponsor family for divine patronage.',
+      instagramUrl: 'https://instagram.com/',
+      instagramHandle: '@vinayaka_utsav',
     });
 
     console.log('Seeded settings.');

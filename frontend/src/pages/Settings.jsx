@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth, API_URL, getMediaUrl, getYouTubeEmbedUrl, extractYouTubeId } from '../context/AuthContext';
-import { Settings as SettingsIcon, Save, Globe, Lock, Info, Video, Tv, Radio, ExternalLink, Sparkles, MapPin, Phone, Mail } from 'lucide-react';
+import { useAuth, API_URL, getMediaUrl, getYouTubeEmbedUrl, extractYouTubeId, formatInstagramUrl, InstagramIcon } from '../context/AuthContext';
+import { Settings as SettingsIcon, Save, Globe, Lock, Info, Video, Tv, Radio, ExternalLink, Sparkles, MapPin, Phone, Mail, Crown } from 'lucide-react';
 
 const Settings = () => {
   const { user, settings, fetchSettings, triggerToast } = useAuth();
@@ -101,6 +101,13 @@ const Settings = () => {
     publicCollectionVisibility: true,
     registrationSettings: true,
     announcementSettings: true,
+    idolSponsorActive: true,
+    idolSponsorName: 'UPPUTURI VENKATA GANESH',
+    idolSponsorDetails: 'Grand 9ft Eco-Friendly Clay Ganesha Idol Seva',
+    idolSponsorMessage: 'Heartfelt gratitude and Lord Vinayaka blessings to the sponsor family for divine patronage.',
+    idolSponsorAmount: '',
+    instagramUrl: 'https://instagram.com/',
+    instagramHandle: '@vinayaka_utsav',
   });
 
   useEffect(() => {
@@ -142,6 +149,13 @@ const Settings = () => {
         publicCollectionVisibility: settings.publicCollectionVisibility !== undefined ? settings.publicCollectionVisibility : true,
         registrationSettings: settings.registrationSettings !== undefined ? settings.registrationSettings : true,
         announcementSettings: settings.announcementSettings !== undefined ? settings.announcementSettings : true,
+        idolSponsorActive: settings.idolSponsorActive !== undefined ? settings.idolSponsorActive : true,
+        idolSponsorName: settings.idolSponsorName || 'UPPUTURI VENKATA GANESH',
+        idolSponsorDetails: settings.idolSponsorDetails || 'Grand 9ft Eco-Friendly Clay Ganesha Idol Seva',
+        idolSponsorMessage: settings.idolSponsorMessage || 'Heartfelt gratitude and Lord Vinayaka blessings to the sponsor family for divine patronage.',
+        idolSponsorAmount: settings.idolSponsorAmount || '',
+        instagramUrl: settings.instagramUrl || 'https://instagram.com/',
+        instagramHandle: settings.instagramHandle || '@vinayaka_utsav',
       });
       setLoading(false);
     }
@@ -542,6 +556,157 @@ const Settings = () => {
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Vinayaka Idol Sponsor Configuration Card */}
+            <div className="card card-festive-border">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+                <h2 style={{ fontSize: '1.25rem', color: 'var(--primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Crown size={20} style={{ color: '#FFB300' }} /> 👑 Vinayaka Idol Sponsor Management
+                </h2>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <input
+                    type="checkbox"
+                    id="idolSponsorActive"
+                    name="idolSponsorActive"
+                    checked={form.idolSponsorActive}
+                    onChange={handleInputChange}
+                    style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                  />
+                  <label htmlFor="idolSponsorActive" style={{ fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', margin: 0 }}>
+                    Show Idol Sponsor on Public Portal
+                  </label>
+                </div>
+              </div>
+
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
+                Highlight the prominent devotee, family, or organization sponsoring the sacred Vinayaka Idol. Users can click the button to view their name and blessings.
+              </p>
+
+              <div className="grid-2">
+                <div className="form-group">
+                  <label htmlFor="idolSponsorName">Idol Sponsor Name <span style={{ color: 'var(--danger)' }}>*</span></label>
+                  <input
+                    type="text"
+                    id="idolSponsorName"
+                    name="idolSponsorName"
+                    className="form-control"
+                    placeholder="E.g. UPPUTURI VENKATA GANESH & Family"
+                    value={form.idolSponsorName}
+                    onChange={handleInputChange}
+                  />
+                  <small style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                    Displayed prominently when devotees click "Vinayaka Idol Sponsor".
+                  </small>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="idolSponsorDetails">Sponsorship Title / Idol Description</label>
+                  <input
+                    type="text"
+                    id="idolSponsorDetails"
+                    name="idolSponsorDetails"
+                    className="form-control"
+                    placeholder="E.g. Grand 9ft Eco-Friendly Clay Ganesha Idol Seva"
+                    value={form.idolSponsorDetails}
+                    onChange={handleInputChange}
+                  />
+                  <small style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                    Subtitle detailing the idol size or special puja contribution.
+                  </small>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="idolSponsorMessage">Sponsor Blessing Note / Committee Acknowledgment</label>
+                <textarea
+                  id="idolSponsorMessage"
+                  name="idolSponsorMessage"
+                  className="form-control"
+                  rows="2"
+                  placeholder="E.g. Special prayers and heartfelt gratitude to the sponsor family for divine patronage."
+                  value={form.idolSponsorMessage}
+                  onChange={handleInputChange}
+                ></textarea>
+              </div>
+
+              {/* Sponsor Badge Live Preview */}
+              {form.idolSponsorName && (
+                <div style={{ background: 'hsl(38, 100%, 97%)', border: '1px solid hsl(38, 90%, 75%)', borderRadius: 'var(--radius-sm)', padding: '1rem', marginTop: '1rem' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--primary)', letterSpacing: '0.05em', display: 'block', marginBottom: '0.25rem' }}>
+                    ✨ Public Button & Modal Live Preview:
+                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <span className="idol-sponsor-hero-btn" style={{ cursor: 'default' }}>
+                      <Crown size={16} /> 👑 Idol Sponsor: {form.idolSponsorName}
+                    </span>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                      • {form.idolSponsorDetails || 'Idol Seva'}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Social Media & Instagram Configuration Card */}
+            <div className="card">
+              <h2 style={{ fontSize: '1.25rem', color: 'var(--primary)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <InstagramIcon size={20} color="#E1306C" /> 📸 Instagram & Social Media Integration
+              </h2>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
+                Direct devotees and visitors to your official Instagram page from the navigation bar, hero banner, and contact section.
+              </p>
+
+              <div className="grid-2">
+                <div className="form-group">
+                  <label htmlFor="instagramUrl">Instagram Profile Link or Username</label>
+                  <input
+                    type="text"
+                    id="instagramUrl"
+                    name="instagramUrl"
+                    className="form-control"
+                    placeholder="E.g. https://instagram.com/vinayaka_utsav or @vinayaka_utsav"
+                    value={form.instagramUrl}
+                    onChange={handleInputChange}
+                  />
+                  <small style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                    Devotees clicking the Instagram icon will be redirected to this link.
+                  </small>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="instagramHandle">Instagram Display Tag / Name</label>
+                  <input
+                    type="text"
+                    id="instagramHandle"
+                    name="instagramHandle"
+                    className="form-control"
+                    placeholder="E.g. @vinayaka_utsav"
+                    value={form.instagramHandle}
+                    onChange={handleInputChange}
+                  />
+                  <small style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                    Label shown beside the Instagram button.
+                  </small>
+                </div>
+              </div>
+
+              {form.instagramUrl && (
+                <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <a
+                    href={formatInstagramUrl(form.instagramUrl)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="instagram-btn"
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <InstagramIcon size={16} /> <span>Test Link: {form.instagramHandle || 'Open Profile'}</span>
+                  </a>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    Target: {formatInstagramUrl(form.instagramUrl)}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div style={{ display: 'flex', gap: '0.5rem', background: 'rgba(255, 102, 0, 0.05)', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,102,0,0.1)', fontSize: '0.85rem' }}>

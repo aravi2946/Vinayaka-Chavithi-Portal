@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth, API_URL, getMediaUrl, isVideoUrl, getYouTubeEmbedUrl, getYouTubeWatchUrl } from '../context/AuthContext';
-import { Calendar, Bell, ShieldAlert, Phone, Mail, Award, MapPin, Clock, Heart, Users, Radio, Tv, ExternalLink, Share2, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import { useAuth, API_URL, getMediaUrl, isVideoUrl, getYouTubeEmbedUrl, getYouTubeWatchUrl, formatInstagramUrl, InstagramIcon } from '../context/AuthContext';
+import { Calendar, Bell, ShieldAlert, Phone, Mail, Award, MapPin, Clock, Heart, Users, Radio, Tv, ExternalLink, Share2, Sparkles, ChevronDown, ChevronUp, Crown, X } from 'lucide-react';
 
 const PublicHome = () => {
   const { settings, triggerToast } = useAuth();
@@ -12,6 +12,7 @@ const PublicHome = () => {
   const [volunteers, setVolunteers] = useState([]);
   const [volunteersFilter, setVolunteersFilter] = useState('All');
   const [showVolunteersGrid, setShowVolunteersGrid] = useState(false);
+  const [showSponsorModal, setShowSponsorModal] = useState(false);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, finished: false });
 
   useEffect(() => {
@@ -244,6 +245,35 @@ const PublicHome = () => {
           </div>
         </div>
 
+        {/* Hero Interactive Badges: Idol Sponsor & Instagram */}
+        <div style={{ margin: '1rem 0 0.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          {(settings?.idolSponsorActive !== false) && (settings?.idolSponsorName && settings?.idolSponsorName.trim().length > 0) && (
+            <button
+              type="button"
+              className="idol-sponsor-hero-btn"
+              onClick={() => setShowSponsorModal(true)}
+              title="Click to view Vinayaka Idol Sponsor"
+            >
+              <span className="idol-sponsor-shine-dot"></span>
+              <Crown size={18} />
+              <span>👑 Idol Sponsor: {settings.idolSponsorName}</span>
+            </button>
+          )}
+
+          {settings?.instagramUrl && (
+            <a
+              href={formatInstagramUrl(settings.instagramUrl)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="instagram-btn"
+              title="Follow our festival updates on Instagram"
+            >
+              <InstagramIcon size={17} />
+              <span>{settings.instagramHandle || 'Follow on Instagram'}</span>
+            </a>
+          )}
+        </div>
+
         {/* Live Broadcast Indicator inside Hero if active */}
         {liveEmbedUrl && (
           <div style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'center' }}>
@@ -285,6 +315,49 @@ const PublicHome = () => {
           )}
         </div>
       </div>
+
+      {/* =========================================================================
+          FEATURE: Vinayaka Idol Sponsor Spotlight Card (When active)
+         ========================================================================= */}
+      {(settings?.idolSponsorActive !== false) && (settings?.idolSponsorName && settings?.idolSponsorName.trim().length > 0) && (
+        <div className="idol-sponsor-card" style={{ marginBottom: '2.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+            <div className="idol-sponsor-icon-badge">
+              <Crown size={28} />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--primary)' }}>
+                  👑 Grand Patron & Seva
+                </span>
+                <span className="badge badge-festive" style={{ fontSize: '0.7rem', padding: '0.15rem 0.5rem' }}>
+                  Vinayaka Idol Sponsor
+                </span>
+              </div>
+              <h3 style={{ fontSize: '1.35rem', color: '#B71C1C', margin: '0.2rem 0', fontWeight: 800 }}>
+                {settings.idolSponsorName}
+              </h3>
+              <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: 0 }}>
+                {settings.idolSponsorDetails || 'Grand Eco-Friendly Clay Vinayaka Idol Seva'}
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={() => setShowSponsorModal(true)}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+            >
+              <Sparkles size={15} /> View Sponsor Blessing
+            </button>
+            <Link to="/collections" className="btn btn-secondary btn-sm">
+              Donors List
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* =========================================================================
           FEATURE 1: YouTube Live Stream Broadcast Showcase (When Active)
@@ -690,6 +763,24 @@ const PublicHome = () => {
             </a>
           )}
 
+          {/* Instagram Tile */}
+          {settings?.instagramUrl && (
+            <a
+              href={formatInstagramUrl(settings.instagramUrl)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="contact-tile contact-tile-instagram"
+            >
+              <div className="contact-icon-box">
+                <InstagramIcon size={20} />
+              </div>
+              <div className="contact-tile-content">
+                <span className="contact-tile-label">Instagram Updates</span>
+                <span className="contact-tile-value">{settings?.instagramHandle || 'Follow Us'}</span>
+              </div>
+            </a>
+          )}
+
           {/* Location Tile */}
           <div className="contact-tile contact-tile-static">
             <div className="contact-icon-box">
@@ -702,6 +793,69 @@ const PublicHome = () => {
           </div>
         </div>
       </div>
+
+      {/* =========================================================================
+          FEATURE: Vinayaka Idol Sponsor Festive Modal
+         ========================================================================= */}
+      {showSponsorModal && (
+        <div
+          className="sponsor-modal-overlay"
+          onClick={() => setShowSponsorModal(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="home-sponsor-modal-title"
+        >
+          <div className="sponsor-modal-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="sponsor-modal-header">
+              <button
+                type="button"
+                className="sponsor-modal-close-btn"
+                onClick={() => setShowSponsorModal(false)}
+                aria-label="Close modal"
+              >
+                <X size={18} />
+              </button>
+              <div style={{ fontSize: '2.5rem', marginBottom: '0.25rem' }}>👑</div>
+              <h2 id="home-sponsor-modal-title" style={{ color: 'white', fontSize: '1.4rem', margin: 0, fontWeight: 800 }}>
+                Vinayaka Idol Sponsor
+              </h2>
+              <p style={{ color: '#FFE082', fontSize: '0.85rem', margin: '0.25rem 0 0' }}>
+                Divine Patronage for Lord Vinayaka Utsav
+              </p>
+            </div>
+
+            <div className="sponsor-modal-body">
+              <span style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', fontWeight: 600 }}>
+                Main Idol Sponsored By
+              </span>
+
+              <div className="sponsor-name-highlight">
+                <h2>{settings?.idolSponsorName || 'UPPUTURI VENKATA GANESH'}</h2>
+                <div style={{ fontSize: '0.95rem', color: 'var(--primary)', fontWeight: 600, marginTop: '0.35rem' }}>
+                  {settings?.idolSponsorDetails || 'Grand 9ft Eco-Friendly Clay Ganesha Idol'}
+                </div>
+              </div>
+
+              {settings?.idolSponsorMessage && (
+                <div style={{ background: 'hsl(30, 20%, 96%)', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px dashed var(--border-color)', margin: '1rem 0', fontSize: '0.9rem', color: 'var(--text-main)', fontStyle: 'italic', lineHeight: 1.5 }}>
+                  "{settings.idolSponsorMessage}"
+                </div>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '1.25rem' }}>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => setShowSponsorModal(false)}
+                  style={{ minWidth: '130px' }}
+                >
+                  🙏 Haro Hara / Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
