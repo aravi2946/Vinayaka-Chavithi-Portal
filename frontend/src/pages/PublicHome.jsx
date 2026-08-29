@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth, API_URL, getMediaUrl, isVideoUrl } from '../context/AuthContext';
-import { Calendar, Bell, ShieldAlert, Phone, Mail, Award, MapPin, Clock, Heart, Users } from 'lucide-react';
+import { useAuth, API_URL, getMediaUrl, isVideoUrl, getYouTubeEmbedUrl, getYouTubeWatchUrl } from '../context/AuthContext';
+import { Calendar, Bell, ShieldAlert, Phone, Mail, Award, MapPin, Clock, Heart, Users, Radio, Tv, ExternalLink, Share2, Sparkles } from 'lucide-react';
 
 const PublicHome = () => {
-  const { settings } = useAuth();
+  const { settings, triggerToast } = useAuth();
   const [events, setEvents] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [gallery, setGallery] = useState([]);
@@ -62,15 +62,65 @@ const PublicHome = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Share live stream handler
+  const handleShareStream = async () => {
+    const streamUrl = getYouTubeWatchUrl(settings?.liveStreamUrl) || window.location.href;
+    const shareData = {
+      title: `${settings?.festivalName || 'Vinayaka Chavithi'} - Live Darshanam`,
+      text: `Watch live celebrations and rituals of ${settings?.festivalName || 'Vinayaka Chavithi'}:`,
+      url: streamUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        // User cancelled share
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(streamUrl);
+        triggerToast('Live stream link copied to clipboard!', 'success');
+      } catch (err) {
+        triggerToast('Link: ' + streamUrl, 'info');
+      }
+    }
+  };
+
+  const liveEmbedUrl = settings?.liveStreamActive && settings?.liveStreamUrl ? getYouTubeEmbedUrl(settings.liveStreamUrl) : '';
+  const liveWatchUrl = settings?.liveStreamUrl ? getYouTubeWatchUrl(settings.liveStreamUrl) : '';
+
+  // Extract contact fields with fallback parsing for legacy contactInfo
+  let phone = settings?.contactPhone || '';
+  let email = settings?.contactEmail || '';
+  let location = settings?.contactLocation || 'Central Mandap Arena';
+
+  if (!phone && settings?.contactInfo) {
+    const parts = settings.contactInfo.split(',').map((s) => s.trim());
+    const phonePart = parts.find((p) => !p.includes('@'));
+    const emailPart = parts.find((p) => p.includes('@'));
+    if (phonePart) phone = phonePart;
+    if (emailPart && !email) email = emailPart;
+  }
+  if (!phone) phone = '+91 9948050484';
+  if (!email) email = 'srinarahari4@gmail.com';
+
   return (
     <div className="page-container">
       {/* Festive Hero Banner */}
-      <div className="festive-banner" style={settings.ganeshaImageUrl ? {
-        backgroundImage: `linear-gradient(rgba(30, 15, 8, 0.85), rgba(20, 10, 5, 0.9)), url(${getMediaUrl(settings.ganeshaImageUrl)})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      } : {}}>
-        <svg className="ganesha-accent" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <div
+        className="festive-banner hero-enter-animation"
+        style={
+          settings?.ganeshaImageUrl
+            ? {
+                backgroundImage: `linear-gradient(rgba(30, 15, 8, 0.85), rgba(20, 10, 5, 0.9)), url(${getMediaUrl(settings.ganeshaImageUrl)})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }
+            : {}
+        }
+      >
+        <svg className="ganesha-accent float-animation" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="ganeshaGold" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#FFE57F" />
@@ -104,11 +154,9 @@ const PublicHome = () => {
           <circle cx="50" cy="34" r="1.2" fill="#FFF9C4" />
 
           {/* Majestic Ears (Karna) */}
-          {/* Left Ear */}
           <path d="M35 27 C22 26 12 34 13 47 C14 56 22 61 32 59" stroke="url(#ganeshaSaffron)" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
           <path d="M26 36 C20 40 20 48 25 52" stroke="url(#ganeshaGold)" strokeWidth="1.6" strokeLinecap="round" />
           
-          {/* Right Ear */}
           <path d="M65 27 C78 26 88 34 87 47 C86 56 78 61 68 59" stroke="url(#ganeshaSaffron)" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
           <path d="M74 36 C80 40 80 48 75 52" stroke="url(#ganeshaGold)" strokeWidth="1.6" strokeLinecap="round" />
 
@@ -121,9 +169,7 @@ const PublicHome = () => {
           <circle cx="58" cy="41.5" r="1" fill="url(#ganeshaGold)" />
 
           {/* Holy Tusks (Danta) */}
-          {/* Right Full Tusk */}
           <path d="M38 52 L30 54 L36 56 Z" fill="#FFFDF0" stroke="url(#ganeshaGold)" strokeWidth="0.8" />
-          {/* Left Broken Tusk (Ekadanta) */}
           <path d="M62 52 L68 54 L67.5 56 L62 56 Z" fill="#FFFDF0" stroke="url(#ganeshaGold)" strokeWidth="0.8" />
 
           {/* Sacred Curved Trunk (Vakratunda) */}
@@ -141,22 +187,35 @@ const PublicHome = () => {
           <path d="M62 72.5 Q64 69.5 66 72.5" fill="url(#ganeshaGold)" stroke="#E65100" strokeWidth="0.6" />
           <circle cx="64" cy="73.5" r="0.8" fill="#FFF9C4" />
         </svg>
-        <h1>{settings.festivalName}</h1>
-        <p>{settings.committeeName} welcomes you to join the grand celebrations!</p>
 
-        <div style={{ margin: '1rem 0' }}>
-          <span style={{ background: 'rgba(255,102,0,0.15)', color: 'var(--accent)', border: '1px solid rgba(255,102,0,0.3)', padding: '0.4rem 1rem', borderRadius: '20px', fontSize: '0.9rem', fontWeight: 600 }}>
-            🗓️ Dates: {settings.festivalDates}
-          </span>
+        <h1>{settings?.festivalName || 'Vinayaka Chavithi Celebration'}</h1>
+        <p>{settings?.committeeName || 'Festival Committee'} welcomes you to join the grand celebrations!</p>
+
+        {/* Responsive Festive Date Pill (Fixes screenshot 1 breakage) */}
+        <div style={{ margin: '1rem 0', display: 'flex', justifyContent: 'center', width: '100%' }}>
+          <div className="festive-date-pill">
+            <span>🗓️</span>
+            <span>Dates: {settings?.festivalDates || 'September 14 - September 19, 2026'}</span>
+          </div>
         </div>
 
-        {/* Live Countdown */}
+        {/* Live Broadcast Indicator inside Hero if active */}
+        {liveEmbedUrl && (
+          <div style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'center' }}>
+            <a href="#live-stream-section" className="live-hero-chip">
+              <span className="live-indicator-dot"></span>
+              <span>🔴 LIVE PUJA STREAMING NOW — Click to Watch</span>
+            </a>
+          </div>
+        )}
+
+        {/* Live Countdown Muhurtham */}
         <div style={{ marginTop: '2rem' }}>
-          <span style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: '0.5rem' }}>
+          <span style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.6)', display: 'block', marginBottom: '0.75rem', fontWeight: 600 }}>
             Countdown to Sthapana Muhurtham
           </span>
           {countdown.finished ? (
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent)' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent)', padding: '0.5rem' }}>
               🌺 The Festival is Underway! Lord Ganesha Bless You! 🌺
             </div>
           ) : (
@@ -182,14 +241,80 @@ const PublicHome = () => {
         </div>
       </div>
 
+      {/* =========================================================================
+          FEATURE 1: YouTube Live Stream Broadcast Showcase (When Active)
+         ========================================================================= */}
+      {liveEmbedUrl && (
+        <section id="live-stream-section" className="live-stream-card" style={{ marginBottom: '2.5rem' }}>
+          <div className="live-stream-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <span className="live-badge-pulsing">
+                <span className="live-badge-dot"></span>
+                LIVE DARSHANAM
+              </span>
+              <h2 style={{ fontSize: '1.4rem', color: 'white', margin: 0, fontWeight: 700 }}>
+                {settings?.liveStreamTitle || 'Vinayaka Chavithi Mahotsavam - Live Stream'}
+              </h2>
+            </div>
+
+            <div className="live-stream-actions">
+              {liveWatchUrl && (
+                <a
+                  href={liveWatchUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-sm live-action-btn"
+                  style={{ background: 'hsl(0, 80%, 50%)', color: 'white' }}
+                >
+                  <ExternalLink size={15} /> Open on YouTube
+                </a>
+              )}
+              <button
+                type="button"
+                onClick={handleShareStream}
+                className="btn btn-secondary btn-sm live-action-btn"
+                style={{ background: 'rgba(255,255,255,0.15)', color: 'white', borderColor: 'rgba(255,255,255,0.25)' }}
+              >
+                <Share2 size={15} /> Share Stream
+              </button>
+            </div>
+          </div>
+
+          {settings?.liveStreamDescription && (
+            <p style={{ color: 'hsl(20, 20%, 85%)', fontSize: '0.95rem', marginBottom: '1.25rem', lineHeight: '1.5' }}>
+              {settings.liveStreamDescription}
+            </p>
+          )}
+
+          {/* 16:9 Responsive Video Player */}
+          <div className="live-video-wrapper">
+            <iframe
+              src={liveEmbedUrl}
+              title={settings?.liveStreamTitle || 'Vinayaka Chavithi Live Stream'}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            ></iframe>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1rem', fontSize: '0.82rem', color: 'rgba(255,255,255,0.7)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Sparkles size={15} style={{ color: 'var(--accent)' }} />
+              <span>Broadcasted live from {settings?.committeeName || 'Main Mandap'}</span>
+            </div>
+            <span>HD Live Feed • Real-time Rituals & Aarti</span>
+          </div>
+        </section>
+      )}
+
+      {/* Grid: Welcome & Donations */}
       <div className="grid-3" style={{ marginBottom: '2.5rem' }}>
         {/* Welcome message card */}
         <div className="card card-festive-border span-2">
           <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--primary)' }}>🌺 Welcome & Invitation</h2>
-          <p style={{ marginBottom: '1rem', color: 'var(--text-main)', fontSize: '1.05rem' }}>
+          <p style={{ marginBottom: '1rem', color: 'var(--text-main)', fontSize: '1.05rem', lineHeight: '1.6' }}>
             Vinayaka Chavithi, the auspicious festival celebrating the birth of Lord Ganesha, represents the initiation of wisdom, prosperity, and the removal of obstacles.
           </p>
-          <p style={{ marginBottom: '1.5rem', color: 'var(--text-muted)' }}>
+          <p style={{ marginBottom: '1.5rem', color: 'var(--text-muted)', lineHeight: '1.6' }}>
             This year, our committee is putting together grand decorations, daily special homams, cultural competitions for youth and kids, community Annadanam dinners, and a vibrant immersion procession. We cordially invite you with family and friends to participate in the events, seek the blessings of Vinayaka, and contribute to this local festival.
           </p>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -209,7 +334,7 @@ const PublicHome = () => {
             </p>
           </div>
 
-          <div style={{ background: 'hsl(30, 20%, 96%)', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', textAlign: 'center', margin: '1rem 0' }}>
+          <div style={{ background: 'hsl(30, 20%, 96%)', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', textAlign: 'center', margin: '0.75rem 0' }}>
             <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Total Collection</span>
             <span style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--success)' }}>
               ₹{donationsInfo.totalAmount.toLocaleString('en-IN')}
@@ -224,8 +349,8 @@ const PublicHome = () => {
             <div style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
               <span>💳</span> Bank / UPI details for donation
             </div>
-            <div style={{ marginBottom: '0.1rem' }}>Account Name: <strong style={{ color: 'var(--text-main)' }}>{settings.accountName || 'UPPUTURI VENKATA GANESH'}</strong></div>
-            <div>Payment Number: <strong style={{ color: 'var(--text-main)' }}>{settings.paymentNumber || '9948050484'}</strong></div>
+            <div style={{ marginBottom: '0.1rem', wordBreak: 'break-word' }}>Account Name: <strong style={{ color: 'var(--text-main)' }}>{settings?.accountName || 'UPPUTURI VENKATA GANESH'}</strong></div>
+            <div style={{ wordBreak: 'break-word' }}>Payment Number: <strong style={{ color: 'var(--text-main)' }}>{settings?.paymentNumber || '9948050484'}</strong></div>
           </div>
 
           <Link to="/collections" className="btn btn-secondary btn-sm" style={{ width: '100%', textAlign: 'center' }}>
@@ -247,7 +372,7 @@ const PublicHome = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {announcements.map((ann) => (
                 <div key={ann._id} style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem', gap: '0.5rem', flexWrap: 'wrap' }}>
                     <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>{ann.title}</h3>
                     <span className={`badge badge-${ann.priority.toLowerCase()}`}>{ann.priority}</span>
                   </div>
@@ -324,24 +449,51 @@ const PublicHome = () => {
         )}
       </div>
 
-      {/* Contact Section */}
-      <div className="card glass-panel" style={{ padding: '2rem', border: '1px solid rgba(255, 102, 0, 0.15)' }}>
-        <h2 style={{ fontSize: '1.4rem', color: 'var(--primary)', marginBottom: '1rem', textAlign: 'center' }}>📞 Contact Festival Committee</h2>
-        <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
-          For volunteer enrollment, puja sponsorship, and details on events, feel free to reach out.
+      {/* =========================================================================
+          FEATURE 2: Responsive & Structured Contact Committee Section (Fixes screenshot 2)
+         ========================================================================= */}
+      <div className="card glass-panel" style={{ padding: '2rem 1.5rem', border: '1px solid rgba(255, 102, 0, 0.2)' }}>
+        <h2 style={{ fontSize: '1.4rem', color: 'var(--primary)', marginBottom: '0.5rem', textAlign: 'center' }}>
+          📞 Contact Festival Committee
+        </h2>
+        <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '1.75rem', fontSize: '0.95rem' }}>
+          For volunteer enrollment, puja sponsorship, and event inquiries, feel free to reach out to our organizers.
         </p>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500 }}>
-            <Phone size={18} style={{ color: 'var(--primary)' }} />
-            <span>{settings.contactInfo || '+91 98765 43210'}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500 }}>
-            <Mail size={18} style={{ color: 'var(--primary)' }} />
-            <span>info@vinayakahome.org</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500 }}>
-            <MapPin size={18} style={{ color: 'var(--primary)' }} />
-            <span>Central Mandap Arena</span>
+
+        <div className="contact-cards-grid">
+          {/* Phone Tile */}
+          <a href={`tel:${phone.replace(/[^0-9+]/g, '')}`} className="contact-tile">
+            <div className="contact-icon-box">
+              <Phone size={20} />
+            </div>
+            <div className="contact-tile-content">
+              <span className="contact-tile-label">Call Committee</span>
+              <span className="contact-tile-value">{phone}</span>
+            </div>
+          </a>
+
+          {/* Email Tile */}
+          {email && (
+            <a href={`mailto:${email}`} className="contact-tile">
+              <div className="contact-icon-box">
+                <Mail size={20} />
+              </div>
+              <div className="contact-tile-content">
+                <span className="contact-tile-label">Email Inquiries</span>
+                <span className="contact-tile-value">{email}</span>
+              </div>
+            </a>
+          )}
+
+          {/* Location Tile */}
+          <div className="contact-tile contact-tile-static">
+            <div className="contact-icon-box">
+              <MapPin size={20} />
+            </div>
+            <div className="contact-tile-content">
+              <span className="contact-tile-label">Mandap Location</span>
+              <span className="contact-tile-value">{location}</span>
+            </div>
           </div>
         </div>
       </div>

@@ -692,6 +692,47 @@ textarea.form-control {
 }
 
 /* ==========================================================================
+   Micro-Animations & Visual Aesthetics
+   ========================================================================== */
+@keyframes pulseLive {
+  0% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+  100% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.7); }
+}
+
+@keyframes floatAnimation {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes glowBorder {
+  0%, 100% { border-color: rgba(220, 38, 38, 0.4); }
+  50% { border-color: rgba(255, 120, 0, 0.8); }
+}
+
+@keyframes heroEnter {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.float-animation {
+  animation: floatAnimation 4s ease-in-out infinite;
+}
+
+.hero-enter-animation {
+  animation: heroEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pulse-icon {
+  animation: pulseLive 2s infinite;
+}
+
+/* ==========================================================================
    Header & Festive Hero Banner
    ========================================================================== */
 .festive-banner {
@@ -705,6 +746,7 @@ textarea.form-control {
   box-shadow: var(--shadow-lg);
   border: 1px solid hsl(20, 20%, 20%);
   margin-bottom: 2rem;
+  width: 100%;
 }
 
 .festive-banner::after {
@@ -725,7 +767,8 @@ textarea.form-control {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
-  line-height: 1.2;
+  line-height: 1.25;
+  word-break: break-word;
 }
 
 .festive-banner p {
@@ -733,6 +776,7 @@ textarea.form-control {
   font-size: clamp(0.95rem, 2.5vw, 1.15rem);
   max-width: 650px;
   margin: 0 auto 1.5rem auto;
+  line-height: 1.5;
 }
 
 .ganesha-accent {
@@ -740,7 +784,87 @@ textarea.form-control {
   height: clamp(70px, 16vw, 100px);
   margin: 0 auto 1rem auto;
   opacity: 0.95;
-  filter: drop-shadow(0 4px 10px rgba(255, 102, 0, 0.4));
+  filter: drop-shadow(0 4px 12px rgba(255, 102, 0, 0.45));
+}
+
+/* Festive Date Pill Badge (Fixes screenshot 1 overlapping border breakage) */
+.festive-date-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  background: rgba(255, 102, 0, 0.18);
+  color: var(--accent);
+  border: 1px solid rgba(255, 150, 0, 0.45);
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-full);
+  font-size: clamp(0.82rem, 2.8vw, 0.95rem);
+  font-weight: 600;
+  text-align: center;
+  max-width: 100%;
+  word-break: break-word;
+  line-height: 1.4;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: var(--transition);
+}
+
+.festive-date-pill:hover {
+  border-color: var(--accent);
+  background: rgba(255, 102, 0, 0.28);
+  transform: translateY(-1px);
+}
+
+/* Countdown Timer */
+.countdown-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(0.4rem, 2vw, 0.85rem);
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+  max-width: 440px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.countdown-box {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.5rem;
+  flex: 1 1 calc(25% - 0.75rem);
+  min-width: 55px;
+  max-width: 90px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  text-align: center;
+  transition: var(--transition);
+}
+
+.countdown-box:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.countdown-box .number {
+  font-size: clamp(1.2rem, 4.2vw, 1.8rem);
+  font-weight: 800;
+  color: var(--accent);
+  display: block;
+  line-height: 1.15;
+}
+
+.countdown-box .label {
+  font-size: clamp(0.65rem, 1.8vw, 0.75rem);
+  text-transform: uppercase;
+  color: hsl(0, 0%, 82%);
+  letter-spacing: 0.05em;
+  margin-top: 0.15rem;
 }
 
 @media (max-width: 768px) {
@@ -755,42 +879,228 @@ textarea.form-control {
   .festive-banner {
     padding: 1.5rem 0.85rem;
   }
+  .countdown-box {
+    padding: 0.5rem 0.35rem;
+    min-width: 50px;
+  }
 }
 
-/* Countdown Timer */
-.countdown-container {
+/* ==========================================================================
+   YouTube Live Video Streaming Section
+   ========================================================================== */
+.live-stream-card {
+  background: linear-gradient(135deg, hsl(20, 18%, 12%) 0%, hsl(20, 25%, 8%) 100%);
+  border: 2px solid rgba(220, 38, 38, 0.45);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  color: white;
+  box-shadow: 0 10px 35px rgba(220, 38, 38, 0.22), var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+  animation: glowBorder 4s infinite ease-in-out;
+}
+
+.live-stream-header {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: clamp(0.35rem, 1.5vw, 1rem);
-  margin-top: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.live-badge-pulsing {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: hsl(0, 85%, 50%);
+  color: white;
+  padding: 0.32rem 0.8rem;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  animation: pulseLive 2s infinite;
+  flex-shrink: 0;
+}
+
+.live-badge-dot, .live-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: white;
+  display: inline-block;
+  animation: pulseDot 1.4s infinite ease-in-out;
+}
+
+.live-hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(220, 38, 38, 0.25);
+  border: 1px solid rgba(255, 80, 80, 0.6);
+  color: #ff9999;
+  padding: 0.45rem 1.15rem;
+  border-radius: var(--radius-full);
+  font-size: clamp(0.78rem, 2.5vw, 0.88rem);
+  font-weight: 700;
+  text-decoration: none;
+  animation: pulseLive 2.5s infinite;
+  transition: var(--transition);
+  text-align: center;
+  max-width: 100%;
+}
+
+.live-hero-chip:hover {
+  background: rgba(220, 38, 38, 0.4);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.live-video-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 65vh;
+  background: #000;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.live-video-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.live-stream-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   flex-wrap: wrap;
 }
 
-.countdown-box {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+.live-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .live-stream-card {
+    padding: 1.25rem 1rem;
+    border-radius: var(--radius-md);
+  }
+  .live-stream-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .live-stream-actions {
+    width: 100%;
+  }
+  .live-action-btn {
+    flex: 1 1 auto;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+/* ==========================================================================
+   Contact Committee Tiles System (Fixes screenshot 2)
+   ========================================================================== */
+.contact-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.contact-tile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.1rem 1.25rem;
+  color: var(--text-main);
+  text-decoration: none;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+  min-width: 0;
+}
+
+.contact-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+  color: var(--text-main);
+}
+
+.contact-tile-static:hover {
+  transform: none;
+  border-color: var(--border-color);
+}
+
+.contact-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-sm);
-  padding: 0.6rem 0.75rem;
-  min-width: clamp(54px, 18vw, 75px);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  text-align: center;
+  background: rgba(255, 102, 0, 0.1);
+  color: var(--primary);
+  flex-shrink: 0;
+  transition: var(--transition);
 }
 
-.countdown-box .number {
-  font-size: clamp(1.2rem, 4.5vw, 1.8rem);
-  font-weight: 800;
-  color: var(--accent);
+.contact-tile:hover .contact-icon-box {
+  background: var(--primary);
+  color: white;
+}
+
+.contact-tile-content {
+  min-width: 0;
+  flex: 1;
+}
+
+.contact-tile-label {
   display: block;
-  line-height: 1.2;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 0.15rem;
 }
 
-.countdown-box .label {
-  font-size: clamp(0.65rem, 2vw, 0.75rem);
-  text-transform: uppercase;
-  color: hsl(0, 0%, 80%);
-  letter-spacing: 0.05em;
+.contact-tile-value {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+}
+
+@media (max-width: 480px) {
+  .contact-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+  .contact-tile {
+    padding: 0.9rem 1rem;
+  }
 }
 
 /* ==========================================================================
@@ -849,28 +1159,66 @@ textarea.form-control {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.85rem 2rem;
+  padding: 0.75rem 2rem;
   background-color: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
   z-index: 100;
+  min-height: 62px;
 }
 
 .public-nav-brand {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  font-family: var(--font-serif);
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--primary);
+  gap: 0.65rem;
   min-width: 0;
+  flex: 1 1 auto;
+  margin-right: 0.5rem;
+}
+
+.public-nav-title {
+  display: block;
+  font-size: clamp(0.95rem, 3.4vw, 1.15rem);
+  font-weight: 800;
+  font-family: var(--font-sans);
+  color: var(--primary);
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.public-nav-subtitle {
+  display: block;
+  font-size: clamp(0.68rem, 2.4vw, 0.78rem);
+  font-weight: 500;
+  color: var(--text-muted);
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.nav-live-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: hsl(0, 85%, 50%);
+  color: white;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-full);
+  animation: pulseLive 2s infinite;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.nav-live-link {
+  color: var(--danger) !important;
+  font-weight: 700 !important;
 }
 
 .public-nav-links {
   display: flex;
-  gap: 1.5rem;
+  gap: 1.25rem;
   align-items: center;
 }
 
@@ -878,7 +1226,7 @@ textarea.form-control {
   font-weight: 600;
   color: var(--text-main);
   font-size: 0.95rem;
-  padding: 0.25rem 0.5rem;
+  padding: 0.3rem 0.6rem;
   border-radius: var(--radius-sm);
   transition: var(--transition);
 }
@@ -911,21 +1259,18 @@ textarea.form-control {
   align-items: center;
   justify-content: center;
   touch-action: manipulation;
+  flex-shrink: 0;
 }
 
 .menu-btn:hover {
   background-color: hsl(30, 10%, 94%);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 820px) {
   .public-nav {
-    padding: 0.75rem 1rem;
+    padding: 0.65rem 1rem;
   }
   
-  .public-nav-brand {
-    font-size: 1.1rem;
-  }
-
   .menu-btn {
     display: inline-flex;
   }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth, API_URL, getMediaUrl } from '../context/AuthContext';
-import { Settings as SettingsIcon, Save, Globe, Lock, Info } from 'lucide-react';
+import { useAuth, API_URL, getMediaUrl, getYouTubeEmbedUrl, extractYouTubeId } from '../context/AuthContext';
+import { Settings as SettingsIcon, Save, Globe, Lock, Info, Video, Tv, Radio, ExternalLink, Sparkles, MapPin, Phone, Mail } from 'lucide-react';
 
 const Settings = () => {
   const { user, settings, fetchSettings, triggerToast } = useAuth();
@@ -89,6 +89,13 @@ const Settings = () => {
     logoUrl: '',
     ganeshaImageUrl: '',
     contactInfo: '',
+    contactPhone: '+91 9948050484',
+    contactEmail: 'srinarahari4@gmail.com',
+    contactLocation: 'Central Mandap Arena',
+    liveStreamActive: false,
+    liveStreamUrl: '',
+    liveStreamTitle: 'Vinayaka Chavithi Mahotsavam - Live Darshanam',
+    liveStreamDescription: 'Watch live morning & evening aarti, special homam, and cultural celebrations directly from the mandap.',
     paymentNumber: '',
     accountName: '',
     publicCollectionVisibility: true,
@@ -98,6 +105,23 @@ const Settings = () => {
 
   useEffect(() => {
     if (settings) {
+      // Split legacy contactInfo if exists and new fields aren't populated
+      let defaultPhone = settings.contactPhone || '+91 9948050484';
+      let defaultEmail = settings.contactEmail || 'srinarahari4@gmail.com';
+      if (settings.contactInfo && (!settings.contactPhone || !settings.contactEmail)) {
+        const parts = settings.contactInfo.split(',').map((s) => s.trim());
+        if (parts.length > 1) {
+          const emailPart = parts.find((p) => p.includes('@'));
+          const phonePart = parts.find((p) => !p.includes('@'));
+          if (emailPart) defaultEmail = emailPart;
+          if (phonePart) defaultPhone = phonePart;
+        } else if (settings.contactInfo.includes('@')) {
+          defaultEmail = settings.contactInfo;
+        } else if (settings.contactInfo) {
+          defaultPhone = settings.contactInfo;
+        }
+      }
+
       setForm({
         festivalName: settings.festivalName || '',
         committeeName: settings.committeeName || '',
@@ -106,6 +130,13 @@ const Settings = () => {
         logoUrl: settings.logoUrl || '',
         ganeshaImageUrl: settings.ganeshaImageUrl || '',
         contactInfo: settings.contactInfo || '',
+        contactPhone: defaultPhone,
+        contactEmail: defaultEmail,
+        contactLocation: settings.contactLocation || 'Central Mandap Arena',
+        liveStreamActive: settings.liveStreamActive !== undefined ? settings.liveStreamActive : false,
+        liveStreamUrl: settings.liveStreamUrl || '',
+        liveStreamTitle: settings.liveStreamTitle || 'Vinayaka Chavithi Mahotsavam - Live Darshanam',
+        liveStreamDescription: settings.liveStreamDescription || 'Watch live morning & evening aarti, special homam, and cultural celebrations directly from the mandap.',
         paymentNumber: settings.paymentNumber || '',
         accountName: settings.accountName || '',
         publicCollectionVisibility: settings.publicCollectionVisibility !== undefined ? settings.publicCollectionVisibility : true,
@@ -118,10 +149,19 @@ const Settings = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+    setForm((prev) => {
+      const updated = {
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value,
+      };
+      // Keep contactInfo synchronized for backward compatibility
+      if (name === 'contactPhone' || name === 'contactEmail') {
+        const phone = name === 'contactPhone' ? value : prev.contactPhone;
+        const email = name === 'contactEmail' ? value : prev.contactEmail;
+        updated.contactInfo = `${phone}${email ? ` , ${email}` : ''}`;
+      }
+      return updated;
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -156,6 +196,9 @@ const Settings = () => {
     }
   };
 
+  const youtubeVideoId = extractYouTubeId(form.liveStreamUrl);
+  const previewEmbedUrl = getYouTubeEmbedUrl(form.liveStreamUrl);
+
   if (loading) {
     return <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--primary)' }}>Loading configuration...</div>;
   }
@@ -164,207 +207,355 @@ const Settings = () => {
     <div className="page-container">
       <div className="action-header">
         <div>
-          <h1 style={{ color: 'var(--primary)', fontSize: '2rem' }}>⚙️ Global Festival Settings</h1>
-          <p style={{ color: 'var(--text-muted)' }}>Super Admin control panel to configure festival details, calendar dates, branding images, and public visibility.</p>
+          <h1 style={{ color: 'var(--primary)', fontSize: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <span>⚙️</span> Global Festival Settings
+          </h1>
+          <p style={{ color: 'var(--text-muted)' }}>Super Admin control panel to configure festival details, calendar dates, YouTube live streaming, branding, and public portal visibility.</p>
         </div>
       </div>
 
       <div className="grid-3">
         {/* Left Column: Form Settings (Span 2) */}
         <div className="span-2">
-          <form onSubmit={handleSubmit} className="card card-festive-border">
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '1.25rem', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <SettingsIcon size={18} /> Configuration Details
-            </h2>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            
+            {/* 1. Basic Details Card */}
+            <div className="card card-festive-border">
+              <h2 style={{ fontSize: '1.25rem', marginBottom: '1.25rem', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <SettingsIcon size={18} /> Configuration Details
+              </h2>
 
-            <div className="grid-2">
-              <div className="form-group">
-                <label htmlFor="festivalName">Festival Celebration Name *</label>
-                <input
-                  type="text"
-                  id="festivalName"
-                  name="festivalName"
-                  className="form-control"
-                  placeholder="E.g. Vinayaka Chavithi Celebration"
-                  value={form.festivalName}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="committeeName">Organizing Committee Name *</label>
-                <input
-                  type="text"
-                  id="committeeName"
-                  name="committeeName"
-                  className="form-control"
-                  placeholder="E.g. Sri Vinayaka Seva Samiti"
-                  value={form.committeeName}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="grid-2">
-              <div className="form-group">
-                <label htmlFor="festivalYear">Celebration Year *</label>
-                <input
-                  type="number"
-                  id="festivalYear"
-                  name="festivalYear"
-                  className="form-control"
-                  placeholder="E.g. 2026"
-                  value={form.festivalYear}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="festivalDates">Festival Date Range *</label>
-                <input
-                  type="text"
-                  id="festivalDates"
-                  name="festivalDates"
-                  className="form-control"
-                  placeholder="E.g. Sept 4 - Sept 14, 2026"
-                  value={form.festivalDates}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="logoUrl">Committee Logo Image</label>
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <div style={{ flexGrow: 1 }}>
+              <div className="grid-2">
+                <div className="form-group">
+                  <label htmlFor="festivalName">Festival Celebration Name *</label>
                   <input
                     type="text"
-                    id="logoUrl"
-                    name="logoUrl"
+                    id="festivalName"
+                    name="festivalName"
                     className="form-control"
-                    placeholder="Logo URL or uploaded path"
-                    value={form.logoUrl}
+                    placeholder="E.g. Vinayaka Chavithi Celebration"
+                    value={form.festivalName}
                     onChange={handleInputChange}
+                    required
                   />
                 </div>
-                <div style={{ flexShrink: 0 }}>
-                  <label className="btn btn-secondary btn-sm" style={{ margin: 0, display: 'inline-flex', cursor: 'pointer', position: 'relative' }}>
-                    {uploadingLogo ? 'Uploading...' : '📁 Upload Logo'}
+                <div className="form-group">
+                  <label htmlFor="committeeName">Organizing Committee Name *</label>
+                  <input
+                    type="text"
+                    id="committeeName"
+                    name="committeeName"
+                    className="form-control"
+                    placeholder="E.g. Sri Vinayaka Seva Samiti"
+                    value={form.committeeName}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid-2">
+                <div className="form-group">
+                  <label htmlFor="festivalYear">Celebration Year *</label>
+                  <input
+                    type="number"
+                    id="festivalYear"
+                    name="festivalYear"
+                    className="form-control"
+                    placeholder="E.g. 2026"
+                    value={form.festivalYear}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="festivalDates">Festival Date Range *</label>
+                  <input
+                    type="text"
+                    id="festivalDates"
+                    name="festivalDates"
+                    className="form-control"
+                    placeholder="E.g. September 14 - September 19, 2026"
+                    value={form.festivalDates}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="logoUrl">Committee Logo Image</label>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <div style={{ flex: '1 1 200px' }}>
                     <input
-                      type="file"
-                      accept="image/*"
-                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
-                      onChange={handleLogoUpload}
-                      disabled={uploadingLogo}
+                      type="text"
+                      id="logoUrl"
+                      name="logoUrl"
+                      className="form-control"
+                      placeholder="Logo URL or uploaded path"
+                      value={form.logoUrl}
+                      onChange={handleInputChange}
                     />
+                  </div>
+                  <div style={{ flexShrink: 0 }}>
+                    <label className="btn btn-secondary btn-sm" style={{ margin: 0, display: 'inline-flex', cursor: 'pointer', position: 'relative' }}>
+                      {uploadingLogo ? 'Uploading...' : '📁 Upload Logo'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
+                        onChange={handleLogoUpload}
+                        disabled={uploadingLogo}
+                      />
+                    </label>
+                  </div>
+                </div>
+                {form.logoUrl && (
+                  <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <img
+                      src={getMediaUrl(form.logoUrl)}
+                      alt="Preview Logo"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border-color)' }}
+                    />
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', wordBreak: 'break-all' }}>Previewing: {form.logoUrl}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="ganeshaImageUrl">Lord Ganesha Main Painting / Welcome Banner Image</label>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <div style={{ flex: '1 1 200px' }}>
+                    <input
+                      type="text"
+                      id="ganeshaImageUrl"
+                      name="ganeshaImageUrl"
+                      className="form-control"
+                      placeholder="Banner URL or uploaded path"
+                      value={form.ganeshaImageUrl}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div style={{ flexShrink: 0 }}>
+                    <label className="btn btn-secondary btn-sm" style={{ margin: 0, display: 'inline-flex', cursor: 'pointer', position: 'relative' }}>
+                      {uploadingBanner ? 'Uploading...' : '📁 Upload Banner'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
+                        onChange={handleBannerUpload}
+                        disabled={uploadingBanner}
+                      />
+                    </label>
+                  </div>
+                </div>
+                {form.ganeshaImageUrl && (
+                  <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <img
+                      src={getMediaUrl(form.ganeshaImageUrl)}
+                      alt="Preview Banner"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      style={{ height: 40, width: 'auto', borderRadius: '4px', objectFit: 'contain', border: '1px solid var(--border-color)' }}
+                    />
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', wordBreak: 'break-all' }}>Previewing: {form.ganeshaImageUrl}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 2. YouTube Live Video Broadcast Settings Card */}
+            <div className="card card-festive-border" style={{ borderTop: '4px solid hsl(0, 85%, 55%)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+                <h2 style={{ fontSize: '1.25rem', color: 'hsl(0, 80%, 45%)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+                  <Radio size={20} className="pulse-icon" style={{ color: 'hsl(0, 85%, 55%)' }} /> 
+                  YouTube Live Video Broadcast
+                </h2>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <label className="live-toggle-label" htmlFor="liveStreamActive" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      id="liveStreamActive"
+                      name="liveStreamActive"
+                      checked={form.liveStreamActive}
+                      onChange={handleInputChange}
+                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                    />
+                    <span style={{ fontWeight: 700, fontSize: '0.9rem', color: form.liveStreamActive ? 'var(--danger)' : 'var(--text-muted)' }}>
+                      {form.liveStreamActive ? '🔴 Broadcast LIVE on Public Site' : '⚪ Stream Inactive (Hidden)'}
+                    </span>
                   </label>
                 </div>
               </div>
-              {form.logoUrl && (
-                <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <img
-                    src={getMediaUrl(form.logoUrl)}
-                    alt="Preview Logo"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                    style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border-color)' }}
-                  />
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', wordBreak: 'break-all' }}>Previewing: {form.logoUrl}</span>
-                </div>
-              )}
-            </div>
 
-            <div className="form-group">
-              <label htmlFor="ganeshaImageUrl">Lord Ganesha Main painting / Welcome Banner Image</label>
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <div style={{ flexGrow: 1 }}>
+              <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
+                Share your YouTube live stream URL to broadcast pujas, cultural dances, and procession directly onto the public portal screen in real-time.
+              </p>
+
+              <div className="form-group">
+                <label htmlFor="liveStreamUrl" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>YouTube Live Video URL or Video ID</span>
+                  {youtubeVideoId && (
+                    <span style={{ fontSize: '0.75rem', color: 'var(--success)', fontWeight: 600 }}>
+                      ✓ Detected Video ID: {youtubeVideoId}
+                    </span>
+                  )}
+                </label>
+                <input
+                  type="text"
+                  id="liveStreamUrl"
+                  name="liveStreamUrl"
+                  className="form-control"
+                  placeholder="E.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ or https://youtu.be/... or https://www.youtube.com/live/..."
+                  value={form.liveStreamUrl}
+                  onChange={handleInputChange}
+                />
+                <span style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
+                  Supported formats: Standard watch links (<code>youtube.com/watch?v=...</code>), Short links (<code>youtu.be/...</code>), Live stream links (<code>youtube.com/live/...</code>), or 11-character Video ID.
+                </span>
+              </div>
+
+              <div className="grid-2">
+                <div className="form-group">
+                  <label htmlFor="liveStreamTitle">Live Broadcast Title</label>
                   <input
                     type="text"
-                    id="ganeshaImageUrl"
-                    name="ganeshaImageUrl"
+                    id="liveStreamTitle"
+                    name="liveStreamTitle"
                     className="form-control"
-                    placeholder="Banner URL or uploaded path"
-                    value={form.ganeshaImageUrl}
+                    placeholder="E.g. Maha Ganapathi Homam & Aarti - Live"
+                    value={form.liveStreamTitle}
                     onChange={handleInputChange}
                   />
                 </div>
-                <div style={{ flexShrink: 0 }}>
-                  <label className="btn btn-secondary btn-sm" style={{ margin: 0, display: 'inline-flex', cursor: 'pointer', position: 'relative' }}>
-                    {uploadingBanner ? 'Uploading...' : '📁 Upload Banner'}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
-                      onChange={handleBannerUpload}
-                      disabled={uploadingBanner}
-                    />
-                  </label>
-                </div>
-              </div>
-              {form.ganeshaImageUrl && (
-                <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <img
-                    src={getMediaUrl(form.ganeshaImageUrl)}
-                    alt="Preview Banner"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                    style={{ height: 40, width: 'auto', borderRadius: '4px', objectFit: 'contain', border: '1px solid var(--border-color)' }}
+                <div className="form-group">
+                  <label htmlFor="liveStreamDescription">Stream Subtitle / Status</label>
+                  <input
+                    type="text"
+                    id="liveStreamDescription"
+                    name="liveStreamDescription"
+                    className="form-control"
+                    placeholder="E.g. Live darshanam broadcast from main stage mandap"
+                    value={form.liveStreamDescription}
+                    onChange={handleInputChange}
                   />
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', wordBreak: 'break-all' }}>Previewing: {form.ganeshaImageUrl}</span>
                 </div>
-              )}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="contactInfo">Contact Numbers & Info</label>
-              <input
-                type="text"
-                id="contactInfo"
-                name="contactInfo"
-                className="form-control"
-                placeholder="E.g. +91 98450 12345, info@festival.org"
-                value={form.contactInfo}
-                onChange={handleInputChange}
-              />
-            </div>
-
-            <div className="grid-2">
-              <div className="form-group">
-                <label htmlFor="accountName">Donation Account Name</label>
-                <input
-                  type="text"
-                  id="accountName"
-                  name="accountName"
-                  className="form-control"
-                  placeholder="E.g. UPPUTURI VENKATA GANESH"
-                  value={form.accountName}
-                  onChange={handleInputChange}
-                />
               </div>
-              <div className="form-group">
-                <label htmlFor="paymentNumber">Donation Payment/UPI Number</label>
-                <input
-                  type="text"
-                  id="paymentNumber"
-                  name="paymentNumber"
-                  className="form-control"
-                  placeholder="E.g. 9948050484"
-                  value={form.paymentNumber}
-                  onChange={handleInputChange}
-                />
+
+              {/* Real-time preview player */}
+              {previewEmbedUrl ? (
+                <div style={{ marginTop: '1rem', background: 'hsl(30, 10%, 12%)', borderRadius: 'var(--radius-md)', padding: '1rem', color: 'white' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <Tv size={16} /> Live Preview in Admin Panel
+                    </span>
+                    <span className="badge badge-high" style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem' }}>
+                      Ready to Broadcast
+                    </span>
+                  </div>
+                  <div style={{ position: 'relative', width: '100%', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: 'var(--radius-sm)' }}>
+                    <iframe
+                      src={previewEmbedUrl}
+                      title="YouTube Live Stream Preview"
+                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
+                </div>
+              ) : form.liveStreamUrl ? (
+                <div style={{ padding: '0.75rem', background: 'rgba(255, 0, 0, 0.05)', border: '1px solid rgba(255,0,0,0.15)', borderRadius: 'var(--radius-sm)', color: 'var(--danger)', fontSize: '0.85rem' }}>
+                  ⚠️ Unable to detect YouTube Video ID from the link provided. Please check the URL format.
+                </div>
+              ) : null}
+            </div>
+
+            {/* 3. Contact & Banking Details Card */}
+            <div className="card card-festive-border">
+              <h2 style={{ fontSize: '1.25rem', marginBottom: '1.25rem', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <Phone size={18} /> Contact & Donation Info
+              </h2>
+
+              <div className="grid-3">
+                <div className="form-group">
+                  <label htmlFor="contactPhone">Committee Phone Number *</label>
+                  <input
+                    type="tel"
+                    id="contactPhone"
+                    name="contactPhone"
+                    className="form-control"
+                    placeholder="E.g. +91 9948050484"
+                    value={form.contactPhone}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="contactEmail">Committee Contact Email</label>
+                  <input
+                    type="email"
+                    id="contactEmail"
+                    name="contactEmail"
+                    className="form-control"
+                    placeholder="E.g. info@festival.org"
+                    value={form.contactEmail}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="contactLocation">Festival Mandap Location</label>
+                  <input
+                    type="text"
+                    id="contactLocation"
+                    name="contactLocation"
+                    className="form-control"
+                    placeholder="E.g. Central Mandap Arena, Main Road"
+                    value={form.contactLocation}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
+              <div className="grid-2">
+                <div className="form-group">
+                  <label htmlFor="accountName">Donation Account Name</label>
+                  <input
+                    type="text"
+                    id="accountName"
+                    name="accountName"
+                    className="form-control"
+                    placeholder="E.g. UPPUTURI VENKATA GANESH"
+                    value={form.accountName}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="paymentNumber">Donation Payment / UPI Number</label>
+                  <input
+                    type="text"
+                    id="paymentNumber"
+                    name="paymentNumber"
+                    className="form-control"
+                    placeholder="E.g. 9948050484"
+                    value={form.paymentNumber}
+                    onChange={handleInputChange}
+                  />
+                </div>
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.5rem', background: 'rgba(255, 102, 0, 0.05)', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,102,0,0.1)', margin: '1.5rem 0', fontSize: '0.85rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', background: 'rgba(255, 102, 0, 0.05)', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,102,0,0.1)', fontSize: '0.85rem' }}>
               <Info size={20} style={{ color: 'var(--primary)', flexShrink: 0 }} />
               <div>
-                Updating these settings affects the public homepage, PDF headers, and title banners immediately.
+                Updating these settings updates the public home page, live stream section, PDF receipts, and contact cards instantly across all devices.
               </div>
             </div>
 
-            <button type="submit" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Save size={16} /> Save Settings
-            </button>
+            <div>
+              <button type="submit" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', minWidth: '180px' }}>
+                <Save size={16} /> Save All Settings
+              </button>
+            </div>
           </form>
         </div>
 
@@ -375,7 +566,7 @@ const Settings = () => {
               <Globe size={18} /> Public Portal Controls
             </h2>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
-              Enable or disable public visibility toggles. Edits save inside the main configuration form.
+              Control public visibility of sections on the devotee portal. Edits save with the main configuration form.
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>

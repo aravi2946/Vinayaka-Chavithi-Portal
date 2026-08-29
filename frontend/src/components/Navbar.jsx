@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth, getMediaUrl } from '../context/AuthContext';
-import { Menu, X, Landmark, Calendar, Megaphone, Image, FileText, Lock, LayoutDashboard } from 'lucide-react';
+import { Menu, X, Landmark, Calendar, Megaphone, Image, FileText, Lock, LayoutDashboard, Radio } from 'lucide-react';
 
 const Navbar = () => {
   const { user, settings } = useAuth();
@@ -11,16 +11,18 @@ const Navbar = () => {
 
   useEffect(() => {
     setLogoError(false);
-  }, [settings.logoUrl]);
+  }, [settings?.logoUrl]);
 
   const isActive = (path) => location.pathname === path;
 
   const toggleMobileMenu = () => setMobileOpen(!mobileOpen);
 
+  const isLiveActive = settings?.liveStreamActive && settings?.liveStreamUrl;
+
   return (
     <nav className="public-nav">
       <Link to="/" className="public-nav-brand">
-        {settings.logoUrl && !logoError ? (
+        {settings?.logoUrl && !logoError ? (
           <img
             src={getMediaUrl(settings.logoUrl)}
             alt={settings.festivalName || 'Logo'}
@@ -30,12 +32,19 @@ const Navbar = () => {
         ) : (
           <span style={{ fontSize: '1.8rem', marginRight: '0.2rem', lineHeight: 1, flexShrink: 0 }}>🕉️</span>
         )}
-        <div>
-          <span style={{ display: 'block', fontSize: '1.1rem', fontWeight: 800, fontFamily: 'var(--font-sans)', color: 'var(--primary)' }}>
-            {settings.festivalName}
-          </span>
-          <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-muted)' }}>
-            {settings.committeeName}
+        <div style={{ minWidth: 0, flex: '1 1 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <span className="public-nav-title">
+              {settings?.festivalName || 'Vinayaka Chavithi Utsav'}
+            </span>
+            {isLiveActive && (
+              <span className="nav-live-chip">
+                <span className="live-indicator-dot"></span> LIVE
+              </span>
+            )}
+          </div>
+          <span className="public-nav-subtitle">
+            {settings?.committeeName || 'Organizing Committee'}
           </span>
         </div>
       </Link>
@@ -56,6 +65,12 @@ const Navbar = () => {
         <Link to="/" className={`public-nav-link ${isActive('/') ? 'active' : ''}`} onClick={() => setMobileOpen(false)}>
           Home
         </Link>
+
+        {isLiveActive && (
+          <a href="/#live-stream-section" className="public-nav-link nav-live-link" onClick={() => setMobileOpen(false)}>
+            🔴 Live Puja
+          </a>
+        )}
         
         <Link to="/collections" className={`public-nav-link ${isActive('/collections') ? 'active' : ''}`} onClick={() => setMobileOpen(false)}>
           Donations
@@ -65,7 +80,7 @@ const Navbar = () => {
           Events
         </Link>
 
-        {settings.announcementSettings && (
+        {settings?.announcementSettings && (
           <Link to="/announcements" className={`public-nav-link ${isActive('/announcements') ? 'active' : ''}`} onClick={() => setMobileOpen(false)}>
             Announcements
           </Link>

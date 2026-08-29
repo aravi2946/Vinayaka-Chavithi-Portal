@@ -18,6 +18,31 @@ export const isVideoUrl = (url) => {
   return /\.(mp4|webm|ogg|mov|mkv|avi|3gp)$/i.test(url.split('?')[0]);
 };
 
+export const extractYouTubeId = (url) => {
+  if (!url) return '';
+  const trimmed = url.trim();
+  // Direct 11-char video ID
+  if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) {
+    return trimmed;
+  }
+  // Matches: youtube.com/watch?v=ID, youtu.be/ID, youtube.com/embed/ID, youtube.com/live/ID, youtube.com/shorts/ID
+  const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+  const match = trimmed.match(regExp);
+  return match && match[1] ? match[1] : '';
+};
+
+export const getYouTubeEmbedUrl = (url) => {
+  const videoId = extractYouTubeId(url);
+  if (!videoId) return '';
+  return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1&playsinline=1`;
+};
+
+export const getYouTubeWatchUrl = (url) => {
+  const videoId = extractYouTubeId(url);
+  if (!videoId) return url || '';
+  return `https://www.youtube.com/watch?v=${videoId}`;
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,7 +53,14 @@ export const AuthProvider = ({ children }) => {
     festivalDates: 'September 14 - September 19, 2026',
     logoUrl: '',
     ganeshaImageUrl: '',
-    contactInfo: '',
+    contactInfo: '+91 9948050484',
+    contactPhone: '+91 9948050484',
+    contactEmail: 'srinarahari4@gmail.com',
+    contactLocation: 'Central Mandap Arena',
+    liveStreamActive: false,
+    liveStreamUrl: '',
+    liveStreamTitle: 'Vinayaka Chavithi Mahotsavam - Live Darshanam',
+    liveStreamDescription: 'Watch live morning & evening aarti, special homam, and cultural celebrations directly from the mandap.',
     publicCollectionVisibility: true,
     registrationSettings: true,
     announcementSettings: true,

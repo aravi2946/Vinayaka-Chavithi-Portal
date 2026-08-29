@@ -34,6 +34,18 @@ const settingsSchema = new mongoose.Schema(
       type: String,
       default: '+91 9948050484',
     },
+    contactPhone: {
+      type: String,
+      default: '+91 9948050484',
+    },
+    contactEmail: {
+      type: String,
+      default: 'srinarahari4@gmail.com',
+    },
+    contactLocation: {
+      type: String,
+      default: 'Central Mandap Arena',
+    },
     paymentNumber: {
       type: String,
       default: '9948050484',
@@ -41,6 +53,22 @@ const settingsSchema = new mongoose.Schema(
     accountName: {
       type: String,
       default: 'UPPUTURI VENKATA GANESH',
+    },
+    liveStreamActive: {
+      type: Boolean,
+      default: false,
+    },
+    liveStreamUrl: {
+      type: String,
+      default: '',
+    },
+    liveStreamTitle: {
+      type: String,
+      default: 'Vinayaka Chavithi Mahotsavam - Live Darshanam',
+    },
+    liveStreamDescription: {
+      type: String,
+      default: 'Watch live morning & evening aarti, special homam, and cultural celebrations directly from the mandap.',
     },
     publicCollectionVisibility: {
       type: Boolean,
