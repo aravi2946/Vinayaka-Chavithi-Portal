@@ -52,7 +52,7 @@ router.post('/', protect, authorize('Super Admin', 'Volunteer Manager'), async (
       area,
       skills,
       availability,
-      assignedResponsibility: assignedResponsibility || 'None',
+      assignedResponsibility: assignedResponsibility || 'Other',
       status: status || 'Active',
     });
 

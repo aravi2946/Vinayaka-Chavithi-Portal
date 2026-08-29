@@ -27,19 +27,8 @@ const volunteerSchema = new mongoose.Schema(
     assignedResponsibility: {
       type: String,
       required: true,
-      enum: [
-        'Decorations',
-        'Food',
-        'Cleaning',
-        'Event Management',
-        'Security',
-        'Crowd Management',
-        'Transportation',
-        'Cultural Programs',
-        'Puja Arrangements',
-        'None',
-      ],
-      default: 'None',
+      trim: true,
+      default: 'Other',
     },
     status: {
       type: String,

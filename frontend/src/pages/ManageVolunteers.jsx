@@ -19,7 +19,8 @@ const ManageVolunteers = () => {
     area: '',
     skills: '',
     availability: '',
-    assignedResponsibility: 'None',
+    assignedResponsibility: 'Other',
+    customResponsibility: '',
     status: 'Active',
   });
 
@@ -33,7 +34,7 @@ const ManageVolunteers = () => {
     'Transportation',
     'Cultural Programs',
     'Puja Arrangements',
-    'None',
+    'Other',
   ];
 
   useEffect(() => {
@@ -71,7 +72,8 @@ const ManageVolunteers = () => {
       area: '',
       skills: '',
       availability: '',
-      assignedResponsibility: 'None',
+      assignedResponsibility: 'Other',
+      customResponsibility: '',
       status: 'Active',
     });
     setModalOpen(true);
@@ -79,14 +81,19 @@ const ManageVolunteers = () => {
 
   const handleOpenEdit = (vol) => {
     setEditingId(vol._id);
+    const standardOptions = responsibilities.filter((r) => r !== 'Other');
+    const isStandard = standardOptions.includes(vol.assignedResponsibility);
+    const isNone = vol.assignedResponsibility === 'None';
+
     setForm({
-      name: vol.name,
-      phone: vol.phone,
+      name: vol.name || '',
+      phone: vol.phone || '',
       area: vol.area || '',
       skills: vol.skills || '',
       availability: vol.availability || '',
-      assignedResponsibility: vol.assignedResponsibility,
-      status: vol.status,
+      assignedResponsibility: isStandard ? vol.assignedResponsibility : 'Other',
+      customResponsibility: isStandard ? '' : (isNone ? '' : (vol.assignedResponsibility || '')),
+      status: vol.status || 'Active',
     });
     setModalOpen(true);
   };
@@ -99,6 +106,21 @@ const ManageVolunteers = () => {
       return;
     }
 
+    const finalResponsibility =
+      form.assignedResponsibility === 'Other'
+        ? (form.customResponsibility.trim() || 'Other')
+        : form.assignedResponsibility;
+
+    const payload = {
+      name: form.name.trim(),
+      phone: form.phone.trim(),
+      area: form.area.trim(),
+      skills: form.skills.trim(),
+      availability: form.availability.trim(),
+      assignedResponsibility: finalResponsibility,
+      status: form.status,
+    };
+
     try {
       const token = user.token;
       const url = editingId ? `${API_URL}/volunteers/${editingId}` : `${API_URL}/volunteers`;
@@ -110,7 +132,7 @@ const ManageVolunteers = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -358,6 +380,22 @@ const ManageVolunteers = () => {
                     </select>
                   </div>
                 </div>
+
+                {form.assignedResponsibility === 'Other' && (
+                  <div className="form-group" style={{ marginTop: '-0.25rem', marginBottom: '1rem' }}>
+                    <label htmlFor="customResponsibility">Specify Custom Task / Assignment *</label>
+                    <input
+                      type="text"
+                      id="customResponsibility"
+                      name="customResponsibility"
+                      className="form-control"
+                      placeholder="E.g. Stage Setup, Sound & Mic, Prasadam Packing, Lighting"
+                      value={form.customResponsibility}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="modal-footer">

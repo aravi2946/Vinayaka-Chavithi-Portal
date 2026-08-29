@@ -599,6 +599,11 @@ const PublicHome = () => {
                 <div key={evt._id} className="event-card" style={{ paddingLeft: '0.75rem', borderLeft: '3px solid var(--primary)', paddingBottom: '0.5rem', borderBottom: '1px solid var(--border-color)' }}>
                   <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-main)' }}>{evt.eventName}</h3>
                   <div className="event-details">
+                    {evt.date && (
+                      <span className="event-detail-item">
+                        <Calendar size={12} /> {new Date(evt.date).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+                      </span>
+                    )}
                     <span className="event-detail-item"><Clock size={12} /> {evt.startTime} - {evt.endTime}</span>
                     <span className="event-detail-item"><MapPin size={12} /> {evt.venue}</span>
                   </div>
