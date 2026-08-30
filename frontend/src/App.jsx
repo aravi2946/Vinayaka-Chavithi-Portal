@@ -40,8 +40,11 @@ const PublicLayout = () => {
         <Outlet />
       </main>
       <footer style={{ background: 'var(--grad-dark)', color: 'rgba(255,255,255,0.4)', padding: '2rem 1.5rem', textAlign: 'center', fontSize: '0.85rem', borderTop: '1px solid hsl(30, 10%, 15%)' }}>
-        <p>© 2026 Vinayaka Chavithi Festival Committee. All rights reserved.</p>
-        <p style={{ marginTop: '0.25rem', fontSize: '0.75rem' }}>Jai Ganesha. May Lord Ganesha remove all your obstacles and bless you with wisdom.</p>
+        <p style={{ wordBreak: 'break-word', lineHeight: '1.6' }}>
+          © 2026 Vinayaka Chavithi Festival Committee.{' '}
+          <span style={{ display: 'inline-block' }}>All rights reserved.</span>
+        </p>
+        <p style={{ marginTop: '0.25rem', fontSize: '0.75rem', wordBreak: 'break-word', lineHeight: '1.6' }}>Jai Ganesha. May Lord Ganesha remove all your obstacles and bless you with wisdom.</p>
       </footer>
     </div>
   );

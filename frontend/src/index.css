@@ -2124,8 +2124,14 @@ textarea.form-control {
 .donors-search-icon {
   position: absolute;
   left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
   color: var(--primary);
   pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
 }
 
 .donors-search-input {
@@ -2164,6 +2170,38 @@ textarea.form-control {
 .donors-search-clear:hover {
   color: var(--danger);
   background: rgba(255, 0, 0, 0.08);
+}
+
+/* ==========================================================================
+   UTILITY: Table Action Icon Buttons (Edit / Delete / Approve)
+   Ensures icon-only buttons stay perfectly square and never shrink when
+   adjacent text (donor name, title, etc.) becomes long.
+   ========================================================================== */
+.btn-table-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0 !important;
+  border-radius: 6px !important;
+  line-height: 1;
+}
+
+/* Table action cell — keeps buttons from wrapping awkwardly */
+.table-actions-cell {
+  white-space: nowrap;
+}
+
+.table-actions-cell > div,
+.table-actions-cell > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: nowrap;
 }
 
 .donor-highlight-match {

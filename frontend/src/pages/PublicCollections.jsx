@@ -69,20 +69,6 @@ const PublicCollections = () => {
           <h1 style={{ color: 'var(--primary)', fontSize: '2rem' }}>🙏 Donor & Collection Summary</h1>
           <p style={{ color: 'var(--text-muted)' }}>Public log of contributions supporting the Vinayaka Chavithi celebrations.</p>
         </div>
-
-        {hasIdolSponsor && (
-          <button
-            type="button"
-            className="idol-sponsor-hero-btn"
-            onClick={() => setShowSponsorModal(true)}
-            title="View Vinayaka Idol Sponsor Details"
-            style={{ whiteSpace: 'nowrap' }}
-          >
-            <span className="idol-sponsor-shine-dot"></span>
-            <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>🙏</span>
-            <span style={{ whiteSpace: 'nowrap' }}>Vinayaka Idol Sponsor</span>
-          </button>
-        )}
       </div>
 
       {/* Featured Vinayaka Idol Sponsor Card */}

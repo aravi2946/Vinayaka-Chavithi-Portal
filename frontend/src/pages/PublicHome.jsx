@@ -319,9 +319,30 @@ const PublicHome = () => {
       {(settings?.idolSponsorActive !== false) && (settings?.idolSponsorName && settings?.idolSponsorName.trim().length > 0) && (
         <div className="idol-sponsor-card" style={{ marginBottom: '2.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', width: '100%' }}>
-            <div className="idol-sponsor-icon-badge">
-              <span style={{ fontSize: '1.6rem', lineHeight: 1 }}>🙏</span>
-            </div>
+            {/* Sponsor Profile Photo or fallback emoji */}
+            {settings?.idolSponsorPhotoUrl ? (
+              <img
+                src={getMediaUrl(settings.idolSponsorPhotoUrl)}
+                alt={settings.idolSponsorName}
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextSibling && (e.currentTarget.nextSibling.style.display = 'flex');
+                }}
+                style={{
+                  width: 72,
+                  height: 72,
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  border: '3px solid rgba(255, 102, 0, 0.55)',
+                  boxShadow: '0 4px 16px rgba(255, 102, 0, 0.3)',
+                  flexShrink: 0,
+                }}
+              />
+            ) : (
+              <div className="idol-sponsor-icon-badge">
+                <span style={{ fontSize: '1.6rem', lineHeight: 1 }}>🙏</span>
+              </div>
+            )}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'linear-gradient(135deg, rgba(255, 102, 0, 0.16), rgba(249, 200, 53, 0.28))', border: '1.5px solid rgba(255, 102, 0, 0.45)', borderRadius: '20px', padding: '0.25rem 0.85rem', marginBottom: '0.35rem', boxShadow: '0 2px 8px rgba(255,102,0,0.15)', whiteSpace: 'nowrap' }}>
                 <span style={{ fontSize: '0.95rem', lineHeight: 1 }}>🙏</span>
@@ -339,6 +360,7 @@ const PublicHome = () => {
           </div>
         </div>
       )}
+
 
       {/* =========================================================================
           FEATURE 1: YouTube Live Stream Broadcast Showcase (When Active)
@@ -569,7 +591,7 @@ const PublicHome = () => {
             Vinayaka Chavithi, the auspicious festival celebrating the birth of Lord Ganesha, represents the initiation of wisdom, prosperity, and the removal of obstacles.
           </p>
           <p style={{ marginBottom: '1.5rem', color: 'var(--text-muted)', lineHeight: '1.6' }}>
-            This year, our committee is putting together grand decorations, daily special homams, cultural competitions for youth and kids, community Annadanam dinners, and a vibrant immersion procession. We cordially invite you with family and friends to participate in the events, seek the blessings of Vinayaka, and contribute to this local festival.
+            This year, our committee is putting together grand decorations,community Annadanam dinners, and a vibrant immersion procession. We cordially invite you with family and friends to participate in the events, seek the blessings of Vinayaka, and contribute to this local festival.
           </p>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <Link to="/events" className="btn btn-primary btn-sm">View Event Schedule</Link>

@@ -7,6 +7,7 @@ const Settings = () => {
   const [loading, setLoading] = useState(true);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   const handleLogoUpload = async (e) => {
     const file = e.target.files[0];
@@ -80,6 +81,42 @@ const Settings = () => {
     }
   };
 
+  const handleSponsorPhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setUploadingPhoto(true);
+    try {
+      const token = user.token;
+      const res = await fetch(`${API_URL}/upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Upload failed');
+      }
+
+      setForm((prev) => ({
+        ...prev,
+        idolSponsorPhotoUrl: data.fileUrl
+      }));
+      triggerToast('Sponsor photo uploaded successfully!', 'success');
+    } catch (error) {
+      console.error(error);
+      triggerToast(error.message, 'danger');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
   // Form state
   const [form, setForm] = useState({
     festivalName: '',
@@ -107,6 +144,7 @@ const Settings = () => {
     idolSponsorDetails: 'Grand 9ft Eco-Friendly Clay Ganesha Idol Seva',
     idolSponsorMessage: 'Heartfelt gratitude and Lord Vinayaka blessings to the sponsor family for divine patronage.',
     idolSponsorAmount: '',
+    idolSponsorPhotoUrl: '',
     instagramUrl: 'https://instagram.com/',
     instagramHandle: '@vinayaka_utsav',
   });
@@ -156,6 +194,7 @@ const Settings = () => {
         idolSponsorDetails: settings.idolSponsorDetails || 'Grand 9ft Eco-Friendly Clay Ganesha Idol Seva',
         idolSponsorMessage: settings.idolSponsorMessage || 'Heartfelt gratitude and Lord Vinayaka blessings to the sponsor family for divine patronage.',
         idolSponsorAmount: settings.idolSponsorAmount || '',
+        idolSponsorPhotoUrl: settings.idolSponsorPhotoUrl || '',
         instagramUrl: settings.instagramUrl || 'https://instagram.com/',
         instagramHandle: settings.instagramHandle || '@vinayaka_utsav',
       });
@@ -645,6 +684,60 @@ const Settings = () => {
                   value={form.idolSponsorMessage}
                   onChange={handleInputChange}
                 ></textarea>
+              </div>
+
+              {/* Sponsor Profile Photo Upload */}
+              <div className="form-group">
+                <label htmlFor="idolSponsorPhotoUrl">Sponsor Profile Photo</label>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <div style={{ flex: '1 1 200px' }}>
+                    <input
+                      type="text"
+                      id="idolSponsorPhotoUrl"
+                      name="idolSponsorPhotoUrl"
+                      className="form-control"
+                      placeholder="Photo URL or upload below"
+                      value={form.idolSponsorPhotoUrl}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div style={{ flexShrink: 0 }}>
+                    <label className="btn btn-secondary btn-sm" style={{ margin: 0, display: 'inline-flex', cursor: 'pointer', position: 'relative' }}>
+                      {uploadingPhoto ? 'Uploading...' : '📷 Upload Photo'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
+                        onChange={handleSponsorPhotoUpload}
+                        disabled={uploadingPhoto}
+                      />
+                    </label>
+                  </div>
+                  {form.idolSponsorPhotoUrl && (
+                    <button
+                      type="button"
+                      className="btn btn-sm"
+                      style={{ background: 'rgba(220,53,69,0.1)', color: 'var(--danger)', border: '1px solid rgba(220,53,69,0.3)', flexShrink: 0 }}
+                      onClick={() => setForm((prev) => ({ ...prev, idolSponsorPhotoUrl: '' }))}
+                    >
+                      ✕ Remove
+                    </button>
+                  )}
+                </div>
+                {form.idolSponsorPhotoUrl && (
+                  <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <img
+                      src={getMediaUrl(form.idolSponsorPhotoUrl)}
+                      alt="Sponsor preview"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--primary)', boxShadow: '0 4px 12px rgba(255,102,0,0.3)' }}
+                    />
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', wordBreak: 'break-all' }}>Profile photo previewing</span>
+                  </div>
+                )}
+                <small style={{ color: 'var(--text-muted)', fontSize: '0.75rem', display: 'block', marginTop: '0.35rem' }}>
+                  Displayed as a circular profile picture on the sponsor spotlight card.
+                </small>
               </div>
 
               {/* Sponsor Badge Live Preview */}

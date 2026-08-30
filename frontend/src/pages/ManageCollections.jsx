@@ -308,13 +308,12 @@ const ManageCollections = () => {
                       {coll.approvalStatus === 'Submitted' ? '⏳ Pending' : coll.approvalStatus}
                     </span>
                   </td>
-                  <td style={{ textAlign: 'right' }}>
-                    <div style={{ display: 'inline-flex', gap: '0.5rem' }}>
+                  <td className="table-actions-cell" style={{ textAlign: 'right' }}>
+                    <div style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center' }}>
                       {coll.approvalStatus !== 'Approved' && (
                         <button
                           onClick={() => handleApprove(coll._id)}
-                          className="btn btn-success btn-sm"
-                          style={{ padding: '0.25rem', borderRadius: '4px' }}
+                          className="btn btn-success btn-sm btn-table-action"
                           title="Approve Record"
                         >
                           <Check size={14} />
@@ -322,16 +321,14 @@ const ManageCollections = () => {
                       )}
                       <button
                         onClick={() => handleOpenEdit(coll)}
-                        className="btn btn-secondary btn-sm"
-                        style={{ padding: '0.25rem', borderRadius: '4px' }}
+                        className="btn btn-secondary btn-sm btn-table-action"
                         title="Edit Entry"
                       >
                         <Edit2 size={14} />
                       </button>
                       <button
                         onClick={() => handleDelete(coll._id)}
-                        className="btn btn-danger btn-sm"
-                        style={{ padding: '0.25rem', borderRadius: '4px' }}
+                        className="btn btn-danger btn-sm btn-table-action"
                         title="Delete Record"
                       >
                         <Trash2 size={14} />

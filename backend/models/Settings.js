@@ -110,6 +110,10 @@ const settingsSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    idolSponsorPhotoUrl: {
+      type: String,
+      default: '',
+    },
     // Instagram & Social Media
     instagramUrl: {
       type: String,
