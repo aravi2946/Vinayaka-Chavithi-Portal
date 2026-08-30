@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth, API_URL, getMediaUrl, isVideoUrl, getYouTubeEmbedUrl, getYouTubeWatchUrl, formatInstagramUrl, InstagramIcon } from '../context/AuthContext';
-import { Calendar, Bell, ShieldAlert, Phone, Mail, Award, MapPin, Clock, Heart, Users, Radio, Tv, ExternalLink, Share2, Sparkles, ChevronDown, ChevronUp, Crown, X } from 'lucide-react';
+import { Calendar, Bell, ShieldAlert, Phone, Mail, Award, MapPin, Clock, Heart, Users, Radio, Tv, ExternalLink, Share2, Sparkles, ChevronDown, ChevronUp, Crown, X, Image as ImageIcon, Film, Play, Eye } from 'lucide-react';
 
 const PublicHome = () => {
   const { settings, triggerToast } = useAuth();
   const [events, setEvents] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [gallery, setGallery] = useState([]);
+  const [galleryModalType, setGalleryModalType] = useState(null); // 'photos' | 'videos' | null
+  const [galleryFilter, setGalleryFilter] = useState('All');
   const [donationsInfo, setDonationsInfo] = useState({ publicVisible: false, totalAmount: 0, collections: [] });
   const [volunteers, setVolunteers] = useState([]);
   const [volunteersFilter, setVolunteersFilter] = useState('All');
@@ -45,7 +47,9 @@ const PublicHome = () => {
     // Fetch published gallery items
     fetch(`${API_URL}/gallery`)
       .then((res) => res.json())
-      .then((data) => setGallery(data.slice(0, 4))) // Show top 4
+      .then((data) => {
+        if (Array.isArray(data)) setGallery(data);
+      })
       .catch((err) => console.error(err));
   }, []);
 
@@ -245,22 +249,9 @@ const PublicHome = () => {
           </div>
         </div>
 
-        {/* Hero Interactive Badges: Idol Sponsor & Instagram */}
-        <div style={{ margin: '1rem 0 0.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-          {(settings?.idolSponsorActive !== false) && (settings?.idolSponsorName && settings?.idolSponsorName.trim().length > 0) && (
-            <button
-              type="button"
-              className="idol-sponsor-hero-btn"
-              onClick={() => setShowSponsorModal(true)}
-              title="Click to view Vinayaka Idol Sponsor"
-            >
-              <span className="idol-sponsor-shine-dot"></span>
-              <Crown size={18} />
-              <span>👑 Idol Sponsor: {settings.idolSponsorName}</span>
-            </button>
-          )}
-
-          {settings?.instagramUrl && (
+        {/* Hero Interactive Badges: Instagram */}
+        {settings?.instagramUrl && (
+          <div style={{ margin: '1rem 0 0.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
             <a
               href={formatInstagramUrl(settings.instagramUrl)}
               target="_blank"
@@ -271,8 +262,8 @@ const PublicHome = () => {
               <InstagramIcon size={17} />
               <span>{settings.instagramHandle || 'Follow on Instagram'}</span>
             </a>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Live Broadcast Indicator inside Hero if active */}
         {liveEmbedUrl && (
@@ -326,15 +317,13 @@ const PublicHome = () => {
               <Crown size={28} />
             </div>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--primary)' }}>
-                  👑 Grand Patron & Seva
-                </span>
-                <span className="badge badge-festive" style={{ fontSize: '0.7rem', padding: '0.15rem 0.5rem' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'linear-gradient(135deg, rgba(255, 102, 0, 0.16), rgba(249, 200, 53, 0.28))', border: '1.5px solid rgba(255, 102, 0, 0.45)', borderRadius: '20px', padding: '0.25rem 0.85rem', marginBottom: '0.35rem', boxShadow: '0 2px 8px rgba(255,102,0,0.15)' }}>
+                <span style={{ fontSize: '0.95rem' }}>👑</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--primary)' }}>
                   Vinayaka Idol Sponsor
                 </span>
               </div>
-              <h3 style={{ fontSize: '1.35rem', color: '#B71C1C', margin: '0.2rem 0', fontWeight: 800 }}>
+              <h3 style={{ fontSize: '1.4rem', color: '#B71C1C', margin: '0.2rem 0', fontWeight: 800 }}>
                 {settings.idolSponsorName}
               </h3>
               <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: 0 }}>
@@ -352,9 +341,6 @@ const PublicHome = () => {
             >
               <Sparkles size={15} /> View Sponsor Blessing
             </button>
-            <Link to="/collections" className="btn btn-secondary btn-sm">
-              Donors List
-            </Link>
           </div>
         </div>
       )}
@@ -692,43 +678,131 @@ const PublicHome = () => {
         </div>
       </div>
 
-      {/* Gallery Section Preview */}
-      <div style={{ marginBottom: '2.5rem' }}>
-        <div className="action-header">
-          <h2 style={{ fontSize: '1.5rem', color: 'var(--primary)' }}>📸 Festival Gallery</h2>
-          <Link to="/gallery" className="btn btn-secondary btn-sm">View All Photos</Link>
-        </div>
-        {gallery.length === 0 ? (
-          <p style={{ color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'center', padding: '2rem' }}>
-            No images uploaded to the gallery yet.
-          </p>
-        ) : (
-          <div className="gallery-grid">
-            {gallery.map((item) => (
-              <div key={item._id} className="gallery-card">
-                <div className="gallery-img-container">
-                  {isVideoUrl(item.imageUrl) ? (
-                    <video
-                      src={getMediaUrl(item.imageUrl)}
-                      controls
+      {/* =========================================================================
+          FEATURE: Two Panels Gallery (Photos & Videos Separated)
+         ========================================================================= */}
+      {(() => {
+        const photos = gallery.filter((item) => !isVideoUrl(item.imageUrl));
+        const videos = gallery.filter((item) => isVideoUrl(item.imageUrl));
+
+        return (
+          <div style={{ marginBottom: '2.5rem' }}>
+            <div className="action-header" style={{ marginBottom: '1.25rem' }}>
+              <div>
+                <h2 style={{ fontSize: '1.5rem', color: 'var(--primary)', margin: 0 }}>📸 Festival Gallery</h2>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: '0.25rem 0 0' }}>Explore photos and videos separately</p>
+              </div>
+              <Link to="/gallery" className="btn btn-secondary btn-sm">Full Gallery Hub</Link>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+              {/* Panel 1: Photos */}
+              <Link
+                to="/gallery?type=photos"
+                className="gallery-panel-card"
+                style={{
+                  background: 'linear-gradient(145deg, #ffffff, #fff8f2)',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1.5px solid rgba(255, 102, 0, 0.25)',
+                  boxShadow: '0 8px 24px rgba(255, 102, 0, 0.08)',
+                  overflow: 'hidden',
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                <div style={{ height: '180px', background: 'linear-gradient(135deg, #ffe8d6, #ffd8b8)', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {photos.length > 0 && photos[0].imageUrl ? (
+                    <img
+                      src={getMediaUrl(photos[0].imageUrl)}
+                      alt="Festival Photos"
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   ) : (
-                    <img src={getMediaUrl(item.imageUrl)} alt={item.caption} />
+                    <div style={{ fontSize: '3.5rem' }}>🖼️</div>
                   )}
-                  <span className="gallery-badge">{item.eventCategory}</span>
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 60%)' }} />
+                  <span className="badge badge-festive" style={{ position: 'absolute', top: '12px', right: '12px', backdropFilter: 'blur(4px)' }}>
+                    📷 {photos.length} {photos.length === 1 ? 'Photo' : 'Photos'}
+                  </span>
+                  <div style={{ position: 'absolute', bottom: '12px', left: '16px', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'white' }}>
+                    <ImageIcon size={22} color="#FFE082" />
+                    <span style={{ fontSize: '1.15rem', fontWeight: 800, textShadow: '0 2px 4px rgba(0,0,0,0.6)' }}>Festival Photos</span>
+                  </div>
                 </div>
-                <div className="gallery-details">
-                  <p>{item.caption}</p>
+                <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: '0 0 1rem', lineHeight: 1.5 }}>
+                    Browse divine Ganesha Darshanam, puja rituals, pandal decorations, and celebratory moments.
+                  </p>
+                  <span
+                    className="btn btn-primary btn-sm"
+                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                  >
+                    <ImageIcon size={16} /> View Photos ({photos.length})
+                  </span>
                 </div>
-              </div>
-            ))}
+              </Link>
+
+              {/* Panel 2: Videos */}
+              <Link
+                to="/gallery?type=videos"
+                className="gallery-panel-card"
+                style={{
+                  background: 'linear-gradient(145deg, #ffffff, #fff8f2)',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1.5px solid rgba(255, 102, 0, 0.25)',
+                  boxShadow: '0 8px 24px rgba(255, 102, 0, 0.08)',
+                  overflow: 'hidden',
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                <div style={{ height: '180px', background: 'linear-gradient(135deg, #ffe0cc, #ffcaa3)', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {videos.length > 0 && videos[0].imageUrl ? (
+                    <video
+                      src={getMediaUrl(videos[0].imageUrl)}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      muted
+                      playsInline
+                    />
+                  ) : (
+                    <div style={{ fontSize: '3.5rem' }}>🎬</div>
+                  )}
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 60%)' }} />
+                  <span className="badge badge-festive" style={{ position: 'absolute', top: '12px', right: '12px', background: 'hsl(0, 80%, 50%)', backdropFilter: 'blur(4px)' }}>
+                    🎬 {videos.length} {videos.length === 1 ? 'Video' : 'Videos'}
+                  </span>
+                  <div style={{ position: 'absolute', bottom: '12px', left: '16px', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'white' }}>
+                    <Film size={22} color="#FFE082" />
+                    <span style={{ fontSize: '1.15rem', fontWeight: 800, textShadow: '0 2px 4px rgba(0,0,0,0.6)' }}>Festival Videos & Reels</span>
+                  </div>
+                </div>
+                <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: '0 0 1rem', lineHeight: 1.5 }}>
+                    Watch high-energy Harathi rituals, cultural dance, bhajans, dhol beats, and immersion procession videos.
+                  </p>
+                  <span
+                    className="btn btn-secondary btn-sm"
+                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', background: 'hsl(25, 95%, 50%)', color: 'white', border: 'none' }}
+                  >
+                    <Play size={16} /> Watch Videos ({videos.length})
+                  </span>
+                </div>
+              </Link>
+            </div>
           </div>
-        )}
-      </div>
+        );
+      })()}
 
       {/* =========================================================================
-          FEATURE 2: Responsive & Structured Contact Committee Section (Fixes screenshot 2)
+          FEATURE 2: Responsive & Structured Contact Committee Section
          ========================================================================= */}
       <div className="card glass-panel" style={{ padding: '2rem 1.5rem', border: '1px solid rgba(255, 102, 0, 0.2)' }}>
         <h2 style={{ fontSize: '1.4rem', color: 'var(--primary)', marginBottom: '0.5rem', textAlign: 'center' }}>
@@ -763,24 +837,6 @@ const PublicHome = () => {
             </a>
           )}
 
-          {/* Instagram Tile */}
-          {settings?.instagramUrl && (
-            <a
-              href={formatInstagramUrl(settings.instagramUrl)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="contact-tile contact-tile-instagram"
-            >
-              <div className="contact-icon-box">
-                <InstagramIcon size={20} />
-              </div>
-              <div className="contact-tile-content">
-                <span className="contact-tile-label">Instagram Updates</span>
-                <span className="contact-tile-value">{settings?.instagramHandle || 'Follow Us'}</span>
-              </div>
-            </a>
-          )}
-
           {/* Location Tile */}
           <div className="contact-tile contact-tile-static">
             <div className="contact-icon-box">
@@ -793,6 +849,141 @@ const PublicHome = () => {
           </div>
         </div>
       </div>
+
+      {/* =========================================================================
+          FEATURE: Separate Photos / Videos Interactive Modal
+         ========================================================================= */}
+      {galleryModalType && (
+        <div
+          className="sponsor-modal-overlay"
+          onClick={() => setGalleryModalType(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="sponsor-modal-dialog"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '950px', width: '95%', maxHeight: '90vh', overflowY: 'auto' }}
+          >
+            <div className="sponsor-modal-header" style={{ background: galleryModalType === 'photos' ? 'var(--grad-festive)' : 'linear-gradient(135deg, hsl(0, 80%, 45%), hsl(25, 95%, 45%))' }}>
+              <button
+                type="button"
+                className="sponsor-modal-close-btn"
+                onClick={() => setGalleryModalType(null)}
+                aria-label="Close modal"
+              >
+                <X size={18} />
+              </button>
+              <div style={{ fontSize: '2.5rem', marginBottom: '0.25rem' }}>
+                {galleryModalType === 'photos' ? '📸' : '🎬'}
+              </div>
+              <h2 style={{ color: 'white', fontSize: '1.4rem', margin: 0, fontWeight: 800 }}>
+                {galleryModalType === 'photos' ? 'Festival Photos Collection' : 'Festival Videos & Reels'}
+              </h2>
+              <p style={{ color: '#FFE082', fontSize: '0.85rem', margin: '0.25rem 0 0' }}>
+                {galleryModalType === 'photos' ? 'High-resolution moments from our sacred celebrations' : 'Watch divine pooja harathi, bhajans & procession clips'}
+              </p>
+            </div>
+
+            <div className="sponsor-modal-body" style={{ padding: '1.5rem' }}>
+              {/* Category Filter Chips inside Modal */}
+              {(() => {
+                const mediaItems = gallery.filter((item) =>
+                  galleryModalType === 'photos' ? !isVideoUrl(item.imageUrl) : isVideoUrl(item.imageUrl)
+                );
+                const categoriesInMedia = ['All', ...new Set(mediaItems.map((i) => i.eventCategory).filter(Boolean))];
+                const displayedItems = galleryFilter === 'All'
+                  ? mediaItems
+                  : mediaItems.filter((i) => i.eventCategory === galleryFilter);
+
+                return (
+                  <>
+                    {categoriesInMedia.length > 1 && (
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+                        {categoriesInMedia.map((cat) => (
+                          <button
+                            key={cat}
+                            type="button"
+                            onClick={() => setGalleryFilter(cat)}
+                            className="btn btn-sm"
+                            style={{
+                              background: galleryFilter === cat ? 'var(--primary)' : 'hsl(30, 20%, 94%)',
+                              color: galleryFilter === cat ? 'white' : 'var(--text-main)',
+                              border: '1px solid var(--border-color)',
+                              borderRadius: '20px',
+                              padding: '0.2rem 0.75rem',
+                              fontSize: '0.8rem',
+                              fontWeight: 600,
+                            }}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {displayedItems.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-muted)' }}>
+                        <p style={{ fontStyle: 'italic', fontSize: '1rem' }}>
+                          No {galleryModalType === 'photos' ? 'photos' : 'videos'} uploaded under this category yet.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="gallery-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
+                        {displayedItems.map((item) => (
+                          <div key={item._id} className="gallery-card" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                            <div className="gallery-img-container" style={{ height: '200px' }}>
+                              {isVideoUrl(item.imageUrl) ? (
+                                <video
+                                  src={getMediaUrl(item.imageUrl)}
+                                  controls
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                              ) : (
+                                <img
+                                  src={getMediaUrl(item.imageUrl)}
+                                  alt={item.caption}
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                              )}
+                              <span className="gallery-badge">{item.eventCategory}</span>
+                            </div>
+                            <div className="gallery-details" style={{ padding: '0.75rem' }}>
+                              <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600 }}>{item.caption}</p>
+                              {item.date && (
+                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '0.35rem' }}>
+                                  📅 {new Date(item.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)', flexWrap: 'wrap', gap: '0.75rem' }}>
+                      <Link
+                        to={`/gallery?type=${galleryModalType}`}
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => setGalleryModalType(null)}
+                      >
+                        🚀 Open Full Gallery Page
+                      </Link>
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        onClick={() => setGalleryModalType(null)}
+                      >
+                        Close Window
+                      </button>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* =========================================================================
           FEATURE: Vinayaka Idol Sponsor Festive Modal
