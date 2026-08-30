@@ -50,6 +50,10 @@ const settingsSchema = new mongoose.Schema(
       type: String,
       default: '9948050484',
     },
+    upiId: {
+      type: String,
+      default: '9948050484@ybl',
+    },
     accountName: {
       type: String,
       default: 'UPPUTURI VENKATA GANESH',

@@ -75,6 +75,65 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+// @route   POST /api/collections/public-donate
+// @desc    Submit an online UPI donation from public portal (creates Pending record for admin verification)
+// @access  Public
+router.post('/public-donate', async (req, res, next) => {
+  const { donorName, amount, phone, paymentMode, paymentApp, transactionRef, purpose, notes, showPublicly } = req.body;
+
+  try {
+    if (!donorName || !donorName.trim()) {
+      return res.status(400).json({ message: 'Please provide full donor name as in payment app' });
+    }
+
+    const parsedAmount = Number(amount);
+    if (!parsedAmount || isNaN(parsedAmount) || parsedAmount <= 0) {
+      return res.status(400).json({ message: 'Please provide a valid donation amount' });
+    }
+
+    if (transactionRef && transactionRef.trim()) {
+      const duplicateRef = await Collection.findOne({ transactionRef: transactionRef.trim(), isDeleted: false });
+      if (duplicateRef) {
+        return res.status(400).json({ message: `Transaction reference "${transactionRef}" has already been submitted` });
+      }
+    }
+
+    const count = await Collection.countDocuments({});
+    const collectionId = `COLL-${1000 + count + 1}`;
+
+    const collection = await Collection.create({
+      collectionId,
+      date: new Date(),
+      donorName: donorName.trim(),
+      phone: phone ? phone.trim() : '',
+      amount: parsedAmount,
+      paymentMode: paymentMode || 'UPI',
+      transactionRef: transactionRef ? transactionRef.trim() : '',
+      purpose: purpose || 'General Festival Seva Donation',
+      notes: notes ? notes.trim() : (paymentApp ? `Online Donation via ${paymentApp}` : 'Online UPI Donation'),
+      addedBy: 'Online Devotee',
+      approvalStatus: 'Submitted', // Submitted = Pending verification by Admin
+      showPublicly: showPublicly !== undefined ? Boolean(showPublicly) : true,
+    });
+
+    await logActivity({
+      user: 'Online Devotee',
+      action: 'Submitted Online UPI Donation',
+      recordType: 'Collection',
+      recordId: collection.collectionId,
+      newValue: collection.toObject(),
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Donation recorded successfully! It is awaiting committee verification.',
+      collection,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // @route   POST /api/collections
 // @desc    Add a new collection
 // @access  Private (Super Admin, Treasurer)

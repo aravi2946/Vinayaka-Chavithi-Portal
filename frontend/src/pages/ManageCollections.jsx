@@ -254,9 +254,9 @@ const ManageCollections = () => {
 
           <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="form-control" style={{ width: 'auto', padding: '0.4rem 1rem' }}>
             <option value="">All Statuses</option>
-            <option value="Draft">Draft</option>
-            <option value="Submitted">Submitted</option>
+            <option value="Submitted">Pending Approval (Online)</option>
             <option value="Approved">Approved</option>
+            <option value="Draft">Draft</option>
           </select>
         </div>
       </div>
@@ -304,7 +304,9 @@ const ManageCollections = () => {
                   <td>{coll.paymentMode}</td>
                   <td style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{coll.transactionRef || '-'}</td>
                   <td>
-                    <span className={`badge badge-${coll.approvalStatus.toLowerCase()}`}>{coll.approvalStatus}</span>
+                    <span className={`badge badge-${coll.approvalStatus === 'Submitted' ? 'warning' : coll.approvalStatus.toLowerCase()}`}>
+                      {coll.approvalStatus === 'Submitted' ? '⏳ Pending' : coll.approvalStatus}
+                    </span>
                   </td>
                   <td style={{ textAlign: 'right' }}>
                     <div style={{ display: 'inline-flex', gap: '0.5rem' }}>

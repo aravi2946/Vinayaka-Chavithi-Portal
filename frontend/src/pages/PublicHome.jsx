@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth, API_URL, getMediaUrl, isVideoUrl, getYouTubeEmbedUrl, getYouTubeWatchUrl, formatInstagramUrl, InstagramIcon } from '../context/AuthContext';
-import { Calendar, Bell, ShieldAlert, Phone, Mail, Award, MapPin, Clock, Heart, Users, Radio, Tv, ExternalLink, Share2, Sparkles, ChevronDown, ChevronUp, Crown, X, Image as ImageIcon, Film, Play, Eye } from 'lucide-react';
+import { Calendar, Bell, ShieldAlert, Phone, Mail, Award, MapPin, Clock, Heart, Users, Radio, Tv, ExternalLink, Share2, Sparkles, ChevronDown, ChevronUp, X, Image as ImageIcon, Film, Play, Eye } from 'lucide-react';
+import DonateModal from '../components/DonateModal';
 
 const PublicHome = () => {
   const { settings, triggerToast } = useAuth();
@@ -15,14 +16,19 @@ const PublicHome = () => {
   const [volunteersFilter, setVolunteersFilter] = useState('All');
   const [showVolunteersGrid, setShowVolunteersGrid] = useState(false);
   const [showSponsorModal, setShowSponsorModal] = useState(false);
+  const [showDonateModal, setShowDonateModal] = useState(false);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, finished: false });
 
-  useEffect(() => {
-    // Fetch public collections info
+  const fetchCollectionsSummary = () => {
     fetch(`${API_URL}/collections`)
       .then((res) => res.json())
       .then((data) => setDonationsInfo(data))
       .catch((err) => console.error(err));
+  };
+
+  useEffect(() => {
+    // Fetch public collections info
+    fetchCollectionsSummary();
 
     // Fetch active volunteers for public honor roll
     fetch(`${API_URL}/volunteers`)
@@ -312,35 +318,24 @@ const PublicHome = () => {
          ========================================================================= */}
       {(settings?.idolSponsorActive !== false) && (settings?.idolSponsorName && settings?.idolSponsorName.trim().length > 0) && (
         <div className="idol-sponsor-card" style={{ marginBottom: '2.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', width: '100%' }}>
             <div className="idol-sponsor-icon-badge">
-              <Crown size={28} />
+              <span style={{ fontSize: '1.6rem', lineHeight: 1 }}>🙏</span>
             </div>
-            <div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'linear-gradient(135deg, rgba(255, 102, 0, 0.16), rgba(249, 200, 53, 0.28))', border: '1.5px solid rgba(255, 102, 0, 0.45)', borderRadius: '20px', padding: '0.25rem 0.85rem', marginBottom: '0.35rem', boxShadow: '0 2px 8px rgba(255,102,0,0.15)' }}>
-                <span style={{ fontSize: '0.95rem' }}>👑</span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--primary)' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'linear-gradient(135deg, rgba(255, 102, 0, 0.16), rgba(249, 200, 53, 0.28))', border: '1.5px solid rgba(255, 102, 0, 0.45)', borderRadius: '20px', padding: '0.25rem 0.85rem', marginBottom: '0.35rem', boxShadow: '0 2px 8px rgba(255,102,0,0.15)', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: '0.95rem', lineHeight: 1 }}>🙏</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--primary)', whiteSpace: 'nowrap' }}>
                   Vinayaka Idol Sponsor
                 </span>
               </div>
-              <h3 style={{ fontSize: '1.4rem', color: '#B71C1C', margin: '0.2rem 0', fontWeight: 800 }}>
+              <h3 style={{ fontSize: '1.4rem', color: '#B71C1C', margin: '0.2rem 0', fontWeight: 800, wordBreak: 'break-word' }}>
                 {settings.idolSponsorName}
               </h3>
-              <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: 0 }}>
+              <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: 0, wordBreak: 'break-word' }}>
                 {settings.idolSponsorDetails || 'Grand Eco-Friendly Clay Vinayaka Idol Seva'}
               </p>
             </div>
-          </div>
-
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={() => setShowSponsorModal(true)}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
-            >
-              <Sparkles size={15} /> View Sponsor Blessing
-            </button>
           </div>
         </div>
       )}
@@ -612,9 +607,20 @@ const PublicHome = () => {
             <div style={{ wordBreak: 'break-word' }}>Payment Number: <strong style={{ color: 'var(--text-main)' }}>{settings?.paymentNumber || '9948050484'}</strong></div>
           </div>
 
-          <Link to="/collections" className="btn btn-secondary btn-sm" style={{ width: '100%', textAlign: 'center' }}>
-            View Donor List
-          </Link>
+          <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <button
+              type="button"
+              className="donate-upi-btn"
+              onClick={() => setShowDonateModal(true)}
+              style={{ flex: '1 1 140px', padding: '0.65rem 1rem', fontSize: '0.9rem' }}
+            >
+              <span>🙏</span> Donate via UPI
+              <span className="donate-pulse-badge">✨</span>
+            </button>
+            <Link to="/collections" className="btn btn-secondary btn-sm" style={{ flex: '1 1 120px', textAlign: 'center', padding: '0.65rem 1rem' }}>
+              View Donor List
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -1006,7 +1012,7 @@ const PublicHome = () => {
               >
                 <X size={18} />
               </button>
-              <div style={{ fontSize: '2.5rem', marginBottom: '0.25rem' }}>👑</div>
+              <div style={{ fontSize: '2.5rem', marginBottom: '0.25rem' }}>🙏</div>
               <h2 id="home-sponsor-modal-title" style={{ color: 'white', fontSize: '1.4rem', margin: 0, fontWeight: 800 }}>
                 Vinayaka Idol Sponsor
               </h2>
@@ -1047,6 +1053,13 @@ const PublicHome = () => {
           </div>
         </div>
       )}
+
+      {/* Online UPI Donation Modal */}
+      <DonateModal
+        isOpen={showDonateModal}
+        onClose={() => setShowDonateModal(false)}
+        onSuccess={fetchCollectionsSummary}
+      />
     </div>
   );
 };

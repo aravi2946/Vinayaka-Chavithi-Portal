@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth, API_URL } from '../context/AuthContext';
-import { Heart, ShieldCheck, Landmark, Search, X, Sparkles, Crown, Filter, ArrowUpDown } from 'lucide-react';
+import { Heart, ShieldCheck, Landmark, Search, X, Sparkles, Filter, ArrowUpDown } from 'lucide-react';
+import DonateModal from '../components/DonateModal';
 
 const PublicCollections = () => {
   const { settings } = useAuth();
@@ -9,8 +10,9 @@ const PublicCollections = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('date-desc');
   const [showSponsorModal, setShowSponsorModal] = useState(false);
+  const [showDonateModal, setShowDonateModal] = useState(false);
 
-  useEffect(() => {
+  const fetchCollectionsData = () => {
     fetch(`${API_URL}/collections`)
       .then((res) => res.json())
       .then((data) => {
@@ -21,31 +23,38 @@ const PublicCollections = () => {
         console.error(err);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchCollectionsData();
   }, []);
 
-  // Filter and sort donor list client-side
   const filteredCollections = useMemo(() => {
     if (!data.collections || !Array.isArray(data.collections)) return [];
-    
-    let result = data.collections.filter((item) => {
-      if (!searchQuery.trim()) return true;
-      const query = searchQuery.toLowerCase().trim();
-      const donorMatch = item.donorName && item.donorName.toLowerCase().includes(query);
-      const amountMatch = item.amount && item.amount.toString().includes(query);
-      const dateStr = item.date ? new Date(item.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).toLowerCase() : '';
-      const dateMatch = dateStr.includes(query);
-      return donorMatch || amountMatch || dateMatch;
-    });
 
-    // Sorting
-    result.sort((a, b) => {
-      if (sortBy === 'amount-desc') return (b.amount || 0) - (a.amount || 0);
-      if (sortBy === 'amount-asc') return (a.amount || 0) - (b.amount || 0);
-      if (sortBy === 'name-asc') return (a.donorName || '').localeCompare(b.donorName || '');
-      if (sortBy === 'date-asc') return new Date(a.date) - new Date(b.date);
-      // default: 'date-desc'
-      return new Date(b.date) - new Date(a.date);
-    });
+    let result = [...data.collections];
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (c) =>
+          c.donorName?.toLowerCase().includes(q) ||
+          c.amount?.toString().includes(q) ||
+          new Date(c.date).toLocaleDateString('en-IN').includes(q)
+      );
+    }
+
+    if (sortBy === 'date-desc') {
+      result.sort((a, b) => new Date(b.date) - new Date(a.date));
+    } else if (sortBy === 'date-asc') {
+      result.sort((a, b) => new Date(a.date) - new Date(b.date));
+    } else if (sortBy === 'amount-desc') {
+      result.sort((a, b) => (b.amount || 0) - (a.amount || 0));
+    } else if (sortBy === 'amount-asc') {
+      result.sort((a, b) => (a.amount || 0) - (b.amount || 0));
+    } else if (sortBy === 'name-asc') {
+      result.sort((a, b) => (a.donorName || '').localeCompare(b.donorName || ''));
+    }
 
     return result;
   }, [data.collections, searchQuery, sortBy]);
@@ -67,10 +76,11 @@ const PublicCollections = () => {
             className="idol-sponsor-hero-btn"
             onClick={() => setShowSponsorModal(true)}
             title="View Vinayaka Idol Sponsor Details"
+            style={{ whiteSpace: 'nowrap' }}
           >
             <span className="idol-sponsor-shine-dot"></span>
-            <Crown size={18} />
-            <span>Vinayaka Idol Sponsor</span>
+            <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>🙏</span>
+            <span style={{ whiteSpace: 'nowrap' }}>Vinayaka Idol Sponsor</span>
           </button>
         )}
       </div>
@@ -78,36 +88,25 @@ const PublicCollections = () => {
       {/* Featured Vinayaka Idol Sponsor Card */}
       {hasIdolSponsor && (
         <div className="idol-sponsor-card" style={{ marginBottom: '2rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', width: '100%' }}>
             <div className="idol-sponsor-icon-badge">
-              <Crown size={28} />
+              <span style={{ fontSize: '1.6rem', lineHeight: 1 }}>🙏</span>
             </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--primary)' }}>
-                  👑 Grand Patron & Seva
-                </span>
-                <span className="badge badge-festive" style={{ fontSize: '0.7rem', padding: '0.15rem 0.5rem' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'linear-gradient(135deg, rgba(255, 102, 0, 0.16), rgba(249, 200, 53, 0.28))', border: '1.5px solid rgba(255, 102, 0, 0.45)', borderRadius: '20px', padding: '0.25rem 0.85rem', marginBottom: '0.35rem', boxShadow: '0 2px 8px rgba(255,102,0,0.15)', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: '0.95rem', lineHeight: 1 }}>🙏</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--primary)', whiteSpace: 'nowrap' }}>
                   Vinayaka Idol Sponsor
                 </span>
               </div>
-              <h3 style={{ fontSize: '1.35rem', color: '#B71C1C', margin: '0.2rem 0', fontWeight: 800 }}>
+              <h3 style={{ fontSize: '1.35rem', color: '#B71C1C', margin: '0.2rem 0', fontWeight: 800, wordBreak: 'break-word' }}>
                 {settings?.idolSponsorName}
               </h3>
-              <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: 0 }}>
+              <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: 0, wordBreak: 'break-word' }}>
                 {settings?.idolSponsorDetails || 'Grand Eco-Friendly Clay Vinayaka Idol Seva'}
               </p>
             </div>
           </div>
-
-          <button
-            type="button"
-            className="btn btn-primary btn-sm"
-            onClick={() => setShowSponsorModal(true)}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
-          >
-            <Sparkles size={15} /> View Sponsor Blessing
-          </button>
         </div>
       )}
 
@@ -150,7 +149,7 @@ const PublicCollections = () => {
 
           {/* Donation Bank / UPI Details Card */}
           <div className="card glass-panel" style={{ padding: '1.25rem 1.5rem', marginBottom: '2rem', border: '1px solid rgba(255, 102, 0, 0.15)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
-            <div>
+            <div style={{ flex: '1 1 280px' }}>
               <h3 style={{ fontSize: '1.15rem', color: 'var(--primary)', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span>💳</span> Support Our Festival - Donation Details
               </h3>
@@ -158,9 +157,19 @@ const PublicCollections = () => {
                 Your contributions fund Puja materials, community Annadanam dinners, and stage decorations.
               </p>
             </div>
-            <div style={{ fontSize: '0.9rem', color: 'var(--text-main)', borderLeft: '3px solid var(--primary)', paddingLeft: '1rem' }}>
-              <div style={{ marginBottom: '0.1rem' }}>Account Name: <strong style={{ fontWeight: 700 }}>{settings?.accountName || 'UPPUTURI VENKATA GANESH'}</strong></div>
-              <div>Payment Number (UPI): <strong style={{ fontWeight: 700 }}>{settings?.paymentNumber || '9948050484'}</strong></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
+              <div style={{ fontSize: '0.9rem', color: 'var(--text-main)', borderLeft: '3px solid var(--primary)', paddingLeft: '1rem' }}>
+                <div style={{ marginBottom: '0.1rem' }}>Account Name: <strong style={{ fontWeight: 700 }}>{settings?.accountName || 'UPPUTURI VENKATA GANESH'}</strong></div>
+                <div>Payment Number (UPI): <strong style={{ fontWeight: 700 }}>{settings?.paymentNumber || '9948050484'}</strong></div>
+              </div>
+              <button
+                type="button"
+                className="donate-upi-btn"
+                onClick={() => setShowDonateModal(true)}
+              >
+                <span>🙏</span> Donate Online (UPI)
+                <span className="donate-pulse-badge">✨</span>
+              </button>
             </div>
           </div>
 
@@ -342,7 +351,7 @@ const PublicCollections = () => {
               >
                 <X size={18} />
               </button>
-              <div style={{ fontSize: '2.5rem', marginBottom: '0.25rem' }}>👑</div>
+              <div style={{ fontSize: '2.5rem', marginBottom: '0.25rem' }}>🙏</div>
               <h2 id="sponsor-modal-title" style={{ color: 'white', fontSize: '1.4rem', margin: 0, fontWeight: 800 }}>
                 Vinayaka Idol Sponsor
               </h2>
@@ -383,6 +392,13 @@ const PublicCollections = () => {
           </div>
         </div>
       )}
+
+      {/* Online UPI Donation Modal */}
+      <DonateModal
+        isOpen={showDonateModal}
+        onClose={() => setShowDonateModal(false)}
+        onSuccess={fetchCollectionsData}
+      />
     </div>
   );
 };

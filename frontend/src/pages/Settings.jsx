@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth, API_URL, getMediaUrl, getYouTubeEmbedUrl, extractYouTubeId, formatInstagramUrl, InstagramIcon } from '../context/AuthContext';
-import { Settings as SettingsIcon, Save, Globe, Lock, Info, Video, Tv, Radio, ExternalLink, Sparkles, MapPin, Phone, Mail, Crown } from 'lucide-react';
+import { Settings as SettingsIcon, Save, Globe, Lock, Info, Video, Tv, Radio, ExternalLink, Sparkles, MapPin, Phone, Mail } from 'lucide-react';
 
 const Settings = () => {
   const { user, settings, fetchSettings, triggerToast } = useAuth();
@@ -97,6 +97,7 @@ const Settings = () => {
     liveStreamTitle: 'Vinayaka Chavithi Mahotsavam - Live Darshanam',
     liveStreamDescription: 'Watch live morning & evening aarti, special homam, and cultural celebrations directly from the mandap.',
     paymentNumber: '',
+    upiId: '',
     accountName: '',
     publicCollectionVisibility: true,
     registrationSettings: true,
@@ -145,6 +146,7 @@ const Settings = () => {
         liveStreamTitle: settings.liveStreamTitle || 'Vinayaka Chavithi Mahotsavam - Live Darshanam',
         liveStreamDescription: settings.liveStreamDescription || 'Watch live morning & evening aarti, special homam, and cultural celebrations directly from the mandap.',
         paymentNumber: settings.paymentNumber || '',
+        upiId: settings.upiId || '',
         accountName: settings.accountName || '',
         publicCollectionVisibility: settings.publicCollectionVisibility !== undefined ? settings.publicCollectionVisibility : true,
         registrationSettings: settings.registrationSettings !== undefined ? settings.registrationSettings : true,
@@ -530,9 +532,9 @@ const Settings = () => {
                 </div>
               </div>
 
-              <div className="grid-2">
+              <div className="grid-3">
                 <div className="form-group">
-                  <label htmlFor="accountName">Donation Account Name</label>
+                  <label htmlFor="accountName">Donation Account / Receiver Name</label>
                   <input
                     type="text"
                     id="accountName"
@@ -544,7 +546,7 @@ const Settings = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="paymentNumber">Donation Payment / UPI Number</label>
+                  <label htmlFor="paymentNumber">Payment Phone Number</label>
                   <input
                     type="text"
                     id="paymentNumber"
@@ -555,6 +557,21 @@ const Settings = () => {
                     onChange={handleInputChange}
                   />
                 </div>
+                <div className="form-group">
+                  <label htmlFor="upiId">Receiver UPI ID / VPA</label>
+                  <input
+                    type="text"
+                    id="upiId"
+                    name="upiId"
+                    className="form-control"
+                    placeholder="E.g. 9948050484@ybl or name@upi"
+                    value={form.upiId}
+                    onChange={handleInputChange}
+                  />
+                  <small style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                    Used for automatic UPI app triggers (PhonePe, GPay, Paytm).
+                  </small>
+                </div>
               </div>
             </div>
 
@@ -562,7 +579,7 @@ const Settings = () => {
             <div className="card card-festive-border">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
                 <h2 style={{ fontSize: '1.25rem', color: 'var(--primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Crown size={20} style={{ color: '#FFB300' }} /> 👑 Vinayaka Idol Sponsor Management
+                  <span>🙏</span> Vinayaka Idol Sponsor Management
                 </h2>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <input
@@ -638,7 +655,7 @@ const Settings = () => {
                   </span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
                     <span className="idol-sponsor-hero-btn" style={{ cursor: 'default' }}>
-                      <Crown size={16} /> 👑 Idol Sponsor: {form.idolSponsorName}
+                      🙏 Idol Sponsor: {form.idolSponsorName}
                     </span>
                     <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                       • {form.idolSponsorDetails || 'Idol Seva'}
