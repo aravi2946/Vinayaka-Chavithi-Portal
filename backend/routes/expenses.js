@@ -120,8 +120,8 @@ router.get('/dashboard', async (req, res, next) => {
 
     const donorCount = approvedCollections.length;
 
-    // CATEGORY COMPARISON
-    const categoriesList = [
+    // CATEGORY COMPARISON - Merge standard and custom categories
+    const standardCategories = [
       'Decorations',
       'Puja materials',
       'Food/Annadanam',
@@ -143,27 +143,36 @@ router.get('/dashboard', async (req, res, next) => {
     });
 
     const categoryActuals = {};
-    categoriesList.forEach((cat) => {
-      categoryActuals[cat] = 0;
-    });
 
     approvedExpenses.forEach((exp) => {
-      if (categoryActuals[exp.expenseCategory] !== undefined) {
-        categoryActuals[exp.expenseCategory] += exp.amount;
+      const cat = exp.expenseCategory ? exp.expenseCategory.trim() : 'Other';
+      if (categoryActuals[cat] !== undefined) {
+        categoryActuals[cat] += exp.amount;
       } else {
-        categoryActuals[exp.expenseCategory] = exp.amount;
+        categoryActuals[cat] = exp.amount;
       }
     });
 
-    const budgetVsActual = categoriesList.map((cat) => {
+    // Merge standard categories with any custom categories from approved expenses and budgets
+    const allCategoriesList = Array.from(
+      new Set([
+        ...standardCategories,
+        ...categoryBudgets.map((b) => b.category.trim()),
+        ...approvedExpenses.map((e) => (e.expenseCategory ? e.expenseCategory.trim() : 'Other')),
+      ])
+    );
+
+    const budgetVsActual = allCategoriesList.map((cat) => {
       const budgetVal = budgetMap[cat] || 0;
       const actualVal = categoryActuals[cat] || 0;
+      const remaining = budgetVal - actualVal;
+      const percentUsed = budgetVal > 0 ? Math.round((actualVal / budgetVal) * 100) : actualVal > 0 ? 100 : 0;
       return {
         category: cat,
         budget: budgetVal,
         actual: actualVal,
-        remaining: budgetVal - actualVal,
-        percentUsed: budgetVal > 0 ? Math.round((actualVal / budgetVal) * 100) : 0,
+        remaining,
+        percentUsed,
       };
     });
 
