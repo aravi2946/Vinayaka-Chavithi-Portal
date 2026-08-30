@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth, API_URL } from '../context/AuthContext';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
-import { FileText, Download, Wallet, TrendingUp, Calendar, AlertTriangle } from 'lucide-react';
+import { FileText, Download, Wallet, TrendingUp, Calendar, AlertTriangle, FileSpreadsheet } from 'lucide-react';
 
 const FinancialReports = () => {
   const { user, settings, triggerToast } = useAuth();
@@ -282,6 +282,59 @@ const FinancialReports = () => {
     }
   };
 
+  const downloadCSVReport = (type) => {
+    if (type === 'collections') {
+      if (!collections || collections.length === 0) {
+        triggerToast('No approved collections available to export', 'info');
+        return;
+      }
+      const headers = ['Receipt ID', 'Date', 'Donor Name', 'Phone', 'Amount (INR)', 'Payment Mode', 'Transaction Ref', 'Purpose'];
+      const rows = collections.map((c) => [
+        c.collectionId || '',
+        c.date ? new Date(c.date).toLocaleDateString('en-IN') : '',
+        (c.donorName || '').replace(/"/g, '""'),
+        c.phone || '',
+        c.amount || 0,
+        c.paymentMode || '',
+        (c.transactionRef || '').replace(/"/g, '""'),
+        (c.purpose || '').replace(/"/g, '""'),
+      ]);
+      const csv = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map((r) => r.map((v) => `"${v}"`).join(','))].join('\n');
+      const link = document.createElement('a');
+      link.href = encodeURI(csv);
+      link.download = `collections_report_${settings.festivalYear || new Date().getFullYear()}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      triggerToast('Collections CSV downloaded successfully', 'success');
+    } else if (type === 'expenses') {
+      if (!expenses || expenses.length === 0) {
+        triggerToast('No approved expenses available to export', 'info');
+        return;
+      }
+      const headers = ['Expense ID', 'Date', 'Category', 'Description', 'Amount (INR)', 'Paid To', 'Payment Mode', 'Bill Receipt No', 'Notes'];
+      const rows = expenses.map((e) => [
+        e.expenseId || '',
+        e.date ? new Date(e.date).toLocaleDateString('en-IN') : '',
+        e.expenseCategory || '',
+        (e.description || '').replace(/"/g, '""'),
+        e.amount || 0,
+        (e.paidTo || '').replace(/"/g, '""'),
+        e.paymentMode || '',
+        (e.billReceiptNo || '').replace(/"/g, '""'),
+        (e.notes || '').replace(/"/g, '""'),
+      ]);
+      const csv = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map((r) => r.map((v) => `"${v}"`).join(','))].join('\n');
+      const link = document.createElement('a');
+      link.href = encodeURI(csv);
+      link.download = `expenses_report_${settings.festivalYear || new Date().getFullYear()}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      triggerToast('Expenses CSV downloaded successfully', 'success');
+    }
+  };
+
   if (loading) {
     return <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--primary)' }}>Loading financial aggregates...</div>;
   }
@@ -310,9 +363,14 @@ const FinancialReports = () => {
           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
             Contains receipt numbers, dates, approved donor names, payment modes (UPI/Cash), transaction codes, and total amount totals.
           </p>
-          <button className="btn btn-primary btn-sm" style={{ width: '100%' }} onClick={() => downloadPDFReport('collections')}>
-            <Download size={14} /> Download collections PDF
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <button className="btn btn-primary btn-sm" style={{ flex: 1, minWidth: '130px' }} onClick={() => downloadPDFReport('collections')}>
+              <Download size={14} /> Download PDF
+            </button>
+            <button className="btn btn-secondary btn-sm" style={{ flex: 1, minWidth: '130px' }} onClick={() => downloadCSVReport('collections')}>
+              <FileSpreadsheet size={14} /> Download CSV
+            </button>
+          </div>
         </div>
 
         {/* Expenses Card */}
@@ -329,9 +387,14 @@ const FinancialReports = () => {
           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
             Lists all expenses including decorations, pujas, lightings, sound systems, payouts to vendors, and bill reference receipts.
           </p>
-          <button className="btn btn-primary btn-sm" style={{ width: '100%', backgroundColor: 'var(--danger)' }} onClick={() => downloadPDFReport('expenses')}>
-            <Download size={14} /> Download Expenses PDF
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <button className="btn btn-primary btn-sm" style={{ flex: 1, minWidth: '130px', backgroundColor: 'var(--danger)', borderColor: 'var(--danger)' }} onClick={() => downloadPDFReport('expenses')}>
+              <Download size={14} /> Download PDF
+            </button>
+            <button className="btn btn-secondary btn-sm" style={{ flex: 1, minWidth: '130px' }} onClick={() => downloadCSVReport('expenses')}>
+              <FileSpreadsheet size={14} /> Download CSV
+            </button>
+          </div>
         </div>
 
         {/* Budget vs Actual Card */}

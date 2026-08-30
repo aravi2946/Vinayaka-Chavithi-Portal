@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth, API_URL } from '../context/AuthContext';
-import { Plus, Search, Filter, Check, Edit2, Trash2, X, AlertTriangle, Coins, Receipt, Edit, DollarSign } from 'lucide-react';
+import { Plus, Search, Filter, Check, Edit2, Trash2, X, AlertTriangle, Coins, Receipt, Edit, DollarSign, FileSpreadsheet } from 'lucide-react';
 
 const ManageExpenses = () => {
   const { user, triggerToast } = useAuth();
@@ -308,6 +308,52 @@ const ManageExpenses = () => {
     }
   };
 
+  const handleExportCSV = () => {
+    if (!expenses || expenses.length === 0) {
+      triggerToast('No expense records available to export', 'info');
+      return;
+    }
+
+    const headers = [
+      'Expense ID',
+      'Date',
+      'Category',
+      'Description',
+      'Amount (INR)',
+      'Paid To',
+      'Payment Mode',
+      'Bill Receipt No',
+      'Status',
+      'Notes',
+    ];
+
+    const rows = expenses.map((exp) => [
+      exp.expenseId || '',
+      exp.date ? new Date(exp.date).toLocaleDateString('en-IN') : '',
+      exp.expenseCategory || '',
+      (exp.description || '').replace(/"/g, '""'),
+      exp.amount || 0,
+      (exp.paidTo || '').replace(/"/g, '""'),
+      exp.paymentMode || '',
+      (exp.billReceiptNo || '').replace(/"/g, '""'),
+      exp.approvalStatus || '',
+      (exp.notes || '').replace(/"/g, '""'),
+    ]);
+
+    const csvContent =
+      'data:text/csv;charset=utf-8,\uFEFF' +
+      [headers.join(','), ...rows.map((row) => row.map((val) => `"${val}"`).join(','))].join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `expenses_export_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    triggerToast('Expenses CSV exported successfully', 'success');
+  };
+
   return (
     <div className="page-container">
       <div className="action-header">
@@ -315,7 +361,10 @@ const ManageExpenses = () => {
           <h1 style={{ color: 'var(--primary)', fontSize: '2rem' }}>🧾 Expense & Budget Management</h1>
           <p style={{ color: 'var(--text-muted)' }}>Log expenditures, manage category targets, and review financial balances.</p>
         </div>
-        <div>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <button className="btn btn-secondary btn-sm" onClick={handleExportCSV} title="Download expenses as CSV">
+            <FileSpreadsheet size={16} /> Download CSV
+          </button>
           <button className="btn btn-primary btn-sm" onClick={handleOpenAddExpense}>
             <Plus size={16} /> Add Expense Log
           </button>
