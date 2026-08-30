@@ -31,6 +31,7 @@ const ManageExpenses = () => {
     notes: '',
     approvalStatus: 'Draft',
   });
+  const [customCategory, setCustomCategory] = useState('');
 
   // Budget form state
   const [budgetForm, setBudgetForm] = useState({
@@ -112,6 +113,7 @@ const ManageExpenses = () => {
 
   const handleOpenAddExpense = () => {
     setEditingExpenseId(null);
+    setCustomCategory('');
     setExpenseForm({
       date: new Date().toISOString().substring(0, 10),
       expenseCategory: 'Decorations',
@@ -128,17 +130,36 @@ const ManageExpenses = () => {
 
   const handleOpenEditExpense = (exp) => {
     setEditingExpenseId(exp._id);
-    setExpenseForm({
-      date: new Date(exp.date).toISOString().substring(0, 10),
-      expenseCategory: exp.expenseCategory,
-      description: exp.description,
-      amount: exp.amount,
-      paidTo: exp.paidTo,
-      paymentMode: exp.paymentMode,
-      billReceiptNo: exp.billReceiptNo || '',
-      notes: exp.notes || '',
-      approvalStatus: exp.approvalStatus,
-    });
+    const standardCategories = categories.filter((c) => c !== 'Other');
+    const isStandard = standardCategories.includes(exp.expenseCategory);
+
+    if (isStandard) {
+      setCustomCategory('');
+      setExpenseForm({
+        date: new Date(exp.date).toISOString().substring(0, 10),
+        expenseCategory: exp.expenseCategory,
+        description: exp.description,
+        amount: exp.amount,
+        paidTo: exp.paidTo,
+        paymentMode: exp.paymentMode,
+        billReceiptNo: exp.billReceiptNo || '',
+        notes: exp.notes || '',
+        approvalStatus: exp.approvalStatus,
+      });
+    } else {
+      setCustomCategory(exp.expenseCategory === 'Other' ? '' : exp.expenseCategory);
+      setExpenseForm({
+        date: new Date(exp.date).toISOString().substring(0, 10),
+        expenseCategory: 'Other',
+        description: exp.description,
+        amount: exp.amount,
+        paidTo: exp.paidTo,
+        paymentMode: exp.paymentMode,
+        billReceiptNo: exp.billReceiptNo || '',
+        notes: exp.notes || '',
+        approvalStatus: exp.approvalStatus,
+      });
+    }
     setExpenseModalOpen(true);
   };
 
@@ -163,6 +184,20 @@ const ManageExpenses = () => {
       return;
     }
 
+    if (expenseForm.expenseCategory === 'Other' && !customCategory.trim()) {
+      triggerToast('Please enter your custom category name in the text box', 'warning');
+      return;
+    }
+
+    const finalCategory = expenseForm.expenseCategory === 'Other' && customCategory.trim()
+      ? customCategory.trim()
+      : expenseForm.expenseCategory;
+
+    const payload = {
+      ...expenseForm,
+      expenseCategory: finalCategory,
+    };
+
     try {
       const token = user.token;
       const url = editingExpenseId ? `${API_URL}/expenses/${editingExpenseId}` : `${API_URL}/expenses`;
@@ -174,7 +209,7 @@ const ManageExpenses = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(expenseForm),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -307,7 +342,7 @@ const ManageExpenses = () => {
             <div className="search-filters">
               <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="form-control" style={{ width: 'auto', padding: '0.4rem 0.75rem', fontSize: '0.85rem' }}>
                 <option value="">All Categories</option>
-                {categories.map((c) => (
+                {Array.from(new Set([...categories, ...expenses.map((e) => e.expenseCategory).filter(Boolean)])).map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
@@ -504,6 +539,26 @@ const ManageExpenses = () => {
                         <option key={c} value={c}>{c}</option>
                       ))}
                     </select>
+
+                    {expenseForm.expenseCategory === 'Other' && (
+                      <div style={{ marginTop: '0.6rem', animation: 'fadeIn 0.2s ease' }}>
+                        <label htmlFor="customCategory" style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--primary)', display: 'block', marginBottom: '0.25rem' }}>
+                          ✍️ Specify Custom Category Name *
+                        </label>
+                        <input
+                          type="text"
+                          id="customCategory"
+                          name="customCategory"
+                          className="form-control"
+                          placeholder="e.g. Stage Flowers, Generator Rent, Flex Printing..."
+                          value={customCategory}
+                          onChange={(e) => setCustomCategory(e.target.value)}
+                          required
+                          autoFocus
+                          style={{ borderColor: 'var(--primary)' }}
+                        />
+                      </div>
+                    )}
                   </div>
                   <div className="form-group">
                     <label htmlFor="paidTo">Paid To (Vendor/Payee) *</label>

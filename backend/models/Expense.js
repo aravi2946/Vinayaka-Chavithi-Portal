@@ -15,20 +15,7 @@ const expenseSchema = new mongoose.Schema(
     expenseCategory: {
       type: String,
       required: true,
-      enum: [
-        'Decorations',
-        'Puja materials',
-        'Food/Annadanam',
-        'Sound system',
-        'Lighting',
-        'Stage',
-        'Transportation',
-        'Security',
-        'Cultural programs',
-        'Printing',
-        'Cleaning',
-        'Other',
-      ],
+      trim: true,
     },
     description: {
       type: String,
