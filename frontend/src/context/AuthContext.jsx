@@ -72,36 +72,48 @@ export const InstagramIcon = ({ size = 18, color = 'currentColor', className = '
   </svg>
 );
 
+const DEFAULT_SETTINGS = {
+  festivalName: 'Vinayaka Chavithi Celebration',
+  committeeName: 'Festival Committee',
+  festivalYear: 2026,
+  festivalDates: 'September 14 - September 19, 2026',
+  logoUrl: '',
+  ganeshaImageUrl: '',
+  contactInfo: '+91 9948050484',
+  contactPhone: '+91 9948050484',
+  contactEmail: 'srinarahari4@gmail.com',
+  contactLocation: 'Central Mandap Arena',
+  liveStreamActive: false,
+  liveStreamUrl: '',
+  liveStreamTitle: 'Vinayaka Chavithi Mahotsavam - Live Darshanam',
+  liveStreamDescription: 'Watch live morning & evening aarti, special homam, and cultural celebrations directly from the mandap.',
+  publicCollectionVisibility: true,
+  registrationSettings: true,
+  announcementSettings: true,
+  paymentNumber: '9948050484',
+  accountName: 'UPPUTURI VENKATA GANESH',
+  idolSponsorActive: true,
+  idolSponsorName: 'UPPUTURI VENKATA GANESH',
+  idolSponsorDetails: 'Grand 9ft Eco-Friendly Clay Ganesha Idol Seva',
+  idolSponsorMessage: 'Heartfelt gratitude and Lord Vinayaka blessings to the sponsor family for divine patronage.',
+  idolSponsorAmount: '',
+  instagramUrl: 'https://instagram.com/',
+  instagramHandle: '@vinayaka_utsav',
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [settings, setSettings] = useState({
-    festivalName: 'Vinayaka Chavithi Celebration',
-    committeeName: 'Festival Committee',
-    festivalYear: 2026,
-    festivalDates: 'September 14 - September 19, 2026',
-    logoUrl: '',
-    ganeshaImageUrl: '',
-    contactInfo: '+91 9948050484',
-    contactPhone: '+91 9948050484',
-    contactEmail: 'srinarahari4@gmail.com',
-    contactLocation: 'Central Mandap Arena',
-    liveStreamActive: false,
-    liveStreamUrl: '',
-    liveStreamTitle: 'Vinayaka Chavithi Mahotsavam - Live Darshanam',
-    liveStreamDescription: 'Watch live morning & evening aarti, special homam, and cultural celebrations directly from the mandap.',
-    publicCollectionVisibility: true,
-    registrationSettings: true,
-    announcementSettings: true,
-    paymentNumber: '9948050484',
-    accountName: 'UPPUTURI VENKATA GANESH',
-    idolSponsorActive: true,
-    idolSponsorName: 'UPPUTURI VENKATA GANESH',
-    idolSponsorDetails: 'Grand 9ft Eco-Friendly Clay Ganesha Idol Seva',
-    idolSponsorMessage: 'Heartfelt gratitude and Lord Vinayaka blessings to the sponsor family for divine patronage.',
-    idolSponsorAmount: '',
-    instagramUrl: 'https://instagram.com/',
-    instagramHandle: '@vinayaka_utsav',
+  const [settings, setSettings] = useState(() => {
+    try {
+      const cached = localStorage.getItem('cached_festival_settings');
+      if (cached) {
+        return { ...DEFAULT_SETTINGS, ...JSON.parse(cached) };
+      }
+    } catch (e) {
+      console.error('Error reading cached festival settings:', e);
+    }
+    return DEFAULT_SETTINGS;
   });
   const [toasts, setToasts] = useState([]);
 
@@ -119,13 +131,18 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  // Fetch settings from API
+  // Fetch settings from API and update local cache
   const fetchSettings = async () => {
     try {
       const res = await fetch(`${API_URL}/settings`);
       if (res.ok) {
         const data = await res.json();
         setSettings(data);
+        try {
+          localStorage.setItem('cached_festival_settings', JSON.stringify(data));
+        } catch (e) {
+          console.error('Error saving cached festival settings:', e);
+        }
       }
     } catch (error) {
       console.error('Error fetching settings:', error);
