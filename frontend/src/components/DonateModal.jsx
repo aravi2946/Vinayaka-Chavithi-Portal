@@ -4,40 +4,45 @@ import { X, Check, Copy, ExternalLink, QrCode, Smartphone, Sparkles, Heart, Shie
 
 const QUICK_AMOUNTS = [101, 251, 501, 1116, 2501, 5001];
 
-// Realistic Brand SVG Logos
-const PhonePeLogo = ({ size = 36 }) => (
-  <svg width={size} height={size} viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0, borderRadius: '8px' }}>
-    <rect width="512" height="512" rx="112" fill="#5F259F" />
-    <path d="M344 140H198c-8.8 0-16 7.2-16 16v216c0 6.6 5.4 12 12 12h44c6.6 0 12-5.4 12-12v-84h94c64 0 106-40 106-94s-42-94-106-94zm-2 124h-92v-60h92c30 0 46 13 46 30s-16 30-46 30z" fill="#FFFFFF" />
-    <path d="M250 288l132 132c4.7 4.7 12.3 4.7 17 0l22-22c4.7-4.7 4.7-12.3 0-17L289 249" fill="#FFFFFF" />
-  </svg>
+// Realistic Official Brand Logos from SVG Assets
+const PhonePeLogo = ({ size = 42 }) => (
+  <img
+    src="/assets/phonepe.svg"
+    alt="PhonePe Logo"
+    width={size}
+    height={size}
+    style={{ flexShrink: 0, borderRadius: '10px', objectFit: 'contain', boxShadow: '0 2px 8px rgba(95,37,159,0.3)' }}
+  />
 );
 
-const GooglePayLogo = ({ size = 36 }) => (
-  <svg width={size} height={size} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0, borderRadius: '8px', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))' }}>
-    <rect width="48" height="48" rx="10" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="1.5" />
-    <path d="M35.6 24.3c0-.8-.1-1.6-.2-2.3H24v4.5h6.5c-.3 1.5-1.2 2.8-2.5 3.7v3.1h4c2.4-2.2 3.6-5.4 3.6-9z" fill="#4285F4"/>
-    <path d="M24 36c3.3 0 6-1.1 8-3l-4-3.1c-1.1.7-2.5 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H13.2v3.2C15.3 33.5 19.3 36 24 36z" fill="#34A853"/>
-    <path d="M17.4 26.2c-.2-.7-.4-1.5-.4-2.2s.2-1.5.4-2.2v-3.2h-4.2C12.4 20.2 12 22 12 24s.4 3.8 1.2 5.4l4.2-3.2z" fill="#FBBC05"/>
-    <path d="M24 16.8c1.8 0 3.4.6 4.7 1.8l3.5-3.5C30 13.1 27.2 12 24 12c-4.7 0-8.7 2.5-10.8 6.6l4.2 3.2c.9-2.8 3.5-4.9 6.6-4.9z" fill="#EA4335"/>
-  </svg>
+const GooglePayLogo = ({ size = 42 }) => (
+  <img
+    src="/assets/gpay.svg"
+    alt="Google Pay Logo"
+    width={size}
+    height={size}
+    style={{ flexShrink: 0, borderRadius: '10px', objectFit: 'contain', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.08))' }}
+  />
 );
 
-const PaytmLogo = ({ size = 36 }) => (
-  <svg width={size} height={size} viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0, borderRadius: '8px', filter: 'drop-shadow(0 1px 2px rgba(0,41,112,0.15))' }}>
-    <rect width="54" height="54" rx="12" fill="#002970" />
-    <text x="50%" y="42%" textAnchor="middle" fill="#FFFFFF" fontSize="13" fontWeight="900" fontFamily="sans-serif" letterSpacing="0.2">Pay</text>
-    <text x="50%" y="78%" textAnchor="middle" fill="#00BAF2" fontSize="15" fontWeight="900" fontFamily="sans-serif">tm</text>
-  </svg>
+const PaytmLogo = ({ size = 42 }) => (
+  <img
+    src="/assets/paytm.svg"
+    alt="Paytm Logo"
+    width={size}
+    height={size}
+    style={{ flexShrink: 0, borderRadius: '10px', objectFit: 'contain', boxShadow: '0 2px 8px rgba(0,41,112,0.25)' }}
+  />
 );
 
-const UpiBhimLogo = ({ size = 36 }) => (
-  <svg width={size} height={size} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0, borderRadius: '8px', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))' }}>
-    <rect width="48" height="48" rx="10" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="1.5" />
-    <path d="M19 12L12 36H19L26 12H19Z" fill="#097939" />
-    <path d="M31 12L24 36H31L38 12H31Z" fill="#ED752E" />
-    <path d="M25 12L23 21L29 21L25 12Z" fill="#1A202C" opacity="0.25" />
-  </svg>
+const UpiBhimLogo = ({ size = 42 }) => (
+  <img
+    src="/assets/bhim.svg"
+    alt="BHIM UPI Logo"
+    width={size}
+    height={size}
+    style={{ flexShrink: 0, borderRadius: '10px', objectFit: 'contain', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.08))' }}
+  />
 );
 
 const DonateModal = ({ isOpen, onClose, onSuccess }) => {
@@ -50,6 +55,7 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
   const [notes, setNotes] = useState('');
   const [showPublicly, setShowPublicly] = useState(true);
   const [selectedApp, setSelectedApp] = useState('');
+  const [selectedAppUrl, setSelectedAppUrl] = useState('');
   const [transactionRef, setTransactionRef] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [createdCollection, setCreatedCollection] = useState(null);
@@ -92,6 +98,17 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
     if (submitting) return;
     setSubmitting(true);
     setSelectedApp(appName);
+    if (directUrl) setSelectedAppUrl(directUrl);
+
+    // CRITICAL FOR MOBILE: Immediately trigger deep-link navigation synchronously
+    // before async fetch delays cause mobile browser gesture context expiry
+    if (directUrl) {
+      try {
+        window.location.href = directUrl;
+      } catch (err) {
+        console.warn('Auto navigation error:', err);
+      }
+    }
 
     try {
       const res = await fetch(`${API_URL}/collections/public-donate`, {
@@ -117,11 +134,6 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
       setCreatedCollection(data.collection);
       setStep(3);
       if (onSuccess) onSuccess();
-
-      // Launch UPI app if URL provided (on mobile devices)
-      if (directUrl) {
-        window.location.href = directUrl;
-      }
     } catch (err) {
       console.error(err);
       triggerToast(err.message || 'Error initiating donation', 'danger');
@@ -145,6 +157,8 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
     setAmount('');
     setPhone('');
     setNotes('');
+    setSelectedApp('');
+    setSelectedAppUrl('');
     setTransactionRef('');
     setCreatedCollection(null);
     setShowQr(false);
@@ -196,11 +210,13 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
                 <label className="donate-form-label">
                   Full Name (as in Payment App) <span style={{ color: 'var(--danger)' }}>*</span>
                 </label>
-                <div className="donate-input-wrapper">
-                  <span className="donate-input-icon"><User size={16} /></span>
+                <div className="donate-input-box">
+                  <div className="donate-input-prefix">
+                    <User size={18} />
+                  </div>
                   <input
                     type="text"
-                    className="donate-input-field"
+                    className="donate-input-control"
                     placeholder="e.g. Ramesh Kumar / Anitha Rao"
                     value={donorName}
                     onChange={(e) => setDonorName(e.target.value)}
@@ -208,7 +224,7 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
                     autoFocus
                   />
                 </div>
-                <small style={{ color: 'var(--text-muted)', fontSize: '0.74rem', marginTop: '0.3rem', display: 'block' }}>
+                <small style={{ color: 'var(--text-muted)', fontSize: '0.74rem', marginTop: '0.35rem', display: 'block' }}>
                   💡 Enter the exact name shown in PhonePe / GPay / Paytm for instant verification.
                 </small>
               </div>
@@ -217,22 +233,23 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
                 <label className="donate-form-label">
                   Donation Amount (INR) <span style={{ color: 'var(--danger)' }}>*</span>
                 </label>
-                <div className="donate-input-wrapper">
-                  <span className="donate-input-icon" style={{ fontSize: '1.15rem' }}>₹</span>
+                <div className="donate-input-box">
+                  <div className="donate-input-prefix" style={{ color: '#D84315' }}>
+                    <IndianRupee size={20} strokeWidth={2.5} />
+                  </div>
                   <input
                     type="number"
                     min="1"
-                    className="donate-input-field"
+                    className="donate-input-control donate-amount-input"
                     placeholder="Enter amount (e.g. 501)"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     required
-                    style={{ fontWeight: 800, fontSize: '1.15rem', color: '#D84315' }}
                   />
                 </div>
 
                 {/* Quick Amount Suggestion Chips */}
-                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.65rem' }}>
+                <div className="donate-chips-grid">
                   {QUICK_AMOUNTS.map((amt) => (
                     <button
                       key={amt}
@@ -250,11 +267,13 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
                 <label className="donate-form-label">
                   Mobile Number (Optional)
                 </label>
-                <div className="donate-input-wrapper">
-                  <span className="donate-input-icon"><Phone size={16} /></span>
+                <div className="donate-input-box">
+                  <div className="donate-input-prefix">
+                    <Phone size={18} />
+                  </div>
                   <input
                     type="tel"
-                    className="donate-input-field"
+                    className="donate-input-control"
                     placeholder="e.g. 9876543210"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
@@ -266,11 +285,13 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
                 <label className="donate-form-label">
                   Devotee Gotram / Seva Wish (Optional)
                 </label>
-                <div className="donate-input-wrapper">
-                  <span className="donate-input-icon"><Heart size={16} /></span>
+                <div className="donate-input-box">
+                  <div className="donate-input-prefix">
+                    <Heart size={18} />
+                  </div>
                   <input
                     type="text"
-                    className="donate-input-field"
+                    className="donate-input-control"
                     placeholder="e.g. For Family Health & Blessings"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
@@ -328,7 +349,7 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
                 </div>
               </div>
 
-              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.65rem' }}>
+              <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.75rem' }}>
                 Select your payment app to transfer:
               </div>
 
@@ -341,10 +362,10 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
                   disabled={submitting}
                   className="donate-app-card phonepe"
                 >
-                  <PhonePeLogo size={36} />
+                  <PhonePeLogo size={42} />
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#5F259F', lineHeight: 1.2 }}>PhonePe</div>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block' }}>Instant UPI</span>
+                    <div style={{ fontWeight: 800, fontSize: '0.98rem', color: '#5F259F', lineHeight: 1.2 }}>PhonePe</div>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>Instant UPI</span>
                   </div>
                 </button>
 
@@ -355,10 +376,10 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
                   disabled={submitting}
                   className="donate-app-card gpay"
                 >
-                  <GooglePayLogo size={36} />
+                  <GooglePayLogo size={42} />
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#1A73E8', lineHeight: 1.2 }}>Google Pay</div>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block' }}>Tez / UPI</span>
+                    <div style={{ fontWeight: 800, fontSize: '0.98rem', color: '#1A73E8', lineHeight: 1.2 }}>Google Pay</div>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>Tez / UPI</span>
                   </div>
                 </button>
 
@@ -369,24 +390,24 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
                   disabled={submitting}
                   className="donate-app-card paytm"
                 >
-                  <PaytmLogo size={36} />
+                  <PaytmLogo size={42} />
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#002970', lineHeight: 1.2 }}>Paytm</div>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block' }}>Wallet / UPI</span>
+                    <div style={{ fontWeight: 800, fontSize: '0.98rem', color: '#002970', lineHeight: 1.2 }}>Paytm</div>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>Wallet / UPI</span>
                   </div>
                 </button>
 
                 {/* Any UPI / BHIM */}
                 <button
                   type="button"
-                  onClick={() => handleRecordDonation('UPI App', standardUpiUrl)}
+                  onClick={() => handleRecordDonation('Other UPI', standardUpiUrl)}
                   disabled={submitting}
                   className="donate-app-card bhim"
                 >
-                  <UpiBhimLogo size={36} />
+                  <UpiBhimLogo size={42} />
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#E65100', lineHeight: 1.2 }}>Other UPI</div>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block' }}>BHIM / Cred</span>
+                    <div style={{ fontWeight: 800, fontSize: '0.98rem', color: '#E65100', lineHeight: 1.2 }}>Other UPI</div>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>BHIM / Cred</span>
                   </div>
                 </button>
               </div>
@@ -482,6 +503,24 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
                 </div>
               )}
 
+              {/* Direct UPI App Launch Button fallback */}
+              {selectedAppUrl && (
+                <div style={{ marginBottom: '1.25rem' }}>
+                  <a
+                    href={selectedAppUrl}
+                    target="_self"
+                    className="donate-upi-btn"
+                    style={{ width: '100%', padding: '0.85rem', textDecoration: 'none', display: 'inline-flex' }}
+                  >
+                    <ExternalLink size={18} />
+                    <span>Tap to Open {selectedApp || 'Payment App'}</span>
+                  </a>
+                  <small style={{ color: 'var(--text-muted)', fontSize: '0.76rem', marginTop: '0.4rem', display: 'block', textAlign: 'center' }}>
+                    ✓ Pre-populated Payee VPA: <strong style={{ color: 'var(--primary)' }}>{upiId}</strong> ({receiverName})
+                  </small>
+                </div>
+              )}
+
               <div style={{ background: 'hsl(38, 100%, 97%)', border: '1.5px solid hsl(38, 90%, 75%)', borderRadius: 'var(--radius-md)', padding: '1rem', textAlign: 'left', marginBottom: '1.5rem', fontSize: '0.85rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, color: '#E65100', marginBottom: '0.25rem' }}>
                   <ShieldCheck size={16} /> Committee Verification Protocol
@@ -508,3 +547,4 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
 };
 
 export default DonateModal;
+
