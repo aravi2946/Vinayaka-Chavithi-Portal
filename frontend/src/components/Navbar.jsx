@@ -27,13 +27,13 @@ const Navbar = () => {
             src={getMediaUrl(settings.logoUrl)}
             alt={settings.festivalName || 'Logo'}
             onError={() => setLogoError(true)}
-            style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+            style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, boxShadow: '0 2px 8px rgba(255, 102, 0, 0.25)' }}
           />
         ) : (
           <span style={{ fontSize: '1.8rem', marginRight: '0.2rem', lineHeight: 1, flexShrink: 0 }}>🕉️</span>
         )}
-        <div style={{ minWidth: 0, flex: '1 1 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
             <span className="public-nav-title">
               {settings?.festivalName || 'Vinayaka Chavithi Utsav'}
             </span>

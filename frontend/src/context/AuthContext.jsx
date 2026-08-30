@@ -91,6 +91,7 @@ const DEFAULT_SETTINGS = {
   registrationSettings: true,
   announcementSettings: true,
   paymentNumber: '9948050484',
+  upiId: '9948050484@ybl',
   accountName: 'UPPUTURI VENKATA GANESH',
   idolSponsorActive: true,
   idolSponsorName: 'UPPUTURI VENKATA GANESH',

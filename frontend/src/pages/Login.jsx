@@ -41,9 +41,8 @@ const Login = () => {
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh', padding: '1rem' }}>
       <div className="card glass-panel" style={{ maxWidth: '420px', width: '100%', padding: '2.5rem 2rem', border: '1px solid rgba(255, 102, 0, 0.15)' }}>
         
-        {/* Mandap Ganesha Icon */}
+        {/* Mandap Portal Title */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <span style={{ fontSize: '3rem', filter: 'drop-shadow(0 4px 6px rgba(255,102,0,0.2))' }}>🕉️</span>
           <h2 style={{ fontSize: '1.6rem', color: 'var(--primary)', fontWeight: 800, marginTop: '0.5rem' }}>Committee Portal</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '0.25rem' }}>
             Authorized access only. Sign in to manage festival records.
