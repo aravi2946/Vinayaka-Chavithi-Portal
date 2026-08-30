@@ -1636,14 +1636,7 @@ textarea.form-control {
 
 /* Floating Background Watermark */
 .bg-watermark {
-  position: fixed;
-  bottom: -50px;
-  right: -50px;
-  width: 300px;
-  height: 300px;
-  opacity: 0.03;
-  pointer-events: none;
-  z-index: -1;
+  display: none !important;
 }
 
 /* Report Section */

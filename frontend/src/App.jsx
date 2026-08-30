@@ -115,11 +115,6 @@ function App() {
     <Router>
       <AuthProvider>
         <ToastOverlay />
-        
-        {/* Floating Watermark */}
-        <div className="bg-watermark">
-          <span style={{ fontSize: '10rem' }}>🕉️</span>
-        </div>
 
         <Routes>
           {/* Public Portal Routes */}
