@@ -173,26 +173,17 @@ const PublicCollections = () => {
           ) : (
             <>
               {/* Toolbar: Search Box & Sort Options */}
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  gap: '1rem',
-                  marginBottom: '1.25rem',
-                }}
-              >
-                <div>
-                  <h2 style={{ fontSize: '1.35rem', color: 'var(--primary)', margin: 0 }}>
+              <div className="donors-toolbar">
+                <div className="donors-toolbar-title-area">
+                  <h2 className="donors-toolbar-heading">
                     📜 Approved Donor Directory
                   </h2>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  <span className="donors-toolbar-count">
                     Showing {filteredCollections.length} of {data.collections.length} approved donations
                   </span>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', flex: '1 1 auto', justifyContent: 'flex-end' }}>
+                <div className="donors-toolbar-controls">
                   {/* Search Input Box */}
                   <div className="donors-search-box">
                     <Search size={18} className="donors-search-icon" />
@@ -218,20 +209,11 @@ const PublicCollections = () => {
                   </div>
 
                   {/* Sort Dropdown */}
-                  <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+                  <div className="donors-sort-wrapper">
                     <select
-                      className="form-control"
+                      className="donors-sort-select"
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
-                      style={{
-                        padding: '0.65rem 1rem',
-                        fontSize: '0.88rem',
-                        borderRadius: 'var(--radius-full)',
-                        border: '1.5px solid var(--border-color)',
-                        background: 'var(--bg-secondary)',
-                        color: 'var(--text-main)',
-                        cursor: 'pointer',
-                      }}
                       aria-label="Sort Donors"
                     >
                       <option value="date-desc">Sort: Latest First</option>

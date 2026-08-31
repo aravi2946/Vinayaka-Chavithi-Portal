@@ -28,8 +28,20 @@ router.get('/', async (req, res, next) => {
       const documents = await Document.find({}).sort({ date: -1 });
       return res.json(documents);
     } else {
-      // Public access to documents is disabled
-      return res.json([]);
+      // Public access: only admin-added documents with Public visibility are visible
+      const User = require('../models/User');
+      const adminUsers = await User.find({ role: 'Super Admin' }).select('username');
+      const adminUsernames = adminUsers.map((u) => u.username);
+      // Ensure 'admin' default username is included as well
+      if (!adminUsernames.includes('admin')) {
+        adminUsernames.push('admin');
+      }
+
+      const documents = await Document.find({
+        visibility: 'Public',
+        addedBy: { $in: adminUsernames },
+      }).sort({ date: -1 });
+      return res.json(documents);
     }
   } catch (error) {
     next(error);

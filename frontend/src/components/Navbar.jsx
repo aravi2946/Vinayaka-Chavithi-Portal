@@ -94,6 +94,10 @@ const Navbar = () => {
           Gallery
         </Link>
 
+        <Link to="/documents" className={`public-nav-link ${isActive('/documents') ? 'active' : ''}`} onClick={() => setMobileOpen(false)}>
+          Documents
+        </Link>
+
         {settings?.instagramUrl && (
           <a
             href={formatInstagramUrl(settings.instagramUrl)}

@@ -122,26 +122,28 @@ const PublicVolunteers = () => {
       {/* Search & Filter Controls */}
       <div className="card" style={{ marginBottom: '2rem', padding: '1.25rem' }}>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '1rem' }}>
-          <div style={{ position: 'relative', flex: '1 1 260px' }}>
-            <Search size={18} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+          <div className="donors-search-box" style={{ maxWidth: '100%', flex: '1 1 260px' }}>
+            <Search size={18} className="donors-search-icon" />
             <input
               type="text"
-              className="form-control"
-              style={{ paddingLeft: '2.5rem' }}
+              className="donors-search-input"
               placeholder="Search volunteers by name, phone, duty, or area..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              aria-label="Search Volunteers"
             />
+            {search && (
+              <button
+                type="button"
+                className="donors-search-clear"
+                onClick={() => setSearch('')}
+                title="Clear search"
+                aria-label="Clear volunteer search query"
+              >
+                <X size={16} />
+              </button>
+            )}
           </div>
-          {search && (
-            <button
-              type="button"
-              className="btn btn-secondary btn-sm"
-              onClick={() => setSearch('')}
-            >
-              Clear Search
-            </button>
-          )}
         </div>
 
         {/* Role Filter Chips */}

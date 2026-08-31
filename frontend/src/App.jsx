@@ -128,6 +128,7 @@ function App() {
             <Route path="/collections" element={<PublicCollections />} />
             <Route path="/announcements" element={<PublicAnnouncements />} />
             <Route path="/gallery" element={<PublicGallery />} />
+            <Route path="/documents" element={<PublicDocuments />} />
             <Route path="/login" element={<Login />} />
           </Route>
 
