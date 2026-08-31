@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth, API_URL } from '../context/AuthContext';
-import { X, Check, Copy, ExternalLink, QrCode, Smartphone, Sparkles, Heart, ShieldCheck, ArrowLeft, ArrowRight, User, Phone, IndianRupee, MessageSquareQuote } from 'lucide-react';
+import { X, Check, Copy, ExternalLink, QrCode, Smartphone, Sparkles, Heart, ShieldCheck, ArrowLeft, ArrowRight, User, Phone, IndianRupee, Download, Info } from 'lucide-react';
 
 const QUICK_AMOUNTS = [101, 251, 501, 1116, 2501, 5001];
 
 // Realistic Official Brand Logos from SVG Assets
-const PhonePeLogo = ({ size = 42 }) => (
+const PhonePeLogo = ({ size = 40 }) => (
   <img
     src="/assets/phonepe.svg"
     alt="PhonePe Logo"
@@ -15,7 +15,7 @@ const PhonePeLogo = ({ size = 42 }) => (
   />
 );
 
-const GooglePayLogo = ({ size = 42 }) => (
+const GooglePayLogo = ({ size = 40 }) => (
   <img
     src="/assets/gpay.svg"
     alt="Google Pay Logo"
@@ -25,7 +25,7 @@ const GooglePayLogo = ({ size = 42 }) => (
   />
 );
 
-const PaytmLogo = ({ size = 42 }) => (
+const PaytmLogo = ({ size = 40 }) => (
   <img
     src="/assets/paytm.svg"
     alt="Paytm Logo"
@@ -35,7 +35,7 @@ const PaytmLogo = ({ size = 42 }) => (
   />
 );
 
-const UpiBhimLogo = ({ size = 42 }) => (
+const UpiBhimLogo = ({ size = 40 }) => (
   <img
     src="/assets/bhim.svg"
     alt="BHIM UPI Logo"
@@ -48,19 +48,19 @@ const UpiBhimLogo = ({ size = 42 }) => (
 const DonateModal = ({ isOpen, onClose, onSuccess }) => {
   const { settings, triggerToast } = useAuth();
 
-  const [step, setStep] = useState(1); // 1: Details, 2: Select App & Pay, 3: Confirmation
+  const [step, setStep] = useState(1); // 1: Details, 2: Select Mode & Pay, 3: Confirmation
+  const [activeTab, setActiveTab] = useState('qr'); // 'qr' or 'apps'
   const [donorName, setDonorName] = useState('');
   const [amount, setAmount] = useState('');
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
   const [showPublicly, setShowPublicly] = useState(true);
   const [selectedApp, setSelectedApp] = useState('');
-  const [selectedAppUrl, setSelectedAppUrl] = useState('');
   const [transactionRef, setTransactionRef] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [createdCollection, setCreatedCollection] = useState(null);
-  const [showQr, setShowQr] = useState(false);
   const [copiedUpi, setCopiedUpi] = useState(false);
+  const [appLaunched, setAppLaunched] = useState(false);
 
   if (!isOpen) return null;
 
@@ -69,17 +69,17 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
   const paymentNumber = settings?.paymentNumber || '9948050484';
   const upiId = settings?.upiId || (paymentNumber.includes('@') ? paymentNumber : `${paymentNumber}@ybl`);
 
-  // Construct standard UPI links
+  // Construct standard universal UPI intent link
   const parsedAmount = Number(amount) || 0;
-  const noteText = `Donation by ${donorName || 'Devotee'}`;
-  const upiParams = `pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(receiverName)}&am=${parsedAmount}&cu=INR&tn=${encodeURIComponent(noteText)}`;
+  // Clean alphanumeric note to prevent NPCI URI decode drops
+  const cleanNote = 'GaneshSevaDonation';
+  const upiParams = `pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(receiverName)}&am=${parsedAmount}&cu=INR&tn=${cleanNote}`;
   
+  // Universal standard UPI URL (most reliable across Android / iOS)
   const standardUpiUrl = `upi://pay?${upiParams}`;
-  const gpayUrl = `tez://upi/pay?${upiParams}`;
-  const phonepeUrl = `phonepe://pay?${upiParams}`;
-  const paytmUrl = `paytmmp://pay?${upiParams}`;
-
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=8&data=${encodeURIComponent(standardUpiUrl)}`;
+  
+  // Dynamic QR Code encoding full UPI URI with pre-filled amount and payee
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=8&data=${encodeURIComponent(standardUpiUrl)}`;
 
   const handleStep1Submit = (e) => {
     e.preventDefault();
@@ -94,21 +94,57 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
     setStep(2);
   };
 
-  const handleRecordDonation = async (appName, directUrl = null) => {
+  const handleCopyUpi = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(upiId);
+      setCopiedUpi(true);
+      triggerToast(`UPI ID "${upiId}" copied to clipboard!`, 'success');
+      setTimeout(() => setCopiedUpi(false), 3000);
+    }
+  };
+
+  const handleDownloadQr = async () => {
+    try {
+      const res = await fetch(qrCodeUrl);
+      const blob = await res.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `Vinayaka_Seva_₹${parsedAmount}_QR.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+      triggerToast('QR code saved! Open PhonePe/GPay -> Scan from Gallery to pay.', 'success');
+    } catch (err) {
+      window.open(qrCodeUrl, '_blank');
+    }
+  };
+
+  const handleAppPayClick = (appName) => {
+    setSelectedApp(appName);
+    setAppLaunched(true);
+
+    // 1. Copy UPI ID immediately to clipboard for 100% reliable manual paste fallback
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(upiId);
+      setCopiedUpi(true);
+      setTimeout(() => setCopiedUpi(false), 3000);
+    }
+
+    // 2. Trigger standard UPI intent
+    try {
+      window.location.href = standardUpiUrl;
+    } catch (err) {
+      console.warn('Intent launch failed:', err);
+    }
+
+    triggerToast(`UPI ID copied! Opening ${appName}...`, 'info');
+  };
+
+  const handleRecordDonation = async () => {
     if (submitting) return;
     setSubmitting(true);
-    setSelectedApp(appName);
-    if (directUrl) setSelectedAppUrl(directUrl);
-
-    // CRITICAL FOR MOBILE: Immediately trigger deep-link navigation synchronously
-    // before async fetch delays cause mobile browser gesture context expiry
-    if (directUrl) {
-      try {
-        window.location.href = directUrl;
-      } catch (err) {
-        console.warn('Auto navigation error:', err);
-      }
-    }
 
     try {
       const res = await fetch(`${API_URL}/collections/public-donate`, {
@@ -119,9 +155,9 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
           amount: parsedAmount,
           phone: phone.trim(),
           paymentMode: 'UPI',
-          paymentApp: appName,
+          paymentApp: selectedApp || (activeTab === 'qr' ? 'QR Code' : 'UPI Transfer'),
           transactionRef: transactionRef.trim(),
-          notes: notes.trim() ? `${notes.trim()} (via ${appName})` : `Online Seva Donation via ${appName}`,
+          notes: notes.trim() ? `${notes.trim()} (via ${selectedApp || 'UPI'})` : `Online Seva Donation via ${selectedApp || 'UPI'}`,
           showPublicly,
         }),
       });
@@ -136,32 +172,23 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
       if (onSuccess) onSuccess();
     } catch (err) {
       console.error(err);
-      triggerToast(err.message || 'Error initiating donation', 'danger');
+      triggerToast(err.message || 'Error recording donation', 'danger');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleCopyUpi = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(upiId);
-      setCopiedUpi(true);
-      triggerToast(`UPI ID "${upiId}" copied!`, 'success');
-      setTimeout(() => setCopiedUpi(false), 3000);
-    }
-  };
-
   const handleClose = () => {
     setStep(1);
+    setActiveTab('qr');
     setDonorName('');
     setAmount('');
     setPhone('');
     setNotes('');
     setSelectedApp('');
-    setSelectedAppUrl('');
     setTransactionRef('');
+    setAppLaunched(false);
     setCreatedCollection(null);
-    setShowQr(false);
     onClose();
   };
 
@@ -180,7 +207,7 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
           </h2>
           <p style={{ color: '#FFF8E1', fontSize: '0.82rem', margin: '0.25rem 0 0' }}>
             {step === 1 && 'Contribute to Lord Ganesha Celebrations & Annadanam'}
-            {step === 2 && 'Select your UPI payment app to transfer'}
+            {step === 2 && 'Scan QR Code or Pay via UPI App'}
             {step === 3 && 'Awaiting committee verification'}
           </p>
 
@@ -225,7 +252,7 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
                   />
                 </div>
                 <small style={{ color: 'var(--text-muted)', fontSize: '0.74rem', marginTop: '0.35rem', display: 'block' }}>
-                  💡 Enter the exact name shown in PhonePe / GPay / Paytm for instant verification.
+                  💡 Enter the name shown in your payment app for instant verification.
                 </small>
               </div>
 
@@ -323,11 +350,11 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
             </form>
           )}
 
-          {/* STEP 2: Select Payment App & Initiate Transfer */}
+          {/* STEP 2: Select Payment Method (QR Code or 1-Tap App) */}
           {step === 2 && (
             <div>
               {/* Order Summary Badge */}
-              <div style={{ background: 'linear-gradient(135deg, hsl(38, 100%, 97%), hsl(30, 100%, 95%))', border: '1.5px solid hsl(38, 90%, 75%)', borderRadius: 'var(--radius-md)', padding: '0.85rem 1rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ background: 'linear-gradient(135deg, hsl(38, 100%, 97%), hsl(30, 100%, 95%))', border: '1.5px solid hsl(38, 90%, 75%)', borderRadius: 'var(--radius-md)', padding: '0.8rem 1rem', marginBottom: '0.85rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>Contributing Devotee</div>
                   <strong style={{ fontSize: '0.98rem', color: 'var(--text-main)' }}>{donorName}</strong>
@@ -338,145 +365,229 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
                 </div>
               </div>
 
-              {/* Committee Payee Info */}
-              <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '1rem', background: '#FFFFFF', padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
-                <div style={{ marginBottom: '0.2rem' }}>Payee Account: <strong style={{ color: 'var(--text-main)' }}>{receiverName}</strong></div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span>UPI ID: <strong style={{ color: 'var(--primary)', fontWeight: 700 }}>{upiId}</strong></span>
-                  <button type="button" onClick={handleCopyUpi} className="btn btn-link" style={{ fontSize: '0.75rem', padding: '0.1rem 0.5rem', color: 'var(--primary)', fontWeight: 700 }}>
-                    {copiedUpi ? '✔ Copied' : '📋 Copy VPA'}
+              {/* Committee UPI ID Info Banner with 1-Click Copy */}
+              <div style={{ background: '#FFFFFF', padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', marginBottom: '0.9rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Receiver ({receiverName}):</div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 800, color: 'var(--primary)', wordBreak: 'break-all' }}>{upiId}</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCopyUpi}
+                    className="btn btn-sm btn-secondary"
+                    style={{ fontSize: '0.75rem', padding: '0.35rem 0.65rem', flexShrink: 0, fontWeight: 700 }}
+                  >
+                    {copiedUpi ? <Check size={14} color="#2E7D32" /> : <Copy size={14} />}
+                    <span>{copiedUpi ? 'Copied!' : 'Copy UPI ID'}</span>
                   </button>
                 </div>
               </div>
 
-              <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.75rem' }}>
-                Select your payment app to transfer:
-              </div>
-
-              {/* Payment App Realistic Buttons Grid */}
-              <div className="donate-apps-grid">
-                {/* PhonePe */}
+              {/* Method Switcher Tabs */}
+              <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1rem', background: 'var(--bg-secondary)', padding: '0.3rem', borderRadius: 'var(--radius-full)', border: '1px solid var(--border-color)' }}>
                 <button
                   type="button"
-                  onClick={() => handleRecordDonation('PhonePe', phonepeUrl)}
-                  disabled={submitting}
-                  className="donate-app-card phonepe"
+                  onClick={() => setActiveTab('qr')}
+                  style={{
+                    flex: 1,
+                    padding: '0.45rem 0.6rem',
+                    border: 'none',
+                    borderRadius: 'var(--radius-full)',
+                    background: activeTab === 'qr' ? 'var(--primary)' : 'transparent',
+                    color: activeTab === 'qr' ? '#FFFFFF' : 'var(--text-muted)',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.35rem',
+                    transition: 'all 0.25s ease',
+                  }}
                 >
-                  <PhonePeLogo size={42} />
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 800, fontSize: '0.98rem', color: '#5F259F', lineHeight: 1.2 }}>PhonePe</div>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>Instant UPI</span>
-                  </div>
+                  <QrCode size={16} />
+                  <span>Scan QR Code (100% Works)</span>
                 </button>
-
-                {/* Google Pay */}
                 <button
                   type="button"
-                  onClick={() => handleRecordDonation('Google Pay', gpayUrl)}
-                  disabled={submitting}
-                  className="donate-app-card gpay"
+                  onClick={() => setActiveTab('apps')}
+                  style={{
+                    flex: 1,
+                    padding: '0.45rem 0.6rem',
+                    border: 'none',
+                    borderRadius: 'var(--radius-full)',
+                    background: activeTab === 'apps' ? 'var(--primary)' : 'transparent',
+                    color: activeTab === 'apps' ? '#FFFFFF' : 'var(--text-muted)',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.35rem',
+                    transition: 'all 0.25s ease',
+                  }}
                 >
-                  <GooglePayLogo size={42} />
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 800, fontSize: '0.98rem', color: '#1A73E8', lineHeight: 1.2 }}>Google Pay</div>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>Tez / UPI</span>
-                  </div>
-                </button>
-
-                {/* Paytm */}
-                <button
-                  type="button"
-                  onClick={() => handleRecordDonation('Paytm', paytmUrl)}
-                  disabled={submitting}
-                  className="donate-app-card paytm"
-                >
-                  <PaytmLogo size={42} />
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 800, fontSize: '0.98rem', color: '#002970', lineHeight: 1.2 }}>Paytm</div>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>Wallet / UPI</span>
-                  </div>
-                </button>
-
-                {/* Any UPI / BHIM */}
-                <button
-                  type="button"
-                  onClick={() => handleRecordDonation('Other UPI', standardUpiUrl)}
-                  disabled={submitting}
-                  className="donate-app-card bhim"
-                >
-                  <UpiBhimLogo size={42} />
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 800, fontSize: '0.98rem', color: '#E65100', lineHeight: 1.2 }}>Other UPI</div>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>BHIM / Cred</span>
-                  </div>
+                  <Smartphone size={16} />
+                  <span>Pay via UPI App</span>
                 </button>
               </div>
 
-              {/* QR Code / Desktop Devotee Option */}
-              <div style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '0.85rem', textAlign: 'center' }}>
-                <button
-                  type="button"
-                  onClick={() => setShowQr(!showQr)}
-                  className="btn btn-secondary btn-sm"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.82rem', marginBottom: showQr ? '0.75rem' : '0' }}
-                >
-                  <QrCode size={15} />
-                  {showQr ? 'Hide QR Code' : 'Scan QR Code with Phone'}
-                </button>
+              {/* TAB 1: DYNAMIC QR CODE (Guaranteed Working on All Banks) */}
+              {activeTab === 'qr' && (
+                <div style={{ textAlign: 'center', background: '#FFFFFF', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1.5px solid hsl(38, 90%, 75%)', boxShadow: '0 4px 14px rgba(0,0,0,0.05)', marginBottom: '1rem' }}>
+                  <div style={{ display: 'inline-block', position: 'relative', background: '#ffffff', padding: '8px', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                    <img
+                      src={qrCodeUrl}
+                      alt="UPI QR Code"
+                      style={{ width: '185px', height: '185px', display: 'block', margin: '0 auto' }}
+                    />
+                  </div>
 
-                {showQr && (
-                  <div style={{ background: '#ffffff', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'inline-block', textAlign: 'center', boxShadow: '0 4px 14px rgba(0,0,0,0.06)' }}>
-                    <img src={qrCodeUrl} alt="UPI QR Code" style={{ width: '180px', height: '180px', display: 'block', margin: '0 auto' }} />
-                    <p style={{ margin: '0.4rem 0 0', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                      Scan via PhonePe, Paytm, or GPay to pay <strong>₹{parsedAmount}</strong>
-                    </p>
+                  <p style={{ margin: '0.5rem 0 0.25rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                    Scan with PhonePe, GPay, Paytm, or BHIM to pay <strong style={{ color: '#D84315', fontSize: '0.95rem' }}>₹{parsedAmount}</strong>
+                  </p>
+
+                  {/* Mobile Tip: Save QR / Scan from Gallery */}
+                  <div style={{ background: 'hsl(38, 100%, 97%)', border: '1px solid hsl(38, 90%, 80%)', borderRadius: '8px', padding: '0.5rem 0.75rem', margin: '0.6rem 0', textAlign: 'left', fontSize: '0.76rem', color: 'var(--text-main)', lineHeight: 1.4 }}>
+                    <strong style={{ color: '#E65100' }}>💡 Paying on this same phone?</strong>
+                    <br />
+                    1. Tap <strong>"Save QR Code"</strong> below.
+                    <br />
+                    2. Open <strong>PhonePe / GPay</strong> ➔ Tap <strong>QR Scanner</strong> ➔ Select <strong>"Upload / Scan from Gallery"</strong>.
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.6rem' }}>
                     <button
                       type="button"
-                      onClick={() => handleRecordDonation('QR Code Scan')}
-                      className="donate-upi-btn"
-                      style={{ marginTop: '0.6rem', width: '100%', fontSize: '0.85rem', padding: '0.55rem' }}
+                      onClick={handleDownloadQr}
+                      className="btn btn-secondary btn-sm"
+                      style={{ flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', fontSize: '0.8rem', padding: '0.55rem' }}
                     >
-                      I have scanned & paid
+                      <Download size={15} /> Save QR Code
+                    </button>
+
+                    <a
+                      href={standardUpiUrl}
+                      className="btn btn-primary btn-sm"
+                      style={{ flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', fontSize: '0.8rem', padding: '0.55rem', textDecoration: 'none' }}
+                    >
+                      <ExternalLink size={15} /> Open UPI App
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 2: UPI APPS (Intent + 1-Tap Copy VPA) */}
+              {activeTab === 'apps' && (
+                <div>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '0.65rem' }}>
+                    Tap your UPI app below (copies UPI ID automatically & opens app):
+                  </div>
+
+                  <div className="donate-apps-grid">
+                    {/* PhonePe */}
+                    <button
+                      type="button"
+                      onClick={() => handleAppPayClick('PhonePe')}
+                      className="donate-app-card phonepe"
+                    >
+                      <PhonePeLogo size={38} />
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#5F259F', lineHeight: 1.2 }}>PhonePe</div>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>Tap to Pay ₹{parsedAmount}</span>
+                      </div>
+                    </button>
+
+                    {/* Google Pay */}
+                    <button
+                      type="button"
+                      onClick={() => handleAppPayClick('Google Pay')}
+                      className="donate-app-card gpay"
+                    >
+                      <GooglePayLogo size={38} />
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#1A73E8', lineHeight: 1.2 }}>Google Pay</div>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>Tap to Pay ₹{parsedAmount}</span>
+                      </div>
+                    </button>
+
+                    {/* Paytm */}
+                    <button
+                      type="button"
+                      onClick={() => handleAppPayClick('Paytm')}
+                      className="donate-app-card paytm"
+                    >
+                      <PaytmLogo size={38} />
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#002970', lineHeight: 1.2 }}>Paytm</div>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>Wallet / UPI</span>
+                      </div>
+                    </button>
+
+                    {/* Any UPI / BHIM */}
+                    <button
+                      type="button"
+                      onClick={() => handleAppPayClick('BHIM / Other UPI')}
+                      className="donate-app-card bhim"
+                    >
+                      <UpiBhimLogo size={38} />
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#E65100', lineHeight: 1.2 }}>Other UPI</div>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>BHIM / Cred</span>
+                      </div>
                     </button>
                   </div>
-                )}
-              </div>
 
-              {/* Optional: Enter UPI Ref ID after payment */}
-              <div style={{ marginTop: '1rem', background: 'rgba(0,0,0,0.02)', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
-                <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>
-                  Have a UPI UTR / Transaction Ref ID? (Optional)
+                  {/* Assistive Info on NPCI Web-Intent Restrictions */}
+                  <div style={{ background: '#F5F5F5', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '0.65rem 0.8rem', fontSize: '0.76rem', color: 'var(--text-main)', lineHeight: 1.4, marginBottom: '0.85rem' }}>
+                    <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.35rem', color: 'var(--text-main)', marginBottom: '0.2rem' }}>
+                      <Info size={14} color="var(--primary)" /> Note on Direct App Links:
+                    </div>
+                    If your bank app displays <em>"Web link payment not allowed"</em> (due to NPCI P2P safety rules), simply open your app, tap <strong>"To UPI ID"</strong>, paste <strong>{upiId}</strong>, and enter ₹{parsedAmount}.
+                  </div>
+                </div>
+              )}
+
+              {/* UTR / Confirmation Section */}
+              <div style={{ background: 'rgba(255, 102, 0, 0.05)', padding: '0.85rem', borderRadius: 'var(--radius-md)', border: '1.5px solid rgba(255, 102, 0, 0.25)', marginTop: '0.5rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', display: 'block', marginBottom: '0.35rem' }}>
+                  UPI Reference / UTR Number (Optional):
                 </label>
                 <div style={{ display: 'flex', gap: '0.4rem' }}>
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="e.g. 324156789012"
+                    placeholder="e.g. 423456789012 (12 digits)"
                     value={transactionRef}
                     onChange={(e) => setTransactionRef(e.target.value)}
-                    style={{ fontSize: '0.82rem', padding: '0.35rem 0.6rem' }}
+                    style={{ fontSize: '0.85rem', padding: '0.45rem 0.65rem' }}
                   />
                   <button
                     type="button"
-                    onClick={() => handleRecordDonation('UPI Transfer')}
+                    onClick={handleRecordDonation}
                     disabled={submitting}
-                    className="btn btn-primary btn-sm"
-                    style={{ fontSize: '0.78rem', whiteSpace: 'nowrap' }}
+                    className="donate-upi-btn"
+                    style={{ fontSize: '0.82rem', padding: '0.45rem 1rem', whiteSpace: 'nowrap' }}
                   >
-                    Submit
+                    {submitting ? 'Submitting...' : 'I Have Paid'}
                   </button>
                 </div>
+                <small style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: '0.3rem', display: 'block' }}>
+                  Click <strong>"I Have Paid"</strong> once you complete the transfer to generate your receipt!
+                </small>
               </div>
 
               {/* Back Button */}
-              <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '0.85rem' }}>
                 <button
                   type="button"
                   onClick={() => setStep(1)}
                   className="btn btn-link"
-                  style={{ fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: 0 }}
+                  style={{ fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: 0 }}
                 >
-                  <ArrowLeft size={14} /> Back to details
+                  <ArrowLeft size={14} /> Edit name or amount
                 </button>
               </div>
             </div>
@@ -503,30 +614,12 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
                 </div>
               )}
 
-              {/* Direct UPI App Launch Button fallback */}
-              {selectedAppUrl && (
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <a
-                    href={selectedAppUrl}
-                    target="_self"
-                    className="donate-upi-btn"
-                    style={{ width: '100%', padding: '0.85rem', textDecoration: 'none', display: 'inline-flex' }}
-                  >
-                    <ExternalLink size={18} />
-                    <span>Tap to Open {selectedApp || 'Payment App'}</span>
-                  </a>
-                  <small style={{ color: 'var(--text-muted)', fontSize: '0.76rem', marginTop: '0.4rem', display: 'block', textAlign: 'center' }}>
-                    ✓ Pre-populated Payee VPA: <strong style={{ color: 'var(--primary)' }}>{upiId}</strong> ({receiverName})
-                  </small>
-                </div>
-              )}
-
               <div style={{ background: 'hsl(38, 100%, 97%)', border: '1.5px solid hsl(38, 90%, 75%)', borderRadius: 'var(--radius-md)', padding: '1rem', textAlign: 'left', marginBottom: '1.5rem', fontSize: '0.85rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700, color: '#E65100', marginBottom: '0.25rem' }}>
                   <ShieldCheck size={16} /> Committee Verification Protocol
                 </div>
                 <p style={{ margin: 0, color: 'var(--text-main)', lineHeight: 1.5, fontSize: '0.82rem' }}>
-                  Your donation is recorded in the donor register with status <strong style={{ color: '#E65100' }}>Pending Approval</strong>. The festival treasurer will verify the UPI receipt with the bank statement and approve your record to appear on the public donor honor roll!
+                  Your donation is recorded with status <strong style={{ color: '#E65100' }}>Pending Approval</strong>. The festival treasurer will verify the UPI receipt against bank statements and approve your record to appear on the public donor honor roll!
                 </p>
               </div>
 
@@ -547,4 +640,3 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
 };
 
 export default DonateModal;
-
