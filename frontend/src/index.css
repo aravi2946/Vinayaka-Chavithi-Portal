@@ -886,6 +886,93 @@ textarea.form-control {
 }
 
 /* ==========================================================================
+   FEATURE: Festival Celebration & Animated Crackers / Fireworks Burst
+   (Shown when Sthapana Muhurtham date has arrived or passed)
+   ========================================================================== */
+.festival-celebration {
+  position: relative;
+  background: radial-gradient(ellipse at center, rgba(255, 140, 0, 0.25) 0%, rgba(200, 30, 0, 0.18) 60%, rgba(0, 0, 0, 0.3) 100%);
+  border: 2px solid rgba(255, 215, 0, 0.6);
+  border-radius: var(--radius-md);
+  padding: 1.5rem 1.25rem;
+  margin: 0.75rem auto 0;
+  max-width: 540px;
+  text-align: center;
+  overflow: hidden;
+  box-shadow: 0 0 25px rgba(255, 150, 0, 0.4), 0 0 50px rgba(255, 80, 0, 0.2), inset 0 0 15px rgba(255, 215, 0, 0.2);
+  animation: celebrationPulse 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes celebrationPulse {
+  0% {
+    box-shadow: 0 0 20px rgba(255, 150, 0, 0.35), 0 0 40px rgba(255, 80, 0, 0.15), inset 0 0 10px rgba(255, 215, 0, 0.15);
+    border-color: rgba(255, 215, 0, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 35px rgba(255, 215, 0, 0.65), 0 0 75px rgba(255, 100, 0, 0.35), inset 0 0 20px rgba(255, 215, 0, 0.3);
+    border-color: rgba(255, 235, 59, 0.9);
+  }
+}
+
+.celebration-badge-title {
+  font-size: clamp(1.2rem, 3.5vw, 1.55rem);
+  font-weight: 900;
+  color: #FFD700;
+  text-shadow: 0 0 16px rgba(255, 215, 0, 0.9), 0 2px 10px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.03em;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 0.35rem;
+  animation: textGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes textGlow {
+  0% {
+    filter: drop-shadow(0 0 8px rgba(255, 200, 0, 0.6));
+  }
+  100% {
+    filter: drop-shadow(0 0 18px rgba(255, 235, 59, 0.95));
+  }
+}
+
+.celebration-badge-subtitle {
+  font-size: clamp(0.85rem, 2.2vw, 1rem);
+  color: #FFF9C4;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
+  position: relative;
+  z-index: 2;
+  font-weight: 600;
+}
+
+/* Individual Cracker & Sparkle Particle falling/floating */
+.cracker-particle {
+  position: absolute;
+  top: -25px;
+  display: inline-block;
+  animation: crackerRain linear infinite;
+  pointer-events: none;
+  z-index: 1;
+  user-select: none;
+}
+
+@keyframes crackerRain {
+  0% {
+    transform: translateY(-20px) rotate(0deg) scale(0.6);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.95;
+  }
+  80% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translateY(125px) rotate(360deg) scale(1.15);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
    YouTube Live Video Streaming Section
    ========================================================================== */
 .live-stream-card {
@@ -2121,67 +2208,98 @@ textarea.form-control {
 }
 
 /* ==========================================================================
-   FEATURE: Donors Search Box & Filtering Toolbar
+   FEATURE: Donors Page Summary Cards & Responsive Grid
    ========================================================================== */
-.donors-toolbar {
+.collections-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.donation-bank-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 1.25rem;
+}
+
+.donation-bank-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.donation-bank-info-box {
+  font-size: 0.9rem;
+  color: var(--text-main);
+  border-left: 3px solid var(--primary);
+  padding-left: 0.85rem;
+  line-height: 1.45;
+}
+
+/* ==========================================================================
+   FEATURE: Donors Search Box & Filtering Toolbar (Compact & Ultra-Responsive)
+   ========================================================================== */
+.donors-toolbar-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
   width: 100%;
 }
 
-.donors-toolbar-title-area {
+.donors-toolbar-header-row {
   display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .donors-toolbar-heading {
-  font-size: 1.35rem;
+  font-size: clamp(1.1rem, 2.5vw, 1.3rem);
   color: var(--primary);
   margin: 0;
-  line-height: 1.3;
+  line-height: 1.25;
+  font-weight: 800;
 }
 
 .donors-toolbar-count {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
 }
 
-.donors-toolbar-controls {
+.donors-toolbar-controls-row {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  flex: 1 1 320px;
-  justify-content: flex-end;
+  gap: 0.45rem;
+  width: 100%;
 }
 
 .donors-search-box {
   position: relative;
   display: flex;
   align-items: center;
-  width: 100%;
-  max-width: 440px;
-  flex: 1 1 240px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .donors-search-icon {
   position: absolute;
-  left: 14px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--primary);
   pointer-events: none;
-  width: 18px;
-  height: 18px;
-  min-width: 18px;
-  min-height: 18px;
-  max-width: 18px;
-  max-height: 18px;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  max-width: 16px;
+  max-height: 16px;
   flex-shrink: 0;
   z-index: 3;
   margin: 0;
@@ -2190,10 +2308,10 @@ textarea.form-control {
 }
 
 svg.donors-search-icon {
-  width: 18px !important;
-  height: 18px !important;
+  width: 16px !important;
+  height: 16px !important;
   position: absolute !important;
-  left: 14px !important;
+  left: 12px !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
   pointer-events: none !important;
@@ -2203,19 +2321,19 @@ svg.donors-search-icon {
 
 .donors-search-input {
   width: 100% !important;
-  padding-left: 44px !important;
-  padding-right: 42px !important;
-  padding-top: 10px !important;
-  padding-bottom: 10px !important;
-  font-size: 0.95rem;
+  padding-left: 38px !important;
+  padding-right: 36px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  font-size: 0.88rem;
   border-radius: var(--radius-full) !important;
   border: 1.5px solid var(--border-color);
   background: var(--bg-secondary);
   color: var(--text-main);
   transition: all 0.25s ease;
   box-shadow: var(--shadow-sm);
-  min-height: 44px;
-  height: 44px;
+  min-height: 38px;
+  height: 38px;
   box-sizing: border-box !important;
   line-height: normal;
 }
@@ -2228,22 +2346,22 @@ svg.donors-search-icon {
 
 .donors-search-clear {
   position: absolute;
-  right: 12px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 4px;
+  padding: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   transition: all 0.2s ease;
   z-index: 2;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
 }
 
 .donors-search-clear:hover {
@@ -2259,14 +2377,15 @@ svg.donors-search-icon {
 }
 
 .donors-sort-select {
-  padding: 0.7rem 1.25rem;
-  font-size: 0.88rem;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.82rem;
   border-radius: var(--radius-full);
   border: 1.5px solid var(--border-color);
   background: var(--bg-secondary);
   color: var(--text-main);
   cursor: pointer;
-  min-height: 44px;
+  min-height: 38px;
+  height: 38px;
   box-sizing: border-box;
   transition: var(--transition);
 }
@@ -2277,31 +2396,118 @@ svg.donors-search-icon {
   box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.18);
 }
 
+/* Dual View: Desktop Table vs Mobile Cards */
+.desktop-donors-view {
+  display: block;
+}
+
+.mobile-donors-list {
+  display: none;
+}
+
+.mobile-donor-card {
+  background: var(--bg-surface, #FFFFFF);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 0.45rem;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.mobile-donor-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.mobile-donor-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+
+.mobile-donor-index {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.mobile-donor-name {
+  font-size: 0.92rem;
+  color: var(--text-main);
+  word-break: break-word;
+}
+
+.mobile-donor-amount {
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--success);
+  white-space: nowrap;
+}
+
+.mobile-donor-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
 @media (max-width: 640px) {
-  .donors-toolbar {
+  .donation-bank-card {
     flex-direction: column;
     align-items: stretch;
-    gap: 0.85rem;
+    gap: 0.75rem;
+    padding: 0.85rem !important;
+    margin-bottom: 0.75rem !important;
   }
 
-  .donors-toolbar-controls {
+  .donation-bank-actions {
     flex-direction: column;
     align-items: stretch;
     width: 100%;
-    justify-content: flex-start;
+    gap: 0.6rem;
   }
 
-  .donors-search-box {
-    max-width: 100%;
+  .donation-bank-actions .donate-upi-btn {
     width: 100%;
   }
 
-  .donors-sort-wrapper {
-    width: 100%;
+  .donors-toolbar-panel {
+    gap: 0.4rem;
+    margin-bottom: 0.55rem;
   }
 
+  .donors-toolbar-controls-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.35rem;
+  }
+
+  .donors-search-box,
+  .donors-sort-wrapper,
   .donors-sort-select {
     width: 100%;
+    max-width: 100%;
+  }
+
+  /* Switch from table to mobile cards on screens < 640px */
+  .desktop-donors-view {
+    display: none !important;
+  }
+
+  .mobile-donors-list {
+    display: flex !important;
+    flex-direction: column;
+    gap: 0.4rem;
   }
 }
 
