@@ -123,6 +123,7 @@ const Settings = () => {
     committeeName: '',
     festivalYear: 2026,
     festivalDates: '',
+    sthapanaDate: '2026-09-14T08:00',
     logoUrl: '',
     ganeshaImageUrl: '',
     contactInfo: '',
@@ -168,11 +169,24 @@ const Settings = () => {
         }
       }
 
+      // Format sthapanaDate for datetime-local input (YYYY-MM-DDTHH:mm)
+      let formattedSthapana = '2026-09-14T08:00';
+      if (settings.sthapanaDate) {
+        const d = new Date(settings.sthapanaDate);
+        if (!isNaN(d.getTime())) {
+          const pad = (n) => String(n).padStart(2, '0');
+          formattedSthapana = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        } else {
+          formattedSthapana = settings.sthapanaDate;
+        }
+      }
+
       setForm({
         festivalName: settings.festivalName || '',
         committeeName: settings.committeeName || '',
         festivalYear: settings.festivalYear || 2026,
         festivalDates: settings.festivalDates || '',
+        sthapanaDate: formattedSthapana,
         logoUrl: settings.logoUrl || '',
         ganeshaImageUrl: settings.ganeshaImageUrl || '',
         contactInfo: settings.contactInfo || '',
@@ -336,6 +350,22 @@ const Settings = () => {
                     required
                   />
                 </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="sthapanaDate">⏳ Sthapana Muhurtham — Countdown Target Date &amp; Time</label>
+                <input
+                  type="datetime-local"
+                  id="sthapanaDate"
+                  name="sthapanaDate"
+                  className="form-control"
+                  value={form.sthapanaDate || ''}
+                  onChange={handleInputChange}
+                />
+                <small style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.35rem', display: 'block' }}>
+                  Set the exact date &amp; time of the Idol Sthapana ceremony. The homepage countdown counts down to this moment.
+                  When this date has passed (e.g. today is past the ceremony), the timer automatically stops and triggers an animated festive celebration with crackers! 🎆
+                </small>
               </div>
 
               <div className="form-group">

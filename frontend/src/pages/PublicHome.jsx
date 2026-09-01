@@ -59,30 +59,119 @@ const PublicHome = () => {
       .catch((err) => console.error(err));
   }, []);
 
-  // Countdown timer logic
-  useEffect(() => {
-    // Parse target date (Sept 14, 2026)
-    const target = new Date('2026-09-14T08:00:00').getTime();
+  // Parse festival dates range from settings.festivalDates (e.g. "September 1 - September 19, 2026")
+  const parseFestivalDates = (festivalDatesStr, festivalYear = 2026) => {
+    const defaultYear = festivalYear || 2026;
+    if (!festivalDatesStr || typeof festivalDatesStr !== 'string') {
+      return {
+        startDate: new Date(defaultYear, 8, 1, 0, 0, 0), // Sept 1 default
+        endDate: new Date(defaultYear, 8, 19, 23, 59, 59),
+      };
+    }
 
-    const interval = setInterval(() => {
-      const now = new Date().getTime();
-      const difference = target - now;
+    const raw = festivalDatesStr.trim();
+    const yearMatch = raw.match(/\b(20\d\d)\b/);
+    const year = yearMatch ? parseInt(yearMatch[1], 10) : defaultYear;
 
-      if (difference <= 0) {
-        setCountdown((prev) => ({ ...prev, finished: true }));
-        clearInterval(interval);
-      } else {
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+    // Split by range separators ( - , – , — , to , till , until )
+    const parts = raw.split(/\s*[-–—]\s*|\s+(?:to|till|until)\s+/i).map((s) => s.trim()).filter(Boolean);
 
-        setCountdown({ days, hours, minutes, seconds, finished: false });
+    const parsePart = (str, isEnd = false) => {
+      if (!str) return null;
+      let s = str;
+      if (!/\b20\d\d\b/.test(s)) {
+        s = `${s} ${year}`;
       }
-    }, 1000);
+
+      // 1. Try Date.parse
+      const d = new Date(s);
+      if (!isNaN(d.getTime())) {
+        if (isEnd) {
+          d.setHours(23, 59, 59, 999);
+        } else {
+          d.setHours(0, 0, 0, 0);
+        }
+        return d;
+      }
+
+      // 2. Try DD-MM-YYYY or DD/MM/YYYY
+      const dmy = s.match(/(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
+      if (dmy) {
+        const day = parseInt(dmy[1], 10);
+        const month = parseInt(dmy[2], 10) - 1;
+        const yr = parseInt(dmy[3], 10);
+        const res = new Date(yr, month, day, isEnd ? 23 : 0, isEnd ? 59 : 0, isEnd ? 59 : 0);
+        if (!isNaN(res.getTime())) return res;
+      }
+
+      return null;
+    };
+
+    const startDate = parsePart(parts[0], false) || new Date(year, 8, 1, 0, 0, 0);
+    const endDate = (parts.length > 1 ? parsePart(parts[1], true) : null) || new Date(startDate.getTime() + 18 * 24 * 60 * 60 * 1000);
+
+    return { startDate, endDate };
+  };
+
+  // Countdown & Celebration logic directly driven by settings.festivalDates
+  useEffect(() => {
+    const { startDate, endDate } = parseFestivalDates(settings?.festivalDates, settings?.festivalYear);
+
+    const updateCountdown = () => {
+      const now = Date.now();
+      const startTime = startDate.getTime();
+      const endTime = endDate.getTime();
+
+      if (now >= startTime && now <= endTime) {
+        // Active festival days! Trigger lively celebration animation with crackers
+        setCountdown({
+          days: 0,
+          hours: 0,
+          minutes: 0,
+          seconds: 0,
+          finished: true,
+          status: 'active',
+          startDate,
+          endDate,
+        });
+      } else if (now > endTime) {
+        // Concluded festival
+        setCountdown({
+          days: 0,
+          hours: 0,
+          minutes: 0,
+          seconds: 0,
+          finished: true,
+          status: 'concluded',
+          startDate,
+          endDate,
+        });
+      } else {
+        // Upcoming festival: live countdown to startDate
+        const diff = startTime - now;
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        setCountdown({
+          days,
+          hours,
+          minutes,
+          seconds,
+          finished: false,
+          status: 'upcoming',
+          startDate,
+          endDate,
+        });
+      }
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [settings?.festivalDates, settings?.festivalYear]);
 
   // Share live stream handler
   const handleShareStream = async () => {
@@ -281,31 +370,61 @@ const PublicHome = () => {
           </div>
         )}
 
-        {/* Live Countdown Muhurtham */}
-        <div style={{ marginTop: '2rem' }}>
-          <span style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.6)', display: 'block', marginBottom: '0.75rem', fontWeight: 600 }}>
-            Countdown to Sthapana Muhurtham
-          </span>
+        {/* Live Countdown / Festive Status */}
+        <div style={{ marginTop: '1.75rem' }}>
+          {!countdown.finished && (
+            <span style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.75)', display: 'block', marginBottom: '0.75rem', fontWeight: 600 }}>
+              ⏳ Countdown to Celebrations
+              {countdown.startDate && (
+                <span style={{ fontWeight: 600, marginLeft: '0.4rem', color: '#FFE082' }}>
+                  • Starts {new Date(countdown.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </span>
+              )}
+            </span>
+          )}
+
           {countdown.finished ? (
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent)', padding: '0.5rem' }}>
-              🌺 The Festival is Underway! Lord Ganesha Bless You! 🌺
+            /* ====== CELEBRATION WITH CRACKERS & FIREWORKS (Shown when date has passed) ====== */
+            <div className="festival-celebration">
+              {/* Animated Cracker / Firework / Confetti Particles */}
+              {['🎆', '🎇', '✨', '🌟', '🎉', '🥳', '🪔', '🌺', '🎊', '🙏', '🎆', '✨', '🎉', '🌟', '🎇', '🪔'].map((emoji, i) => (
+                <span
+                  key={i}
+                  className="cracker-particle"
+                  style={{
+                    left: `${(i * 6.25) % 100}%`,
+                    animationDelay: `${(i * 0.16).toFixed(2)}s`,
+                    animationDuration: `${1.6 + (i % 4) * 0.3}s`,
+                    fontSize: `${1 + (i % 3) * 0.35}rem`,
+                  }}
+                >
+                  {emoji}
+                </span>
+              ))}
+
+              <div className="celebration-badge-title">
+                🌺 The Festival is Underway! 🌺
+              </div>
+              <div className="celebration-badge-subtitle">
+                Lord Ganesha Bless You with Health, Joy &amp; Prosperity! 🙏
+              </div>
             </div>
           ) : (
             <div className="countdown-container">
               <div className="countdown-box">
-                <span className="number">{countdown.days}</span>
+                <span className="number">{String(countdown.days).padStart(2, '0')}</span>
                 <span className="label">Days</span>
               </div>
               <div className="countdown-box">
-                <span className="number">{countdown.hours}</span>
+                <span className="number">{String(countdown.hours).padStart(2, '0')}</span>
                 <span className="label">Hours</span>
               </div>
               <div className="countdown-box">
-                <span className="number">{countdown.minutes}</span>
+                <span className="number">{String(countdown.minutes).padStart(2, '0')}</span>
                 <span className="label">Mins</span>
               </div>
               <div className="countdown-box">
-                <span className="number">{countdown.seconds}</span>
+                <span className="number">{String(countdown.seconds).padStart(2, '0')}</span>
                 <span className="label">Secs</span>
               </div>
             </div>

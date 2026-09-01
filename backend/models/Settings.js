@@ -22,6 +22,10 @@ const settingsSchema = new mongoose.Schema(
       required: true,
       default: 'September 14 - September 19, 2026',
     },
+    sthapanaDate: {
+      type: String,
+      default: '2026-09-14T08:00',
+    },
     logoUrl: {
       type: String,
       default: '',
