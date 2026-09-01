@@ -77,6 +77,7 @@ const DEFAULT_SETTINGS = {
   committeeName: 'Festival Committee',
   festivalYear: 2026,
   festivalDates: 'September 14 - September 19, 2026',
+  sthapanaDate: '2026-09-14T08:00',
   logoUrl: '',
   ganeshaImageUrl: '',
   contactInfo: '+91 9948050484',
