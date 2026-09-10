@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth, API_URL, getMediaUrl, isVideoUrl, getYouTubeEmbedUrl, getYouTubeWatchUrl, formatInstagramUrl, InstagramIcon } from '../context/AuthContext';
-import { Calendar, Bell, ShieldAlert, Phone, Mail, Award, MapPin, Clock, Heart, Users, Radio, Tv, ExternalLink, Share2, Sparkles, ChevronDown, ChevronUp, X, Image as ImageIcon, Film, Play, Eye } from 'lucide-react';
+import { Calendar, Bell, ShieldAlert, Phone, Mail, Award, MapPin, Clock, Heart, Users, Radio, Tv, ExternalLink, Share2, Sparkles, ChevronDown, ChevronUp, X, Image as ImageIcon, Film, Play, Eye, Utensils } from 'lucide-react';
 import DonateModal from '../components/DonateModal';
+import FireworkCelebration from '../components/FireworkCelebration';
+import ImageLightboxModal from '../components/ImageLightboxModal';
+import PrasadamHistoryModal from '../components/PrasadamHistoryModal';
 
 const PublicHome = () => {
   const { settings, triggerToast } = useAuth();
+  const currentFestivalYear = settings?.festivalYear || 2026;
+  const celebrationStorageKey = `vinayakaCelebrationShown_${currentFestivalYear}`;
+
   const [events, setEvents] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [gallery, setGallery] = useState([]);
@@ -18,6 +24,19 @@ const PublicHome = () => {
   const [showSponsorModal, setShowSponsorModal] = useState(false);
   const [showDonateModal, setShowDonateModal] = useState(false);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, finished: false });
+
+  // Full-Screen Independent Celebration Overlay State
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [countdownCollapsed, setCountdownCollapsed] = useState(() => {
+    return sessionStorage.getItem(celebrationStorageKey) === 'true';
+  });
+
+  // Lightboxes & Prasadam State (Requirements 3, 4, 5)
+  const [sponsorLightboxOpen, setSponsorLightboxOpen] = useState(false);
+  const [homeGalleryLightboxItem, setHomeGalleryLightboxItem] = useState(null);
+  const [prasadamData, setPrasadamData] = useState({ todayDonors: [], todayCount: 0, totalCount: 0, allEntries: [] });
+  const [showPrasadamModal, setShowPrasadamModal] = useState(false);
+  const [sponsorPhotoError, setSponsorPhotoError] = useState(false);
 
   const fetchCollectionsSummary = () => {
     fetch(`${API_URL}/collections`)
@@ -55,6 +74,14 @@ const PublicHome = () => {
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setGallery(data);
+      })
+      .catch((err) => console.error(err));
+
+    // Fetch Prasadam donors and summary (Requirement 5)
+    fetch(`${API_URL}/prasadam`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data) setPrasadamData(data);
       })
       .catch((err) => console.error(err));
   }, []);
@@ -113,6 +140,17 @@ const PublicHome = () => {
     return { startDate, endDate };
   };
 
+  // Memoized completion callback for FireworkCelebration
+  const handleCelebrationComplete = React.useCallback(() => {
+    setShowCelebration(false);
+    setCountdownCollapsed(true);
+    try {
+      sessionStorage.setItem(celebrationStorageKey, 'true');
+    } catch (e) {
+      // Ignore storage errors
+    }
+  }, [celebrationStorageKey]);
+
   // Countdown & Celebration logic directly driven by settings.festivalDates
   useEffect(() => {
     const { startDate, endDate } = parseFestivalDates(settings?.festivalDates, settings?.festivalYear);
@@ -123,7 +161,6 @@ const PublicHome = () => {
       const endTime = endDate.getTime();
 
       if (now >= startTime && now <= endTime) {
-        // Active festival days! Trigger lively celebration animation with crackers
         setCountdown({
           days: 0,
           hours: 0,
@@ -134,8 +171,18 @@ const PublicHome = () => {
           startDate,
           endDate,
         });
+
+        // Trigger 5-second full-screen celebration overlay ONLY ONCE if not already experienced
+        const alreadyShown = sessionStorage.getItem(celebrationStorageKey) === 'true';
+        if (!alreadyShown) {
+          setShowCelebration((prev) => {
+            if (!prev) return true;
+            return prev;
+          });
+        } else {
+          setCountdownCollapsed(true);
+        }
       } else if (now > endTime) {
-        // Concluded festival
         setCountdown({
           days: 0,
           hours: 0,
@@ -146,6 +193,7 @@ const PublicHome = () => {
           startDate,
           endDate,
         });
+        setCountdownCollapsed(true);
       } else {
         // Upcoming festival: live countdown to startDate
         const diff = startTime - now;
@@ -370,9 +418,9 @@ const PublicHome = () => {
           </div>
         )}
 
-        {/* Live Countdown / Festive Status */}
-        <div style={{ marginTop: '1.75rem' }}>
-          {!countdown.finished && (
+        {/* Live Countdown (Collapses cleanly with zero blank space once finished) */}
+        {!countdownCollapsed && !countdown.finished && (
+          <div style={{ marginTop: '1.75rem' }}>
             <span style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.75)', display: 'block', marginBottom: '0.75rem', fontWeight: 600 }}>
               ⏳ Countdown to Celebrations
               {countdown.startDate && (
@@ -381,35 +429,7 @@ const PublicHome = () => {
                 </span>
               )}
             </span>
-          )}
 
-          {countdown.finished ? (
-            /* ====== CELEBRATION WITH CRACKERS & FIREWORKS (Shown when date has passed) ====== */
-            <div className="festival-celebration">
-              {/* Animated Cracker / Firework / Confetti Particles */}
-              {['🎆', '🎇', '✨', '🌟', '🎉', '🥳', '🪔', '🌺', '🎊', '🙏', '🎆', '✨', '🎉', '🌟', '🎇', '🪔'].map((emoji, i) => (
-                <span
-                  key={i}
-                  className="cracker-particle"
-                  style={{
-                    left: `${(i * 6.25) % 100}%`,
-                    animationDelay: `${(i * 0.16).toFixed(2)}s`,
-                    animationDuration: `${1.6 + (i % 4) * 0.3}s`,
-                    fontSize: `${1 + (i % 3) * 0.35}rem`,
-                  }}
-                >
-                  {emoji}
-                </span>
-              ))}
-
-              <div className="celebration-badge-title">
-                🌺 The Festival is Underway! 🌺
-              </div>
-              <div className="celebration-badge-subtitle">
-                Lord Ganesha Bless You with Health, Joy &amp; Prosperity! 🙏
-              </div>
-            </div>
-          ) : (
             <div className="countdown-container">
               <div className="countdown-box">
                 <span className="number">{String(countdown.days).padStart(2, '0')}</span>
@@ -428,8 +448,8 @@ const PublicHome = () => {
                 <span className="label">Secs</span>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* =========================================================================
@@ -438,23 +458,24 @@ const PublicHome = () => {
       {(settings?.idolSponsorActive !== false) && (settings?.idolSponsorName && settings?.idolSponsorName.trim().length > 0) && (
         <div className="idol-sponsor-card" style={{ marginBottom: '2.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', width: '100%' }}>
-            {/* Sponsor Profile Photo or fallback emoji */}
-            {settings?.idolSponsorPhotoUrl ? (
+            {/* Sponsor Profile Photo or fallback emoji with Tap-to-Preview */}
+            {settings?.idolSponsorPhotoUrl && !sponsorPhotoError ? (
               <img
                 src={getMediaUrl(settings.idolSponsorPhotoUrl)}
                 alt={settings.idolSponsorName}
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  e.currentTarget.nextSibling && (e.currentTarget.nextSibling.style.display = 'flex');
-                }}
+                onClick={() => setSponsorLightboxOpen(true)}
+                title="Click / Tap to preview full-size photo"
+                onError={() => setSponsorPhotoError(true)}
                 style={{
-                  width: 72,
-                  height: 72,
+                  width: 76,
+                  height: 76,
                   borderRadius: '50%',
                   objectFit: 'cover',
-                  border: '3px solid rgba(255, 102, 0, 0.55)',
-                  boxShadow: '0 4px 16px rgba(255, 102, 0, 0.3)',
+                  border: '3px solid rgba(255, 102, 0, 0.7)',
+                  boxShadow: '0 4px 16px rgba(255, 102, 0, 0.35)',
                   flexShrink: 0,
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s ease',
                 }}
               />
             ) : (
@@ -466,7 +487,7 @@ const PublicHome = () => {
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'linear-gradient(135deg, rgba(255, 102, 0, 0.16), rgba(249, 200, 53, 0.28))', border: '1.5px solid rgba(255, 102, 0, 0.45)', borderRadius: '20px', padding: '0.25rem 0.85rem', marginBottom: '0.35rem', boxShadow: '0 2px 8px rgba(255,102,0,0.15)', whiteSpace: 'nowrap' }}>
                 <span style={{ fontSize: '0.95rem', lineHeight: 1 }}>🙏</span>
                 <span style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--primary)', whiteSpace: 'nowrap' }}>
-                  Vinayaka Idol Sponsor
+                  {settings?.festivalYear || 2026} Vinayaka Idol Sponsor
                 </span>
               </div>
               <h3 style={{ fontSize: '1.4rem', color: '#B71C1C', margin: '0.2rem 0', fontWeight: 800, wordBreak: 'break-word' }}>
@@ -767,28 +788,65 @@ const PublicHome = () => {
 
       {/* Grid of Announcements & Events */}
       <div className="grid-2" style={{ marginBottom: '2.5rem' }}>
-        {/* Latest Announcements */}
+        {/* Daily Prasadam Seva Honor Card (Requirement 5 & 10) */}
         <div className="card">
-          <h2 style={{ fontSize: '1.3rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)' }}>
-            <Bell size={20} /> Latest Updates & Notices
-          </h2>
-          {announcements.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>No announcements published yet.</p>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {announcements.map((ann) => (
-                <div key={ann._id} style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem', gap: '0.5rem', flexWrap: 'wrap' }}>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>{ann.title}</h3>
-                    <span className={`badge badge-${ann.priority.toLowerCase()}`}>{ann.priority}</span>
-                  </div>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>{ann.description}</p>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    📅 {new Date(ann.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
-                  </span>
-                </div>
-              ))}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <h2 style={{ fontSize: '1.3rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)' }}>
+              <Utensils size={20} /> Daily Prasadam Seva
+            </h2>
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={() => setShowPrasadamModal(true)}
+              style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}
+            >
+              View Full Honor Roll ({prasadamData?.totalCount || 0})
+            </button>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
+            <div style={{ background: 'hsl(30, 20%, 96%)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', fontWeight: 600 }}>Today's Donors</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--primary)' }}>{prasadamData?.todayCount || 0}</span>
             </div>
+            <div style={{ background: 'hsl(30, 20%, 96%)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', fontWeight: 600 }}>Total Devotee Entries</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--primary-dark)' }}>{prasadamData?.totalCount || 0}</span>
+            </div>
+          </div>
+
+          {prasadamData?.todayDonors && prasadamData.todayDonors.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+              <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Today's Sacred Seva Donors:
+              </span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '180px', overflowY: 'auto' }}>
+                {prasadamData.todayDonors.map((d, idx) => (
+                  <div
+                    key={d._id || idx}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      background: 'rgba(255, 102, 0, 0.05)',
+                      padding: '0.5rem 0.85rem',
+                      borderRadius: 'var(--radius-sm)',
+                      border: '1px solid rgba(255, 102, 0, 0.15)',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-main)' }}>{d.donorName}</div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 600 }}>{d.item}</div>
+                    </div>
+                    <span style={{ fontSize: '1.2rem' }}>🍚</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontStyle: 'italic', margin: '0.5rem 0 0' }}>
+              No donor entries recorded yet for today. Devotees are cordially invited for daily Prasadam Seva!
+            </p>
           )}
         </div>
 
@@ -1200,6 +1258,31 @@ const PublicHome = () => {
         isOpen={showDonateModal}
         onClose={() => setShowDonateModal(false)}
         onSuccess={fetchCollectionsSummary}
+      />
+
+      {/* 5-Second Full-Screen Festival Celebration Independent Overlay */}
+      {showCelebration && (
+        <FireworkCelebration
+          onComplete={handleCelebrationComplete}
+          festivalYear={currentFestivalYear}
+          festivalName={settings?.festivalName || 'Vinayaka Chavithi'}
+        />
+      )}
+
+      {/* Vinayaka Idol Sponsor Full-Size Image Preview Lightbox (Requirement 3) */}
+      <ImageLightboxModal
+        isOpen={sponsorLightboxOpen}
+        onClose={() => setSponsorLightboxOpen(false)}
+        src={settings?.idolSponsorPhotoUrl}
+        caption={settings?.idolSponsorName || 'Vinayaka Idol Sponsor'}
+        category={`${settings?.festivalYear || 2026} Vinayaka Idol Sponsor`}
+      />
+
+      {/* Prasadam Full Honor Roll History Modal (Requirement 5) */}
+      <PrasadamHistoryModal
+        isOpen={showPrasadamModal}
+        onClose={() => setShowPrasadamModal(false)}
+        entries={prasadamData?.allEntries || []}
       />
     </div>
   );

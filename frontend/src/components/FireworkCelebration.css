@@ -1,0 +1,198 @@
+/* ==========================================================================
+   Full-Screen Vinayaka Chavithi Celebration Overlay Styles
+   ========================================================================== */
+
+.firework-celebration-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+  touch-action: none;
+  cursor: default;
+
+  /* Layered festive gradient background */
+  background:
+    radial-gradient(ellipse at 50% 35%, rgba(255, 111, 0, 0.32) 0%, rgba(183, 28, 28, 0.45) 45%, rgba(18, 5, 2, 0.95) 85%, #0a0201 100%),
+    linear-gradient(180deg, #150502 0%, #0a0201 100%);
+
+  opacity: 1;
+  transition: opacity 2s ease-in-out;
+  animation: celebrationOverlayIn 0.6s ease-out forwards;
+}
+
+.firework-celebration-overlay.fade-out {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 2s ease-in-out !important;
+}
+
+.firework-celebration-overlay.fade-out .firework-celebration-content {
+  opacity: 0;
+  transform: translateY(-24px) scale(0.95);
+  transition: opacity 1.4s ease, transform 1.4s ease;
+}
+
+.firework-celebration-overlay.fade-out .firework-celebration-backdrop-glow {
+  opacity: 0;
+  transition: opacity 1.6s ease;
+}
+
+.firework-celebration-overlay.fade-out .firework-celebration-canvas {
+  opacity: 0.3;
+  transition: opacity 2s ease-in-out;
+}
+
+@keyframes celebrationOverlayIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+  }
+}
+
+/* Full-Screen Canvas */
+.firework-celebration-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Background Ambient Radiance Glow */
+.firework-celebration-backdrop-glow {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(700px, 90vw);
+  height: min(700px, 90vw);
+  background: radial-gradient(circle, rgba(255, 179, 0, 0.22) 0%, rgba(216, 67, 21, 0.12) 50%, transparent 70%);
+  pointer-events: none;
+  filter: blur(40px);
+  z-index: 2;
+  animation: ambientPulse 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes ambientPulse {
+  0% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.7; }
+  100% { transform: translate(-50%, -50%) scale(1.08); opacity: 1; }
+}
+
+/* Center Festival Message Container */
+.firework-celebration-content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 2.2rem 2.5rem;
+  max-width: min(680px, 92vw);
+  border-radius: 28px;
+  background: linear-gradient(145deg, rgba(30, 8, 3, 0.78) 0%, rgba(15, 4, 2, 0.86) 100%);
+  border: 1.5px solid rgba(255, 215, 0, 0.55);
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.85),
+    0 0 50px rgba(255, 111, 0, 0.35),
+    inset 0 0 35px rgba(255, 215, 0, 0.15);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  animation: messageOpening 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: auto;
+  transition: opacity 1.3s ease, transform 1.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes messageOpening {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Divine Om & Trishul Symbol Header */
+.celebration-sacred-symbol {
+  font-size: clamp(2.4rem, 6.5vw, 3.4rem);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+  filter: drop-shadow(0 0 16px rgba(255, 215, 0, 0.8));
+  animation: sacredGlow 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes sacredGlow {
+  0% { transform: scale(0.96); filter: drop-shadow(0 0 12px rgba(255, 179, 0, 0.7)); }
+  100% { transform: scale(1.04); filter: drop-shadow(0 0 24px rgba(255, 235, 59, 0.95)); }
+}
+
+/* Festival Year / Sub-Badge */
+.celebration-pill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 1.1rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 102, 0, 0.25), rgba(255, 215, 0, 0.35), rgba(255, 102, 0, 0.25));
+  border: 1px solid rgba(255, 215, 0, 0.65);
+  color: #FFE082;
+  font-size: clamp(0.78rem, 2vw, 0.88rem);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Main Heading: Vinayaka Chavithi */
+.celebration-main-title {
+  margin: 0 0 0.4rem;
+  font-family: 'Cinzel', 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.85rem, 5.5vw, 3.1rem);
+  font-weight: 900;
+  line-height: 1.15;
+  background: linear-gradient(135deg, #FFFDF0 0%, #FFE082 30%, #FFB300 70%, #FF6F00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.02em;
+}
+
+/* Secondary Headline: Celebrations Begin */
+.celebration-sub-title {
+  margin: 0 0 0.85rem;
+  font-size: clamp(1.05rem, 3vw, 1.4rem);
+  font-weight: 800;
+  color: #FFCA28;
+  letter-spacing: 0.04em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8), 0 0 12px rgba(255, 179, 0, 0.4);
+}
+
+/* Traditional Blessing Quote */
+.celebration-blessing {
+  margin: 0;
+  font-size: clamp(0.88rem, 2.2vw, 1.05rem);
+  color: #FFF3E0;
+  line-height: 1.55;
+  font-weight: 500;
+  opacity: 0.95;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+
+/* Responsive Tuning for Mobile */
+@media (max-width: 640px) {
+  .firework-celebration-content {
+    padding: 1.6rem 1.4rem;
+    border-radius: 22px;
+  }
+}
