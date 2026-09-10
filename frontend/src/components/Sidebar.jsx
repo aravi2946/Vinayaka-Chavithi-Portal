@@ -16,6 +16,7 @@ import {
   LogOut,
   ArrowLeft,
   UserCheck,
+  Utensils,
   X
 } from 'lucide-react';
 
@@ -58,6 +59,12 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
       label: 'Expenses',
       icon: <Receipt size={18} />,
       roles: ['Super Admin', 'Treasurer'],
+    },
+    {
+      path: '/dashboard/prasadam',
+      label: 'Prasadam Seva',
+      icon: <Utensils size={18} />,
+      roles: ['Super Admin', 'Food Admin'],
     },
     {
       path: '/dashboard/events',

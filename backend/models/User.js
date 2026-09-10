@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-      enum: ['Super Admin', 'Treasurer', 'Event Manager', 'Volunteer Manager', 'Content Manager'],
+      enum: ['Super Admin', 'Treasurer', 'Event Manager', 'Volunteer Manager', 'Content Manager', 'Food Admin'],
       default: 'Super Admin',
     },
     status: {

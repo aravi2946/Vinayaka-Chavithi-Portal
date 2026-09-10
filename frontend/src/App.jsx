@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Outlet, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider, useAuth, API_URL } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
@@ -30,21 +30,32 @@ import FinancialReports from './pages/FinancialReports';
 import ActivityLog from './pages/ActivityLog';
 import CommitteeUsers from './pages/CommitteeUsers';
 import Settings from './pages/Settings';
+import ManagePrasadam from './pages/ManagePrasadam';
 
 // Public Layout Wrap
 const PublicLayout = () => {
+  const { settings } = useAuth();
+  const year = settings?.festivalYear || 2026;
+
   return (
     <div>
       <Navbar />
       <main style={{ minHeight: '85vh' }}>
         <Outlet />
       </main>
-      <footer style={{ background: 'var(--grad-dark)', color: 'rgba(255,255,255,0.4)', padding: '2rem 1.5rem', textAlign: 'center', fontSize: '0.85rem', borderTop: '1px solid hsl(30, 10%, 15%)' }}>
-        <p style={{ wordBreak: 'break-word', lineHeight: '1.6' }}>
-          © 2026 Vinayaka Chavithi Festival Committee.{' '}
+      <footer style={{ background: 'var(--grad-dark)', color: 'rgba(255,255,255,0.7)', padding: '2.5rem 1.5rem 2rem', textAlign: 'center', fontSize: '0.85rem', borderTop: '1px solid hsl(30, 10%, 15%)' }}>
+        <p style={{ wordBreak: 'break-word', lineHeight: '1.6', margin: '0 0 0.5rem' }}>
+          © {year} {settings?.festivalName || 'Vinayaka Chavithi Festival Committee'}.{' '}
           <span style={{ display: 'inline-block' }}>All rights reserved.</span>
         </p>
-        <p style={{ marginTop: '0.25rem', fontSize: '0.75rem', wordBreak: 'break-word', lineHeight: '1.6' }}>Jai Ganesha. May Lord Ganesha remove all your obstacles and bless you with wisdom.</p>
+        <div style={{ margin: '0.75rem 0 0.85rem', display: 'flex', justifyContent: 'center' }}>
+          <div style={{ background: 'linear-gradient(135deg, rgba(255, 102, 0, 0.18), rgba(255, 179, 0, 0.28))', border: '1.5px solid rgba(255, 179, 0, 0.5)', borderRadius: '24px', padding: '0.45rem 1.5rem', color: '#FFE082', fontWeight: 800, fontSize: '0.95rem', letterSpacing: '0.03em', textShadow: '0 1px 4px rgba(0,0,0,0.6)', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+            🚩 Event Organized By — Chowdarys, NGPadu
+          </div>
+        </div>
+        <p style={{ marginTop: '0.35rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', wordBreak: 'break-word', lineHeight: '1.6' }}>
+          Jai Ganesha. May Lord Ganesha remove all your obstacles and bless you with wisdom, health &amp; prosperity.
+        </p>
       </footer>
     </div>
   );
@@ -113,10 +124,35 @@ const ToastOverlay = () => {
   );
 };
 
+// Global Unique Visitor Tracker (Count unique visitors, not refreshes)
+const VisitorTracker = () => {
+  useEffect(() => {
+    try {
+      let visitorId = localStorage.getItem('vc_visitor_uuid');
+      if (!visitorId) {
+        visitorId = 'v_' + Math.random().toString(36).slice(2, 11) + '_' + Date.now();
+        localStorage.setItem('vc_visitor_uuid', visitorId);
+      }
+
+      // Ping visitor tracker
+      fetch(`${API_URL}/visitors/track`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visitorId }),
+      }).catch(() => {});
+    } catch (err) {
+      // Ignore client tracking error
+    }
+  }, []);
+
+  return null;
+};
+
 function App() {
   return (
     <Router>
       <AuthProvider>
+        <VisitorTracker />
         <ToastOverlay />
 
         <Routes>
@@ -146,6 +182,13 @@ function App() {
               <Route path="/dashboard/collections" element={<ManageCollections />} />
               <Route path="/dashboard/expenses" element={<ManageExpenses />} />
               <Route path="/dashboard/reports" element={<FinancialReports />} />
+            </Route>
+          </Route>
+
+          {/* Prasadam Seva Management (Super Admin / Food Admin only) */}
+          <Route element={<PrivateRoute allowedRoles={['Super Admin', 'Food Admin']} />}>
+            <Route element={<CommitteeLayout />}>
+              <Route path="/dashboard/prasadam" element={<ManagePrasadam />} />
             </Route>
           </Route>
 

@@ -19,7 +19,7 @@ const CommitteeUsers = () => {
     status: 'Active',
   });
 
-  const rolesList = ['Super Admin', 'Treasurer', 'Event Manager', 'Volunteer Manager', 'Content Manager'];
+  const rolesList = ['Super Admin', 'Treasurer', 'Event Manager', 'Volunteer Manager', 'Content Manager', 'Food Admin'];
 
   useEffect(() => {
     fetchUsers();
