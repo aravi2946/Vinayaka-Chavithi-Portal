@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth, API_URL, getMediaUrl, isVideoUrl } from '../context/AuthContext';
 import { Image as ImageIcon, Calendar, Filter, Film, Layers } from 'lucide-react';
+import ImageLightboxModal from '../components/ImageLightboxModal';
 
 const PublicGallery = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -11,6 +12,7 @@ const PublicGallery = () => {
   const [mediaType, setMediaType] = useState(initialType);
   const [activeCategory, setActiveCategory] = useState('All');
   const [loading, setLoading] = useState(true);
+  const [lightboxIndex, setLightboxIndex] = useState(-1);
 
   const categories = ['All', 'Sthapana', 'Cultural Programs', 'Annadanam', 'Competitions', 'Decorations', 'Nimajjanam', 'Other'];
 
@@ -56,6 +58,16 @@ const PublicGallery = () => {
 
   const photoCount = items.filter((i) => !isVideoUrl(i.imageUrl)).length;
   const videoCount = items.filter((i) => isVideoUrl(i.imageUrl)).length;
+
+  const photoItems = filteredItems.filter((i) => !isVideoUrl(i.imageUrl));
+  const currentLightboxItem = lightboxIndex >= 0 && lightboxIndex < photoItems.length ? photoItems[lightboxIndex] : null;
+
+  const handlePhotoClick = (item) => {
+    const idx = photoItems.findIndex((p) => p._id === item._id);
+    if (idx !== -1) {
+      setLightboxIndex(idx);
+    }
+  };
 
   return (
     <div className="page-container">
@@ -116,7 +128,7 @@ const PublicGallery = () => {
             gap: '0.35rem',
           }}
         >
-          <Film size={15} /> 🎬 Videos & Reels ({videoCount})
+          <Film size={15} /> 🎬 Videos &amp; Reels ({videoCount})
         </button>
       </div>
 
@@ -154,30 +166,85 @@ const PublicGallery = () => {
         </div>
       ) : (
         <div className="gallery-grid">
-          {filteredItems.map((item) => (
-            <div key={item._id} className="gallery-card">
-              <div className="gallery-img-container">
-                {isVideoUrl(item.imageUrl) ? (
-                  <video 
-                    src={getMediaUrl(item.imageUrl)} 
-                    controls 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                ) : (
-                  <img src={getMediaUrl(item.imageUrl)} alt={item.caption} />
-                )}
-                <span className="gallery-badge">{item.eventCategory}</span>
+          {filteredItems.map((item) => {
+            const isVid = isVideoUrl(item.imageUrl);
+            return (
+              <div
+                key={item._id}
+                className="gallery-card"
+                onClick={() => {
+                  if (!isVid) handlePhotoClick(item);
+                }}
+                style={{
+                  cursor: isVid ? 'default' : 'pointer',
+                  transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+                }}
+                title={isVid ? item.caption : 'Click to preview full-size photo'}
+              >
+                <div className="gallery-img-container" style={{ position: 'relative' }}>
+                  {isVid ? (
+                    <video 
+                      src={getMediaUrl(item.imageUrl)} 
+                      controls 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <>
+                      <img
+                        src={getMediaUrl(item.imageUrl)}
+                        alt={item.caption}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                      <div
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          background: 'rgba(0,0,0,0)',
+                          transition: 'background 0.2s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                        className="gallery-hover-overlay"
+                      />
+                    </>
+                  )}
+                  <span className="gallery-badge">{item.eventCategory}</span>
+                </div>
+                <div className="gallery-details" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '80px' }}>
+                  <p style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-main)', margin: 0 }}>
+                    {item.caption}
+                  </p>
+                  <span className="date" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.5rem' }}>
+                    <Calendar size={12} />
+                    {new Date(item.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    {!isVid && (
+                      <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 600 }}>
+                        🔍 View Fullsize
+                      </span>
+                    )}
+                  </span>
+                </div>
               </div>
-              <div className="gallery-details" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '80px' }}>
-                <p style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-main)' }}>{item.caption}</p>
-                <span className="date" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.5rem' }}>
-                  <Calendar size={12} />
-                  {new Date(item.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                </span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
+      )}
+
+      {/* Full Size Image Preview / Lightbox */}
+      {currentLightboxItem && (
+        <ImageLightboxModal
+          isOpen={lightboxIndex >= 0}
+          onClose={() => setLightboxIndex(-1)}
+          src={currentLightboxItem.imageUrl}
+          caption={currentLightboxItem.caption}
+          category={currentLightboxItem.eventCategory}
+          date={currentLightboxItem.date}
+          hasPrev={lightboxIndex > 0}
+          hasNext={lightboxIndex < photoItems.length - 1}
+          onPrev={() => setLightboxIndex((prev) => Math.max(prev - 1, 0))}
+          onNext={() => setLightboxIndex((prev) => Math.min(prev + 1, photoItems.length - 1))}
+        />
       )}
     </div>
   );
