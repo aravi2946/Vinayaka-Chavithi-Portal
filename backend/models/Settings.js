@@ -118,6 +118,40 @@ const settingsSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    // Multi-Year Vinayaka Idol Sponsors List
+    idolSponsors: [
+      {
+        year: {
+          type: Number,
+          required: true,
+        },
+        name: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        details: {
+          type: String,
+          default: '',
+        },
+        message: {
+          type: String,
+          default: '',
+        },
+        amount: {
+          type: String,
+          default: '',
+        },
+        photoUrl: {
+          type: String,
+          default: '',
+        },
+        active: {
+          type: Boolean,
+          default: true,
+        },
+      },
+    ],
     // Instagram & Social Media
     instagramUrl: {
       type: String,
