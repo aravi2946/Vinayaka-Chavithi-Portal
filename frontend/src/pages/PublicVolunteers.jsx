@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth, API_URL } from '../context/AuthContext';
-import { Users, Search, MapPin, Sparkles, Phone, HeartHandshake, Filter } from 'lucide-react';
+import { Users, Search, MapPin, Sparkles, Phone, HeartHandshake, Filter, X } from 'lucide-react';
 
 const PublicVolunteers = () => {
   const { settings } = useAuth();
@@ -25,7 +25,7 @@ const PublicVolunteers = () => {
 
   const getRoleClass = (resp) => {
     if (!resp) return 'volunteer-role-default';
-    const lower = resp.toLowerCase();
+    const lower = String(resp).toLowerCase();
     if (lower.includes('food')) return 'volunteer-role-food';
     if (lower.includes('decor')) return 'volunteer-role-decorations';
     if (lower.includes('puja')) return 'volunteer-role-puja';
@@ -36,7 +36,7 @@ const PublicVolunteers = () => {
 
   const getRoleIcon = (resp) => {
     if (!resp) return '🤝';
-    const lower = resp.toLowerCase();
+    const lower = String(resp).toLowerCase();
     if (lower.includes('food')) return '🍲';
     if (lower.includes('decor')) return '🎨';
     if (lower.includes('puja')) return '🪔';
@@ -54,14 +54,17 @@ const PublicVolunteers = () => {
 
   // Filter volunteers based on search and category
   const filteredVolunteers = volunteers.filter((vol) => {
-    const matchesSearch =
-      vol.name?.toLowerCase().includes(search.toLowerCase()) ||
-      vol.phone?.toLowerCase().includes(search.toLowerCase()) ||
-      vol.area?.toLowerCase().includes(search.toLowerCase()) ||
-      vol.assignedResponsibility?.toLowerCase().includes(search.toLowerCase());
-
+    const q = (search || '').trim().toLowerCase();
     const volRole = vol.assignedResponsibility || 'General Seva';
     const matchesRole = selectedRole === 'All' || volRole === selectedRole;
+
+    if (!q) return matchesRole;
+
+    const matchesSearch =
+      (vol.name ? String(vol.name).toLowerCase().includes(q) : false) ||
+      (vol.phone ? String(vol.phone).toLowerCase().includes(q) : false) ||
+      (vol.area ? String(vol.area).toLowerCase().includes(q) : false) ||
+      (vol.assignedResponsibility ? String(vol.assignedResponsibility).toLowerCase().includes(q) : false);
 
     return matchesSearch && matchesRole;
   });
