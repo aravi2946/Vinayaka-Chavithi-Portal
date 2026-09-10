@@ -5,6 +5,7 @@ const Collection = require('../models/Collection');
 const Budget = require('../models/Budget');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const logActivity = require('../utils/logger');
+const { getNextExpenseId } = require('../utils/idGenerator');
 
 // STRICT PRIVACY REQUIREMENT: Lock down this entire router to Super Admin and Treasurer roles
 router.use(protect);
@@ -198,8 +199,7 @@ router.post('/', async (req, res, next) => {
   const { date, expenseCategory, description, amount, paidTo, paymentMode, billReceiptNo, notes, approvalStatus } = req.body;
 
   try {
-    const count = await Expense.countDocuments({});
-    const expenseId = `EXP-${1000 + count + 1}`;
+    const expenseId = await getNextExpenseId();
 
     const expense = await Expense.create({
       expenseId,
@@ -309,21 +309,23 @@ router.delete('/:id', async (req, res, next) => {
       return res.status(404).json({ message: 'Expense not found' });
     }
 
+    const originalId = expense.expenseId;
     const prevValue = expense.toObject();
     expense.isDeleted = true;
     expense.deletedAt = Date.now();
+    expense.expenseId = `${originalId}_DELETED_${Date.now()}`;
     await expense.save();
 
     await logActivity({
       user: req.user.username,
-      action: 'Deleted Expense Record (Soft-Delete)',
+      action: 'Deleted Expense Record (Soft-Delete & Slot Released)',
       recordType: 'Expense',
-      recordId: expense.expenseId,
+      recordId: originalId,
       previousValue: prevValue,
       newValue: { isDeleted: true, deletedAt: expense.deletedAt },
     });
 
-    res.json({ message: `Expense ${expense.expenseId} soft-deleted successfully` });
+    res.json({ message: `Expense ${originalId} soft-deleted successfully` });
   } catch (error) {
     next(error);
   }
