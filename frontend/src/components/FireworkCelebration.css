@@ -189,10 +189,107 @@
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
 }
 
+/* Floating Top-Right Skip Intro Button */
+.celebration-skip-intro-btn {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.15rem;
+  background: rgba(22, 7, 3, 0.72);
+  border: 1.5px solid rgba(255, 215, 0, 0.55);
+  border-radius: 999px;
+  color: #FFE082;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 179, 0, 0.2);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  user-select: none;
+  touch-action: manipulation;
+  animation: skipBtnIn 0.5s ease-out 0.2s both;
+}
+
+@keyframes skipBtnIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.celebration-skip-intro-btn:hover {
+  background: rgba(255, 102, 0, 0.35);
+  border-color: #FFD700;
+  color: #FFFFFF;
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 24px rgba(255, 102, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.45);
+}
+
+.celebration-skip-intro-btn:active {
+  transform: translateY(1px) scale(0.97);
+}
+
+/* Center Card Action Button */
+.celebration-enter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.35rem;
+  padding: 0.55rem 1.4rem;
+  background: linear-gradient(135deg, rgba(255, 179, 0, 0.22), rgba(255, 102, 0, 0.32));
+  border: 1.5px solid rgba(255, 215, 0, 0.55);
+  border-radius: 999px;
+  color: #FFFDF0;
+  font-size: clamp(0.82rem, 2.2vw, 0.92rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4), inset 0 0 12px rgba(255, 215, 0, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.celebration-enter-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 179, 0, 0.4), rgba(255, 102, 0, 0.5));
+  border-color: #FFE082;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 22px rgba(255, 102, 0, 0.4), 0 0 15px rgba(255, 215, 0, 0.35);
+  color: #FFFFFF;
+}
+
+.celebration-enter-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
 /* Responsive Tuning for Mobile */
 @media (max-width: 640px) {
   .firework-celebration-content {
-    padding: 1.6rem 1.4rem;
+    padding: 1.6rem 1.3rem;
     border-radius: 22px;
+  }
+  .celebration-skip-intro-btn {
+    top: 1rem;
+    right: 1rem;
+    padding: 0.42rem 0.85rem;
+    font-size: 0.78rem;
+    gap: 0.35rem;
+  }
+  .celebration-enter-btn {
+    margin-top: 1.1rem;
+    padding: 0.48rem 1.15rem;
+    font-size: 0.8rem;
   }
 }

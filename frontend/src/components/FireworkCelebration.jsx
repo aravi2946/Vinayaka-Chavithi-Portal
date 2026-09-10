@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { FastForward } from 'lucide-react';
 import './FireworkCelebration.css';
 
 /**
@@ -14,11 +15,25 @@ import './FireworkCelebration.css';
 const FireworkCelebration = ({ onComplete, festivalYear = 2026, festivalName = 'Vinayaka Chavithi' }) => {
   const canvasRef = useRef(null);
   const onCompleteRef = useRef(onComplete);
+  const triggerCleanupRef = useRef(null);
   const [isFadingOut, setIsFadingOut] = useState(false);
 
   useEffect(() => {
     onCompleteRef.current = onComplete;
   }, [onComplete]);
+
+  const handleSkipIntro = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setIsFadingOut(true);
+    if (triggerCleanupRef.current) {
+      triggerCleanupRef.current();
+    } else if (onCompleteRef.current) {
+      onCompleteRef.current();
+    }
+  };
 
   // Lock body scroll during full-screen celebration
   useEffect(() => {
@@ -179,6 +194,8 @@ const FireworkCelebration = ({ onComplete, festivalYear = 2026, festivalName = '
       }
     };
 
+    triggerCleanupRef.current = triggerComplete;
+
     // 60FPS Physics & Render Loop
     const animate = () => {
       if (!isRunning) return;
@@ -272,6 +289,7 @@ const FireworkCelebration = ({ onComplete, festivalYear = 2026, festivalName = '
 
     return () => {
       isRunning = false;
+      triggerCleanupRef.current = null;
       if (burstIntervalId) clearInterval(burstIntervalId);
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
       clearTimeout(backupTimerId);
@@ -293,6 +311,18 @@ const FireworkCelebration = ({ onComplete, festivalYear = 2026, festivalName = '
       {/* Particle Canvas */}
       <canvas ref={canvasRef} className="firework-celebration-canvas" />
 
+      {/* Floating Top-Right Skip Intro Button */}
+      <button
+        type="button"
+        className="celebration-skip-intro-btn"
+        onClick={handleSkipIntro}
+        aria-label="Skip Intro Animation"
+        title="Skip intro & enter homepage"
+      >
+        <span>Skip Intro</span>
+        <FastForward size={14} style={{ strokeWidth: 2.4 }} />
+      </button>
+
       {/* Center Sacred Festival Message */}
       <div className="firework-celebration-content">
         <div className="celebration-sacred-symbol">🕉️</div>
@@ -310,6 +340,15 @@ const FireworkCelebration = ({ onComplete, festivalYear = 2026, festivalName = '
         <p className="celebration-blessing">
           May Lord Vighnaharta Ganesha bless you and your family with boundless joy, peace, health, and prosperity!
         </p>
+        <button
+          type="button"
+          className="celebration-enter-btn"
+          onClick={handleSkipIntro}
+          aria-label="Skip Intro & Enter"
+        >
+          <span>Skip Intro & Enter</span>
+          <FastForward size={14} style={{ strokeWidth: 2.2 }} />
+        </button>
       </div>
     </div>
   );
