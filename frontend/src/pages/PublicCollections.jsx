@@ -73,22 +73,22 @@ const PublicCollections = () => {
 
       {/* Featured Vinayaka Idol Sponsor Card */}
       {hasIdolSponsor && (
-        <div className="idol-sponsor-card" style={{ marginBottom: '0.85rem', padding: '0.85rem 1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', width: '100%', flexWrap: 'wrap' }}>
-            <div className="idol-sponsor-icon-badge" style={{ flexShrink: 0 }}>
+        <div className="idol-sponsor-card" style={{ marginBottom: '0.85rem' }}>
+          <div className="idol-sponsor-inner">
+            <div className="idol-sponsor-icon-badge">
               <span style={{ fontSize: '1.5rem', lineHeight: 1 }}>🙏</span>
             </div>
-            <div style={{ flex: '1 1 220px', minWidth: 0 }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', background: 'linear-gradient(135deg, rgba(255, 102, 0, 0.16), rgba(249, 200, 53, 0.28))', border: '1.5px solid rgba(255, 102, 0, 0.45)', borderRadius: '20px', padding: '0.2rem 0.75rem', marginBottom: '0.25rem', boxShadow: '0 2px 8px rgba(255,102,0,0.15)', whiteSpace: 'nowrap' }}>
-                <span style={{ fontSize: '0.85rem', lineHeight: 1 }}>🙏</span>
-                <span style={{ fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--primary)' }}>
-                  Vinayaka Idol Sponsor
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="idol-sponsor-badge-tag">
+                <span className="idol-sponsor-badge-icon">🙏</span>
+                <span className="idol-sponsor-badge-text">
+                  {settings?.festivalYear || 2026} Vinayaka Idol Sponsor
                 </span>
               </div>
-              <h3 style={{ fontSize: '1.25rem', color: '#B71C1C', margin: '0.1rem 0', fontWeight: 800, wordBreak: 'break-word' }}>
+              <h3 className="idol-sponsor-name" style={{ fontSize: '1.25rem', margin: '0.1rem 0' }}>
                 {settings?.idolSponsorName}
               </h3>
-              <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', margin: 0, wordBreak: 'break-word' }}>
+              <p className="idol-sponsor-desc" style={{ fontSize: '0.84rem' }}>
                 {settings?.idolSponsorDetails || 'Grand Eco-Friendly Clay Vinayaka Idol Seva'}
               </p>
             </div>

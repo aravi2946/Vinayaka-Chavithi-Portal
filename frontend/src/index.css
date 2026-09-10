@@ -2104,9 +2104,77 @@ textarea.form-control {
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  flex-wrap: wrap;
   position: relative;
   overflow: hidden;
+}
+
+.idol-sponsor-inner {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.idol-sponsor-avatar-img {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(255, 102, 0, 0.7);
+  box-shadow: 0 4px 16px rgba(255, 102, 0, 0.35);
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.idol-sponsor-avatar-img:hover {
+  transform: scale(1.05);
+}
+
+.idol-sponsor-badge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg, rgba(255, 102, 0, 0.16), rgba(249, 200, 53, 0.28));
+  border: 1.5px solid rgba(255, 102, 0, 0.45);
+  border-radius: 20px;
+  padding: 0.25rem 0.75rem;
+  margin-bottom: 0.35rem;
+  box-shadow: 0 2px 8px rgba(255, 102, 0, 0.15);
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.idol-sponsor-badge-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.idol-sponsor-badge-text {
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--primary);
+  line-height: 1.25;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.idol-sponsor-name {
+  font-size: 1.4rem;
+  color: #B71C1C;
+  margin: 0.2rem 0;
+  font-weight: 800;
+  word-break: break-word;
+}
+
+.idol-sponsor-desc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin: 0;
+  word-break: break-word;
 }
 
 .idol-sponsor-icon-badge {
@@ -2706,13 +2774,45 @@ svg.donors-search-icon {
   }
 
   .idol-sponsor-card {
-    padding: 1rem 0.85rem;
-    gap: 0.85rem;
+    padding: 0.9rem 0.85rem;
+    gap: 0.75rem;
+  }
+
+  .idol-sponsor-inner {
+    gap: 0.75rem;
+  }
+
+  .idol-sponsor-avatar-img {
+    width: 60px;
+    height: 60px;
   }
 
   .idol-sponsor-icon-badge {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
+  }
+
+  .idol-sponsor-badge-tag {
+    padding: 0.2rem 0.55rem;
+    gap: 0.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .idol-sponsor-badge-icon {
+    font-size: 0.82rem;
+  }
+
+  .idol-sponsor-badge-text {
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+  }
+
+  .idol-sponsor-name {
+    font-size: 1.2rem;
+  }
+
+  .idol-sponsor-desc {
+    font-size: 0.82rem;
   }
 
   .stat-card {

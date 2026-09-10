@@ -457,7 +457,7 @@ const PublicHome = () => {
          ========================================================================= */}
       {(settings?.idolSponsorActive !== false) && (settings?.idolSponsorName && settings?.idolSponsorName.trim().length > 0) && (
         <div className="idol-sponsor-card" style={{ marginBottom: '2.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', width: '100%' }}>
+          <div className="idol-sponsor-inner">
             {/* Sponsor Profile Photo or fallback emoji with Tap-to-Preview */}
             {settings?.idolSponsorPhotoUrl && !sponsorPhotoError ? (
               <img
@@ -466,17 +466,7 @@ const PublicHome = () => {
                 onClick={() => setSponsorLightboxOpen(true)}
                 title="Click / Tap to preview full-size photo"
                 onError={() => setSponsorPhotoError(true)}
-                style={{
-                  width: 76,
-                  height: 76,
-                  borderRadius: '50%',
-                  objectFit: 'cover',
-                  border: '3px solid rgba(255, 102, 0, 0.7)',
-                  boxShadow: '0 4px 16px rgba(255, 102, 0, 0.35)',
-                  flexShrink: 0,
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s ease',
-                }}
+                className="idol-sponsor-avatar-img"
               />
             ) : (
               <div className="idol-sponsor-icon-badge">
@@ -484,16 +474,16 @@ const PublicHome = () => {
               </div>
             )}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'linear-gradient(135deg, rgba(255, 102, 0, 0.16), rgba(249, 200, 53, 0.28))', border: '1.5px solid rgba(255, 102, 0, 0.45)', borderRadius: '20px', padding: '0.25rem 0.85rem', marginBottom: '0.35rem', boxShadow: '0 2px 8px rgba(255,102,0,0.15)', whiteSpace: 'nowrap' }}>
-                <span style={{ fontSize: '0.95rem', lineHeight: 1 }}>🙏</span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--primary)', whiteSpace: 'nowrap' }}>
+              <div className="idol-sponsor-badge-tag">
+                <span className="idol-sponsor-badge-icon">🙏</span>
+                <span className="idol-sponsor-badge-text">
                   {settings?.festivalYear || 2026} Vinayaka Idol Sponsor
                 </span>
               </div>
-              <h3 style={{ fontSize: '1.4rem', color: '#B71C1C', margin: '0.2rem 0', fontWeight: 800, wordBreak: 'break-word' }}>
+              <h3 className="idol-sponsor-name">
                 {settings.idolSponsorName}
               </h3>
-              <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: 0, wordBreak: 'break-word' }}>
+              <p className="idol-sponsor-desc">
                 {settings.idolSponsorDetails || 'Grand Eco-Friendly Clay Vinayaka Idol Seva'}
               </p>
             </div>
