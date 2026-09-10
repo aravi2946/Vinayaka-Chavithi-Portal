@@ -773,10 +773,24 @@ const Settings = () => {
               {/* Sponsor Badge Live Preview */}
               {form.idolSponsorName && (
                 <div style={{ background: 'hsl(38, 100%, 97%)', border: '1px solid hsl(38, 90%, 75%)', borderRadius: 'var(--radius-sm)', padding: '1rem', marginTop: '1rem' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--primary)', letterSpacing: '0.05em', display: 'block', marginBottom: '0.25rem' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--primary)', letterSpacing: '0.05em', display: 'block', marginBottom: '0.5rem' }}>
                     ✨ Public Button & Modal Live Preview:
                   </span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap' }}>
+                    {form.idolSponsorPhotoUrl && (
+                      <img
+                        src={getMediaUrl(form.idolSponsorPhotoUrl)}
+                        alt="Sponsor Avatar Preview"
+                        style={{
+                          width: 44,
+                          height: 44,
+                          borderRadius: '50%',
+                          objectFit: 'cover',
+                          border: '2px solid var(--primary)',
+                          boxShadow: '0 2px 8px rgba(255, 102, 0, 0.25)'
+                        }}
+                      />
+                    )}
                     <span className="idol-sponsor-hero-btn" style={{ cursor: 'default' }}>
                       🙏 Idol Sponsor: {form.idolSponsorName}
                     </span>

@@ -1201,9 +1201,26 @@ const PublicHome = () => {
               >
                 <X size={18} />
               </button>
-              <div style={{ fontSize: '2.5rem', marginBottom: '0.25rem' }}>🙏</div>
+              {settings?.idolSponsorPhotoUrl && !sponsorPhotoError ? (
+                <img
+                  src={getMediaUrl(settings.idolSponsorPhotoUrl)}
+                  alt={settings?.idolSponsorName || 'Sponsor'}
+                  style={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    border: '3px solid #FFF',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+                    margin: '0.25rem auto 0.5rem',
+                    display: 'block'
+                  }}
+                />
+              ) : (
+                <div style={{ fontSize: '2.5rem', marginBottom: '0.25rem' }}>🙏</div>
+              )}
               <h2 id="home-sponsor-modal-title" style={{ color: 'white', fontSize: '1.4rem', margin: 0, fontWeight: 800 }}>
-                Vinayaka Idol Sponsor
+                {settings?.festivalYear || 2026} Vinayaka Idol Sponsor
               </h2>
               <p style={{ color: '#FFE082', fontSize: '0.85rem', margin: '0.25rem 0 0' }}>
                 Divine Patronage for Lord Vinayaka Utsav

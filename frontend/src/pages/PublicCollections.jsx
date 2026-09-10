@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useAuth, API_URL } from '../context/AuthContext';
+import { useAuth, API_URL, getMediaUrl } from '../context/AuthContext';
 import { Heart, ShieldCheck, Landmark, Search, X, Sparkles, Filter, ArrowUpDown, Calendar, Award } from 'lucide-react';
 import DonateModal from '../components/DonateModal';
+import ImageLightboxModal from '../components/ImageLightboxModal';
 
 const PublicCollections = () => {
   const { settings } = useAuth();
@@ -11,6 +12,12 @@ const PublicCollections = () => {
   const [sortBy, setSortBy] = useState('date-desc');
   const [showSponsorModal, setShowSponsorModal] = useState(false);
   const [showDonateModal, setShowDonateModal] = useState(false);
+  const [sponsorPhotoError, setSponsorPhotoError] = useState(false);
+  const [sponsorLightboxOpen, setSponsorLightboxOpen] = useState(false);
+
+  useEffect(() => {
+    setSponsorPhotoError(false);
+  }, [settings?.idolSponsorPhotoUrl]);
 
   const fetchCollectionsData = () => {
     fetch(`${API_URL}/collections`)
@@ -75,9 +82,21 @@ const PublicCollections = () => {
       {hasIdolSponsor && (
         <div className="idol-sponsor-card" style={{ marginBottom: '0.85rem' }}>
           <div className="idol-sponsor-inner">
-            <div className="idol-sponsor-icon-badge">
-              <span style={{ fontSize: '1.5rem', lineHeight: 1 }}>🙏</span>
-            </div>
+            {/* Sponsor Profile Photo or fallback emoji with Tap-to-Preview */}
+            {settings?.idolSponsorPhotoUrl && !sponsorPhotoError ? (
+              <img
+                src={getMediaUrl(settings.idolSponsorPhotoUrl)}
+                alt={settings.idolSponsorName}
+                onClick={() => setSponsorLightboxOpen(true)}
+                title="Click / Tap to preview full-size photo"
+                onError={() => setSponsorPhotoError(true)}
+                className="idol-sponsor-avatar-img"
+              />
+            ) : (
+              <div className="idol-sponsor-icon-badge">
+                <span style={{ fontSize: '1.5rem', lineHeight: 1 }}>🙏</span>
+              </div>
+            )}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div className="idol-sponsor-badge-tag">
                 <span className="idol-sponsor-badge-icon">🙏</span>
@@ -345,9 +364,26 @@ const PublicCollections = () => {
               >
                 <X size={18} />
               </button>
-              <div style={{ fontSize: '2.5rem', marginBottom: '0.25rem' }}>🙏</div>
+              {settings?.idolSponsorPhotoUrl && !sponsorPhotoError ? (
+                <img
+                  src={getMediaUrl(settings.idolSponsorPhotoUrl)}
+                  alt={settings?.idolSponsorName || 'Sponsor'}
+                  style={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    border: '3px solid #FFF',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+                    margin: '0.25rem auto 0.5rem',
+                    display: 'block'
+                  }}
+                />
+              ) : (
+                <div style={{ fontSize: '2.5rem', marginBottom: '0.25rem' }}>🙏</div>
+              )}
               <h2 id="sponsor-modal-title" style={{ color: 'white', fontSize: '1.4rem', margin: 0, fontWeight: 800 }}>
-                Vinayaka Idol Sponsor
+                {settings?.festivalYear || 2026} Vinayaka Idol Sponsor
               </h2>
               <p style={{ color: '#FFE082', fontSize: '0.85rem', margin: '0.25rem 0 0' }}>
                 Divine Patronage for Lord Vinayaka Utsav
@@ -392,6 +428,15 @@ const PublicCollections = () => {
         isOpen={showDonateModal}
         onClose={() => setShowDonateModal(false)}
         onSuccess={fetchCollectionsData}
+      />
+
+      {/* Vinayaka Idol Sponsor Full-Size Image Preview Lightbox */}
+      <ImageLightboxModal
+        isOpen={sponsorLightboxOpen}
+        onClose={() => setSponsorLightboxOpen(false)}
+        src={settings?.idolSponsorPhotoUrl}
+        caption={settings?.idolSponsorName || 'Vinayaka Idol Sponsor'}
+        category={`${settings?.festivalYear || 2026} Vinayaka Idol Sponsor`}
       />
     </div>
   );
