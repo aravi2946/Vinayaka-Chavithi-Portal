@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth, API_URL } from '../context/AuthContext';
-import { Plus, Search, Filter, Check, Edit2, Trash2, X, AlertTriangle, FileSpreadsheet } from 'lucide-react';
+import { Plus, Search, Filter, Check, Edit2, Trash2, X, AlertTriangle, FileSpreadsheet, Upload } from 'lucide-react';
+import BulkImportCollectionsModal from '../components/BulkImportCollectionsModal';
 
 const ManageCollections = () => {
   const { user, triggerToast } = useAuth();
@@ -14,7 +15,26 @@ const ManageCollections = () => {
 
   // Modal form state
   const [modalOpen, setModalOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
+
+  const handleToggleVisibility = async (collId) => {
+    try {
+      const token = user?.token;
+      const res = await fetch(`${API_URL}/collections/${collId}/toggle-visibility`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Toggle failed');
+      triggerToast(data.message, 'success');
+      setCollections((prev) =>
+        prev.map((c) => (c._id === collId ? { ...c, showPublicly: data.showPublicly } : c))
+      );
+    } catch (err) {
+      triggerToast(err.message || 'Error toggling visibility', 'danger');
+    }
+  };
   const [form, setForm] = useState({
     date: new Date().toISOString().substring(0, 10),
     donorName: '',
@@ -219,9 +239,12 @@ const ManageCollections = () => {
           <h1 style={{ color: 'var(--primary)', fontSize: '2rem' }}>💰 Collection & Donations Register</h1>
           <p style={{ color: 'var(--text-muted)' }}>Manage devotee donations, verify UPI transactions, and track approval states.</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <button className="btn btn-secondary btn-sm" onClick={handleExportCSV}>
             <FileSpreadsheet size={16} /> Export CSV
+          </button>
+          <button className="btn btn-secondary btn-sm" onClick={() => setImportModalOpen(true)}>
+            <Upload size={16} /> Import Collections
           </button>
           <button className="btn btn-primary btn-sm" onClick={handleOpenAdd}>
             <Plus size={16} /> Log Collection
@@ -292,11 +315,23 @@ const ManageCollections = () => {
                   <td style={{ fontWeight: 600 }}>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
                       {coll.donorName}
-                      {coll.showPublicly ? (
-                        <span title="Public Visibility: ON" style={{ cursor: 'help', fontSize: '1rem' }}>👁️</span>
-                      ) : (
-                        <span title="Public Visibility: OFF (Private)" style={{ opacity: 0.25, cursor: 'help', fontSize: '1rem' }}>👁️</span>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleToggleVisibility(coll._id)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: '0.15rem 0.35rem',
+                          fontSize: '1.05rem',
+                          lineHeight: 1,
+                          opacity: coll.showPublicly ? 1 : 0.45,
+                          transition: 'transform 0.15s ease',
+                        }}
+                        title={coll.showPublicly ? "Public (Click to hide as Anonymous)" : "Hidden/Anonymous (Click to make public)"}
+                      >
+                        {coll.showPublicly ? '👁️' : '🙈'}
+                      </button>
                     </span>
                   </td>
                   <td>{coll.phone || <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>None</span>}</td>
@@ -516,6 +551,12 @@ const ManageCollections = () => {
           </div>
         </div>
       )}
+      {/* Bulk Import Excel/CSV Modal */}
+      <BulkImportCollectionsModal
+        isOpen={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+        onSuccess={fetchCollections}
+      />
     </div>
   );
 };

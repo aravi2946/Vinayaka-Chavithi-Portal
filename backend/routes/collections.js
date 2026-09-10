@@ -4,6 +4,7 @@ const Collection = require('../models/Collection');
 const Settings = require('../models/Settings');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const logActivity = require('../utils/logger');
+const { getNextCollectionId } = require('../utils/idGenerator');
 
 // @route   GET /api/collections
 // @desc    Get all collections (public/committee access with filters)
@@ -30,7 +31,6 @@ router.get('/', async (req, res, next) => {
     
     // Committee members with correct roles can view all collections (Draft, Submitted, Approved)
     if (user && ['Super Admin', 'Treasurer', 'Event Manager', 'Volunteer Manager', 'Content Manager'].includes(user.role)) {
-      // Query parameters for committee filtering
       if (req.query.approvalStatus) {
         filter.approvalStatus = req.query.approvalStatus;
       }
@@ -41,7 +41,7 @@ router.get('/', async (req, res, next) => {
         filter.donorName = { $regex: req.query.search, $options: 'i' };
       }
       
-      const collections = await Collection.find(filter).sort({ date: -1 });
+      const collections = await Collection.find(filter).sort({ date: -1, createdAt: -1 });
       return res.json(collections);
     } else {
       // Public view
@@ -55,11 +55,17 @@ router.get('/', async (req, res, next) => {
 
       let collections = [];
       if (showDonorsList) {
-        // Fetch approved collections details if allowed by settings
+        // Fetch approved collections details. Hidden donors show as "Anonymous"
         const fetchedCollections = await Collection.find({ approvalStatus: 'Approved', isDeleted: false })
-          .select('date donorName amount')
-          .sort({ date: -1 });
-        collections = fetchedCollections.map(coll => coll.toObject());
+          .select('date donorName amount showPublicly')
+          .sort({ date: -1, createdAt: -1 });
+
+        collections = fetchedCollections.map(coll => ({
+          _id: coll._id,
+          date: coll.date,
+          donorName: coll.showPublicly ? coll.donorName : 'Anonymous',
+          amount: coll.amount,
+        }));
       }
 
       return res.json({
@@ -98,8 +104,7 @@ router.post('/public-donate', async (req, res, next) => {
       }
     }
 
-    const count = await Collection.countDocuments({});
-    const collectionId = `COLL-${1000 + count + 1}`;
+    const collectionId = await getNextCollectionId();
 
     const collection = await Collection.create({
       collectionId,
@@ -141,29 +146,37 @@ router.post('/', protect, authorize('Super Admin', 'Treasurer'), async (req, res
   const { date, donorName, phone, amount, paymentMode, transactionRef, purpose, notes, approvalStatus, showPublicly } = req.body;
 
   try {
-    if (transactionRef) {
-      const duplicateRef = await Collection.findOne({ transactionRef, isDeleted: false });
+    if (!donorName || !donorName.trim()) {
+      return res.status(400).json({ message: 'Donor name is required' });
+    }
+
+    const parsedAmount = Number(amount);
+    if (!parsedAmount || isNaN(parsedAmount) || parsedAmount <= 0) {
+      return res.status(400).json({ message: 'Please provide a valid donation amount' });
+    }
+
+    if (transactionRef && transactionRef.trim()) {
+      const duplicateRef = await Collection.findOne({ transactionRef: transactionRef.trim(), isDeleted: false });
       if (duplicateRef) {
         return res.status(400).json({ message: `Warning: Transaction reference "${transactionRef}" already exists` });
       }
     }
 
-    const count = await Collection.countDocuments({});
-    const collectionId = `COLL-${1000 + count + 1}`;
+    const collectionId = await getNextCollectionId();
 
     const collection = await Collection.create({
       collectionId,
-      date,
-      donorName,
-      phone,
-      amount,
-      paymentMode,
-      transactionRef,
+      date: date ? new Date(date) : new Date(),
+      donorName: donorName.trim(),
+      phone: phone ? phone.trim() : '',
+      amount: parsedAmount,
+      paymentMode: paymentMode || 'Cash',
+      transactionRef: transactionRef ? transactionRef.trim() : '',
       purpose: purpose || 'Festival Donation',
-      notes,
+      notes: notes ? notes.trim() : '',
       addedBy: req.user.username,
       approvalStatus: approvalStatus || 'Draft',
-      showPublicly: showPublicly || false,
+      showPublicly: showPublicly !== undefined ? Boolean(showPublicly) : false,
     });
 
     await logActivity({
@@ -175,6 +188,104 @@ router.post('/', protect, authorize('Super Admin', 'Treasurer'), async (req, res
     });
 
     res.status(201).json(collection);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// @route   POST /api/collections/bulk-import
+// @desc    Batch import collections from Excel/CSV upload
+// @access  Private (Super Admin, Treasurer)
+router.post('/bulk-import', protect, authorize('Super Admin', 'Treasurer'), async (req, res, next) => {
+  const { records, defaultStatus = 'Approved' } = req.body;
+
+  if (!Array.isArray(records) || records.length === 0) {
+    return res.status(400).json({ message: 'No records provided for import' });
+  }
+
+  try {
+    const importedRecords = [];
+    const importDate = new Date();
+
+    for (const r of records) {
+      if (!r.donorName || !r.donorName.trim()) continue;
+      const parsedAmount = Number(r.amount);
+      if (!parsedAmount || isNaN(parsedAmount) || parsedAmount <= 0) continue;
+
+      const collectionId = await getNextCollectionId();
+      let recordDate = importDate;
+      if (r.date) {
+        const parsedD = new Date(r.date);
+        if (!isNaN(parsedD.getTime())) {
+          recordDate = parsedD;
+        }
+      }
+
+      const newColl = await Collection.create({
+        collectionId,
+        date: recordDate,
+        donorName: r.donorName.trim(),
+        phone: r.phone ? String(r.phone).trim() : '',
+        amount: parsedAmount,
+        paymentMode: ['Cash', 'UPI', 'Bank Transfer', 'Other'].includes(r.paymentMode) ? r.paymentMode : 'Cash',
+        transactionRef: r.transactionRef ? String(r.transactionRef).trim() : '',
+        purpose: r.purpose ? String(r.purpose).trim() : 'Bulk Import Seva Donation',
+        notes: r.notes ? String(r.notes).trim() : 'Imported via Excel/CSV',
+        addedBy: req.user.username,
+        approvalStatus: defaultStatus,
+        showPublicly: r.showPublicly !== undefined ? Boolean(r.showPublicly) : true,
+      });
+
+      importedRecords.push(newColl);
+    }
+
+    await logActivity({
+      user: req.user.username,
+      action: `Bulk imported ${importedRecords.length} collection records`,
+      recordType: 'Collection',
+      recordId: `BATCH-${Date.now()}`,
+      newValue: { count: importedRecords.length },
+    });
+
+    res.status(201).json({
+      success: true,
+      message: `Successfully imported ${importedRecords.length} collections`,
+      count: importedRecords.length,
+      records: importedRecords,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// @route   PATCH /api/collections/:id/toggle-visibility
+// @desc    Toggle donor public visibility (Public vs Anonymous)
+// @access  Private (Super Admin, Treasurer)
+router.patch('/:id/toggle-visibility', protect, authorize('Super Admin', 'Treasurer'), async (req, res, next) => {
+  try {
+    const collection = await Collection.findById(req.params.id);
+
+    if (!collection || collection.isDeleted) {
+      return res.status(404).json({ message: 'Collection not found' });
+    }
+
+    collection.showPublicly = !collection.showPublicly;
+    await collection.save();
+
+    await logActivity({
+      user: req.user.username,
+      action: `Toggled donor visibility for ${collection.collectionId} (${collection.showPublicly ? 'Public' : 'Anonymous'})`,
+      recordType: 'Collection',
+      recordId: collection.collectionId,
+      newValue: { showPublicly: collection.showPublicly },
+    });
+
+    res.json({
+      success: true,
+      showPublicly: collection.showPublicly,
+      message: `Visibility set to ${collection.showPublicly ? 'Public (Visible)' : 'Anonymous (Hidden)'}`,
+      collection,
+    });
   } catch (error) {
     next(error);
   }
@@ -258,7 +369,7 @@ router.put('/:id/approve', protect, authorize('Super Admin', 'Treasurer'), async
 });
 
 // @route   DELETE /api/collections/:id
-// @desc    Soft delete a collection
+// @desc    Soft delete a collection (releases numeric ID so future IDs don't inflate)
 // @access  Private (Super Admin, Treasurer)
 router.delete('/:id', protect, authorize('Super Admin', 'Treasurer'), async (req, res, next) => {
   try {
@@ -268,21 +379,25 @@ router.delete('/:id', protect, authorize('Super Admin', 'Treasurer'), async (req
       return res.status(404).json({ message: 'Collection not found' });
     }
 
+    const originalId = collection.collectionId;
     const prevValue = collection.toObject();
+
     collection.isDeleted = true;
     collection.deletedAt = Date.now();
+    // Rename collectionId to release numeric slot
+    collection.collectionId = `${originalId}_DELETED_${Date.now()}`;
     await collection.save();
 
     await logActivity({
       user: req.user.username,
-      action: 'Deleted Donation Collection (Soft-Delete)',
+      action: 'Deleted Donation Collection (Soft-Delete & Slot Released)',
       recordType: 'Collection',
-      recordId: collection.collectionId,
+      recordId: originalId,
       previousValue: prevValue,
       newValue: { isDeleted: true, deletedAt: collection.deletedAt },
     });
 
-    res.json({ message: `Collection ${collection.collectionId} soft-deleted successfully` });
+    res.json({ message: `Collection ${originalId} soft-deleted successfully` });
   } catch (error) {
     next(error);
   }
