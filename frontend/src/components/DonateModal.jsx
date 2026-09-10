@@ -319,120 +319,107 @@ const DonateModal = ({ isOpen, onClose, onSuccess }) => {
             </form>
           )}
 
-          {/* STEP 2: Dedicated QR Scanner & Verification */}
+          {/* STEP 2: Dedicated QR Scanner & Verification (Compact & Space-Optimized) */}
           {step === 2 && (
-            <div>
-              {/* Order Summary Card */}
-              <div style={{ background: 'linear-gradient(135deg, hsl(38, 100%, 97%), hsl(30, 100%, 95%))', border: '1.5px solid hsl(38, 90%, 75%)', borderRadius: 'var(--radius-md)', padding: '0.75rem 1rem', marginBottom: '0.85rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>Contributing Devotee</div>
-                  <strong style={{ fontSize: '0.98rem', color: 'var(--text-main)' }}>{donorName}</strong>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>Amount</div>
-                  <strong style={{ fontSize: '1.35rem', color: '#D84315', fontWeight: 800 }}>₹{parsedAmount.toLocaleString('en-IN')}</strong>
-                </div>
-              </div>
-
-              {/* Committee Payee Details with Copy UPI ID */}
-              <div style={{ background: '#FFFFFF', padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', marginBottom: '0.85rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+              {/* Order & Payee Combined Card */}
+              <div style={{ background: 'linear-gradient(135deg, hsl(38, 100%, 97%), hsl(30, 100%, 95%))', border: '1.5px solid hsl(38, 90%, 75%)', borderRadius: '12px', padding: '0.6rem 0.85rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', borderBottom: '1px dashed rgba(0,0,0,0.1)', paddingBottom: '0.35rem' }}>
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Verified Payee ({receiverName}):</div>
-                    <div style={{ fontSize: '0.88rem', fontWeight: 800, color: 'var(--primary)', wordBreak: 'break-all' }}>{upiId}</div>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Contributing Devotee:</span>
+                    <div style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{donorName}</div>
+                  </div>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Amount:</span>
+                    <div style={{ fontSize: '1.25rem', color: '#D84315', fontWeight: 900, lineHeight: 1.1 }}>₹{parsedAmount.toLocaleString('en-IN')}</div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.4rem', flexWrap: 'wrap' }}>
+                  <div style={{ fontSize: '0.78rem' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Payee ({receiverName}): </span>
+                    <strong style={{ color: 'var(--primary)' }}>{upiId}</strong>
                   </div>
                   <button
                     type="button"
                     onClick={handleCopyUpi}
                     className="btn btn-sm btn-secondary"
-                    style={{ fontSize: '0.75rem', padding: '0.35rem 0.65rem', flexShrink: 0, fontWeight: 700 }}
+                    style={{ fontSize: '0.72rem', padding: '0.2rem 0.55rem', fontWeight: 700 }}
                   >
-                    {copiedUpi ? <Check size={14} color="#2E7D32" /> : <Copy size={14} />}
-                    <span>{copiedUpi ? 'Copied!' : 'Copy UPI ID'}</span>
+                    {copiedUpi ? <Check size={12} color="#2E7D32" /> : <Copy size={12} />}
+                    <span>{copiedUpi ? 'Copied' : 'Copy UPI'}</span>
                   </button>
                 </div>
               </div>
 
-              {/* Dedicated QR Code Scanner Showcase Card */}
-              <div style={{ textAlign: 'center', background: '#FFFFFF', padding: '1.1rem', borderRadius: 'var(--radius-md)', border: '2px solid hsl(38, 90%, 75%)', boxShadow: '0 4px 16px rgba(255, 102, 0, 0.08)', marginBottom: '0.85rem' }}>
-                <div style={{ display: 'inline-block', position: 'relative', background: '#FFFFFF', padding: '10px', borderRadius: '16px', border: '2px solid #FFE082', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+              {/* Dedicated QR Code Scanner Card */}
+              <div style={{ textAlign: 'center', background: '#FFFFFF', padding: '0.75rem', borderRadius: '12px', border: '1.5px solid hsl(38, 90%, 75%)', boxShadow: '0 2px 10px rgba(255, 102, 0, 0.06)' }}>
+                <div style={{ display: 'inline-block', background: '#FFFFFF', padding: '6px', borderRadius: '12px', border: '1.5px solid #FFE082', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
                   <img
                     src={qrCodeUrl}
                     alt="Scan & Pay UPI QR Code"
-                    style={{ width: '190px', height: '190px', display: 'block', margin: '0 auto', borderRadius: '8px' }}
+                    style={{ width: '165px', height: '165px', display: 'block', margin: '0 auto', borderRadius: '6px' }}
                   />
                 </div>
 
-                <p style={{ margin: '0.6rem 0 0.35rem', fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                  Scan to Pay <span style={{ color: '#D84315', fontSize: '1.05rem', fontWeight: 900 }}>₹{parsedAmount.toLocaleString('en-IN')}</span>
-                </p>
-
-                {/* Supported Apps Strip */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', margin: '0.5rem 0 0.75rem' }}>
-                  <PhonePeLogo size={24} />
-                  <GooglePayLogo size={24} />
-                  <PaytmLogo size={24} />
-                  <UpiBhimLogo size={24} />
-                  <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 600 }}>Supports all UPI Apps</span>
+                <div style={{ margin: '0.4rem 0 0.2rem', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                  Scan to Pay <span style={{ color: '#D84315', fontSize: '0.98rem', fontWeight: 900 }}>₹{parsedAmount.toLocaleString('en-IN')}</span>
                 </div>
 
-                {/* Download / Save QR Code for scanning from phone gallery */}
+                {/* Supported Apps Strip */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', margin: '0.3rem 0 0.45rem' }}>
+                  <PhonePeLogo size={20} />
+                  <GooglePayLogo size={20} />
+                  <PaytmLogo size={20} />
+                  <UpiBhimLogo size={20} />
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>All UPI Apps</span>
+                </div>
+
                 <button
                   type="button"
                   onClick={handleDownloadQr}
                   className="btn btn-secondary btn-sm"
-                  style={{ width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', fontSize: '0.82rem', padding: '0.5rem' }}
+                  style={{ width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', fontSize: '0.78rem', padding: '0.35rem 0.5rem' }}
                 >
-                  <Download size={15} /> Save QR Code to Gallery
+                  <Download size={13} /> Save QR Code
                 </button>
               </div>
 
-              {/* 3-Step Simple Guide */}
-              <div style={{ background: 'hsl(38, 100%, 97%)', border: '1px solid hsl(38, 90%, 80%)', borderRadius: '8px', padding: '0.6rem 0.75rem', marginBottom: '0.85rem', fontSize: '0.78rem', color: 'var(--text-main)', lineHeight: 1.45 }}>
-                <strong style={{ color: '#E65100', display: 'block', marginBottom: '0.2rem' }}>📌 Quick Instructions:</strong>
-                1. Open PhonePe, Google Pay, Paytm, or BHIM.<br />
-                2. Scan this QR Code (or upload from gallery) &amp; complete payment of ₹{parsedAmount}.<br />
-                3. Enter your 12-digit UPI reference number below &amp; click <strong>"I Have Paid"</strong>.
-              </div>
-
-              {/* UTR / Reference ID & I Have Paid submission */}
-              <div style={{ background: 'rgba(255, 102, 0, 0.05)', padding: '0.85rem', borderRadius: 'var(--radius-md)', border: '1.5px solid rgba(255, 102, 0, 0.25)' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', display: 'block', marginBottom: '0.35rem' }}>
-                  UPI Reference / UTR Number (Optional):
+              {/* UTR / Reference ID & Submission */}
+              <div style={{ background: 'rgba(255, 102, 0, 0.05)', padding: '0.65rem 0.8rem', borderRadius: '10px', border: '1px solid rgba(255, 102, 0, 0.2)' }}>
+                <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-main)', display: 'block', marginBottom: '0.3rem' }}>
+                  UPI Reference / UTR Number:
                 </label>
                 <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="e.g. 423456789012 (12 digits)"
+                    placeholder="12-digit UTR (Optional)"
                     value={transactionRef}
                     onChange={(e) => setTransactionRef(e.target.value)}
-                    style={{ fontSize: '0.85rem', padding: '0.45rem 0.65rem', flex: '1 1 180px' }}
+                    style={{ fontSize: '0.82rem', padding: '0.35rem 0.6rem', flex: '1 1 150px', height: '36px' }}
                   />
                   <button
                     type="button"
                     onClick={handleRecordDonation}
                     disabled={submitting}
                     className="donate-upi-btn"
-                    style={{ fontSize: '0.84rem', padding: '0.5rem 1.1rem', whiteSpace: 'nowrap', flex: '1 1 auto' }}
+                    style={{ fontSize: '0.82rem', padding: '0.35rem 0.95rem', height: '36px', whiteSpace: 'nowrap', flex: '1 1 auto' }}
                   >
                     {submitting ? 'Submitting...' : '✓ I Have Paid'}
                   </button>
                 </div>
-                <small style={{ color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: '0.35rem', display: 'block' }}>
-                  Click <strong>"I Have Paid"</strong> once you complete the transfer to generate your receipt!
-                </small>
               </div>
 
               {/* Back Button */}
-              <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '0.75rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                 <button
                   type="button"
                   onClick={() => setStep(1)}
                   className="btn btn-link"
-                  style={{ fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: 0 }}
+                  style={{ fontSize: '0.78rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: 0 }}
                 >
-                  <ArrowLeft size={14} /> Back to edit name or amount
+                  <ArrowLeft size={13} /> Back to edit details
                 </button>
               </div>
             </div>
