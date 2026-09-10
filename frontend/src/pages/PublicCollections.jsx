@@ -154,7 +154,7 @@ const PublicCollections = () => {
 
           {/* Donation Bank / UPI Details Card */}
           <div className="card glass-panel donation-bank-card" style={{ padding: '0.95rem 1.1rem', marginBottom: '0.85rem', border: '1.5px solid rgba(255, 102, 0, 0.2)' }}>
-            <div style={{ flex: '1 1 240px', minWidth: 0 }}>
+            <div className="donation-bank-text-block">
               <h3 style={{ fontSize: '1.05rem', color: 'var(--primary)', margin: '0 0 0.2rem', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 800 }}>
                 <span>💳</span> Support Our Festival - Online UPI Seva
               </h3>
