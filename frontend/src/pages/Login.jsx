@@ -15,7 +15,7 @@ const Login = () => {
   // If already logged in, redirect
   React.useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      navigate(user.role === 'Food Admin' ? '/dashboard/prasadam' : '/dashboard');
     }
   }, [user, navigate]);
 
@@ -28,8 +28,8 @@ const Login = () => {
 
     setLoading(true);
     try {
-      await login(username, password);
-      navigate('/dashboard');
+      const loggedUser = await login(username, password);
+      navigate(loggedUser?.role === 'Food Admin' ? '/dashboard/prasadam' : '/dashboard');
     } catch (err) {
       // Toast message will be shown by AuthContext
     } finally {

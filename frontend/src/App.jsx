@@ -107,6 +107,15 @@ const CommitteeLayout = () => {
   );
 };
 
+// Committee Dashboard Gatekeeper (Food Admin routes to Prasadam Seva)
+const DashboardIndex = () => {
+  const { user } = useAuth();
+  if (user?.role === 'Food Admin') {
+    return <Navigate to="/dashboard/prasadam" replace />;
+  }
+  return <CommitteeDashboard />;
+};
+
 // Toast Notifications Component
 const ToastOverlay = () => {
   const { toasts } = useAuth();
@@ -169,9 +178,15 @@ function App() {
           </Route>
 
           {/* Committee Dashboard Routes (Protected) */}
+          <Route element={<PrivateRoute allowedRoles={['Super Admin', 'Treasurer', 'Event Manager', 'Volunteer Manager', 'Content Manager', 'Food Admin']} />}>
+            <Route element={<CommitteeLayout />}>
+              <Route path="/dashboard" element={<DashboardIndex />} />
+            </Route>
+          </Route>
+
+          {/* Committee Documents (Protected) */}
           <Route element={<PrivateRoute allowedRoles={['Super Admin', 'Treasurer', 'Event Manager', 'Volunteer Manager', 'Content Manager']} />}>
             <Route element={<CommitteeLayout />}>
-              <Route path="/dashboard" element={<CommitteeDashboard />} />
               <Route path="/dashboard/documents" element={<ManageDocuments />} />
             </Route>
           </Route>

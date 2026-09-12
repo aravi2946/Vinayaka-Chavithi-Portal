@@ -18,7 +18,8 @@ const PrivateRoute = ({ allowedRoles }) => {
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/" replace />;
+    const fallbackPath = user.role === 'Food Admin' ? '/dashboard/prasadam' : '/dashboard';
+    return <Navigate to={fallbackPath} replace />;
   }
 
   return <Outlet />;

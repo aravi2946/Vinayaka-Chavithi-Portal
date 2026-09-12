@@ -113,7 +113,11 @@ const Navbar = () => {
         )}
 
         {user ? (
-          <Link to="/dashboard" className="btn btn-primary btn-sm" onClick={() => setMobileOpen(false)}>
+          <Link
+            to={user.role === 'Food Admin' ? '/dashboard/prasadam' : '/dashboard'}
+            className="btn btn-primary btn-sm"
+            onClick={() => setMobileOpen(false)}
+          >
             <LayoutDashboard size={16} />
             Portal Dashboard
           </Link>
