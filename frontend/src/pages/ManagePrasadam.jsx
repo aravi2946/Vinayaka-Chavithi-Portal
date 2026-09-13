@@ -168,49 +168,73 @@ const ManagePrasadam = () => {
 
       {/* Filter and Search Bar */}
       <div className="card prasadam-toolbar-card">
-        <div className="prasadam-search-box">
-          <Search size={16} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-          <input
-            type="text"
-            placeholder="Search donor name or prasadam item..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="prasadam-search-input"
-          />
-          {search && (
-            <button
-              type="button"
-              onClick={() => setSearch('')}
-              className="prasadam-clear-search-btn"
-              title="Clear search"
-            >
-              <X size={14} />
-            </button>
-          )}
+        <div className="prasadam-toolbar-controls">
+          <div className="prasadam-search-box">
+            <Search size={16} className="prasadam-search-icon" />
+            <input
+              type="text"
+              placeholder="Search donor name or prasadam item..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="prasadam-search-input"
+              aria-label="Search prasadam entries"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch('')}
+                className="prasadam-clear-search-btn"
+                title="Clear search"
+                aria-label="Clear search"
+              >
+                <X size={15} />
+              </button>
+            )}
+          </div>
+
+          <div className="prasadam-date-filter-group">
+            <div className="prasadam-date-input-wrap">
+              <Calendar size={15} className="prasadam-date-icon" />
+              <input
+                type="date"
+                className="prasadam-date-input"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                title="Filter by Seva Date"
+                aria-label="Filter by Seva Date"
+              />
+            </div>
+            {dateFilter && (
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm prasadam-clear-date-btn"
+                onClick={() => setDateFilter('')}
+                title="Clear date filter"
+              >
+                Clear Date
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="prasadam-date-filter-group">
-          <div className="prasadam-date-input-wrap">
-            <Calendar size={15} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-            <input
-              type="date"
-              className="prasadam-date-input"
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              title="Filter by Seva Date"
-            />
-          </div>
-          {dateFilter && (
+        {(search || dateFilter) && (
+          <div className="prasadam-active-filters-row">
+            <span className="prasadam-filter-badge">
+              Showing <strong>{filteredEntries.length}</strong> of {entries.length} records
+              {search && <span> matching &ldquo;<strong>{search}</strong>&rdquo;</span>}
+              {dateFilter && (
+                <span> on <strong>{new Date(dateFilter).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</strong></span>
+              )}
+            </span>
             <button
               type="button"
-              className="btn btn-secondary btn-sm"
-              onClick={() => setDateFilter('')}
-              style={{ fontSize: '0.78rem', padding: '0.35rem 0.65rem', whiteSpace: 'nowrap' }}
+              className="prasadam-reset-all-btn"
+              onClick={() => { setSearch(''); setDateFilter(''); }}
             >
-              Clear Date
+              Reset Filters
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Table of Prasadam entries */}

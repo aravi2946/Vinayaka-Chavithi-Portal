@@ -2627,81 +2627,214 @@ svg.donors-search-icon {
 
 .prasadam-toolbar-card {
   padding: 0.85rem 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
   display: flex;
-  gap: 0.85rem;
+  flex-direction: column;
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.prasadam-toolbar-controls {
+  display: flex;
   align-items: center;
+  gap: 0.75rem;
+  width: 100%;
   flex-wrap: wrap;
 }
 
 .prasadam-search-box {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  flex: 1 1 240px;
-  min-width: 200px;
+  flex: 1 1 280px;
+  min-width: 220px;
+  height: 42px;
+  min-height: 42px;
+  max-height: 42px;
   background: var(--bg-primary);
-  padding: 0.5rem 0.75rem;
+  padding: 0;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-color);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  box-sizing: border-box;
 }
 
 .prasadam-search-box:focus-within {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.12);
+  box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.14);
+  background: var(--bg-secondary);
+}
+
+.prasadam-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  flex-shrink: 0;
+  z-index: 2;
+  transition: color 0.2s ease;
+}
+
+.prasadam-search-box:focus-within .prasadam-search-icon {
+  color: var(--primary);
 }
 
 .prasadam-search-input {
-  border: none;
-  background: none;
-  outline: none;
-  width: 100%;
-  font-size: 0.9rem;
-  color: var(--text-main);
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  max-height: 100% !important;
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  padding: 0 36px 0 38px !important;
+  font-size: 0.92rem !important;
+  color: var(--text-main) !important;
+  box-shadow: none !important;
+  line-height: normal !important;
+  box-sizing: border-box !important;
+}
+
+.prasadam-search-input::placeholder {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  opacity: 0.85;
 }
 
 .prasadam-clear-search-btn {
-  background: none;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
   border: none;
   cursor: pointer;
   color: var(--text-muted);
-  padding: 0;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  z-index: 2;
+  width: 26px;
+  height: 26px;
 }
 
 .prasadam-clear-search-btn:hover {
-  color: var(--text-main);
+  color: var(--danger);
+  background: rgba(255, 0, 0, 0.08);
 }
 
 .prasadam-date-filter-group {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  flex-wrap: wrap;
+  flex: 0 1 auto;
 }
 
 .prasadam-date-input-wrap {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.45rem;
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  padding: 0.25rem 0.6rem;
+  padding: 0 0.65rem 0 2rem;
+  height: 42px;
+  min-height: 42px;
+  max-height: 42px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.prasadam-date-input-wrap:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.14);
+  background: var(--bg-secondary);
+}
+
+.prasadam-date-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.prasadam-date-input-wrap:focus-within .prasadam-date-icon {
+  color: var(--primary);
 }
 
 .prasadam-date-input {
   border: none !important;
   background: transparent !important;
-  padding: 0.2rem 0.25rem !important;
-  height: 32px !important;
-  font-size: 0.85rem !important;
+  padding: 0 !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  font-size: 0.88rem !important;
   box-shadow: none !important;
   color: var(--text-main);
-  outline: none;
+  outline: none !important;
+  cursor: pointer;
+  line-height: normal;
+}
+
+.prasadam-clear-date-btn {
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  padding: 0 0.85rem !important;
+  font-size: 0.82rem !important;
+  white-space: nowrap !important;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.prasadam-active-filters-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.45rem;
+  border-top: 1px dashed var(--border-color);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.prasadam-filter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.prasadam-reset-all-btn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 2px 4px;
+}
+
+.prasadam-reset-all-btn:hover {
+  color: var(--primary-dark);
 }
 
 /* Dual View: Desktop Table vs Mobile Cards */
@@ -2895,15 +3028,29 @@ svg.donors-search-icon {
   }
 
   .prasadam-toolbar-card {
+    padding: 0.75rem;
+    gap: 0.6rem;
+  }
+
+  .prasadam-toolbar-controls {
     flex-direction: column;
     align-items: stretch;
     gap: 0.6rem;
-    padding: 0.75rem;
+    width: 100%;
   }
 
   .prasadam-search-box {
-    width: 100%;
-    min-width: 100%;
+    width: 100% !important;
+    min-width: 0 !important;
+    flex: 0 0 42px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+  }
+
+  .prasadam-search-input {
+    font-size: 16px !important; /* Prevents iOS mobile zoom */
+    padding: 0 34px 0 38px !important;
   }
 
   .prasadam-date-filter-group {
@@ -2914,12 +3061,22 @@ svg.donors-search-icon {
   }
 
   .prasadam-date-input-wrap {
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 0;
+    width: auto;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
   }
 
   .prasadam-date-input {
     width: 100% !important;
+    font-size: 16px !important;
+  }
+
+  .prasadam-clear-date-btn {
+    flex-shrink: 0;
+    height: 42px !important;
   }
 
   /* Toggle desktop table vs mobile cards */
@@ -3089,6 +3246,30 @@ svg.donors-search-icon {
   textarea.form-control {
     font-size: 16px !important; /* Prevents iOS auto-zoom */
     padding: 0.65rem 0.75rem;
+  }
+
+  .prasadam-search-box {
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+  }
+
+  .prasadam-search-input {
+    padding: 0 34px 0 38px !important;
+    font-size: 16px !important;
+    height: 100% !important;
+  }
+
+  .prasadam-date-input-wrap {
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+  }
+
+  .prasadam-date-input {
+    padding: 0 !important;
+    font-size: 16px !important;
+    height: 100% !important;
   }
 
   .public-nav {
