@@ -49,8 +49,10 @@ const PublicLayout = () => {
           <span style={{ display: 'inline-block' }}>All rights reserved.</span>
         </p>
         <div style={{ margin: '0.75rem 0 0.85rem', display: 'flex', justifyContent: 'center' }}>
-          <div style={{ background: 'linear-gradient(135deg, rgba(255, 102, 0, 0.18), rgba(255, 179, 0, 0.28))', border: '1.5px solid rgba(255, 179, 0, 0.5)', borderRadius: '24px', padding: '0.45rem 1.5rem', color: '#FFE082', fontWeight: 800, fontSize: '0.95rem', letterSpacing: '0.03em', textShadow: '0 1px 4px rgba(0,0,0,0.6)', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
-            🚩 Event Organized By — Chowdarys, NGPadu
+          <div style={{ background: 'linear-gradient(135deg, rgba(255, 102, 0, 0.18), rgba(255, 179, 0, 0.28))', border: '1.5px solid rgba(255, 179, 0, 0.5)', borderRadius: '16px', padding: '0.6rem 1.5rem', color: '#FFE082', fontWeight: 800, fontSize: '0.95rem', letterSpacing: '0.03em', textShadow: '0 1px 4px rgba(0,0,0,0.6)', boxShadow: '0 4px 16px rgba(0,0,0,0.2)', textAlign: 'center', lineHeight: '1.45' }}>
+            <div>Event organized by</div>
+            <div>Chowdary Youth force</div>
+            <div>Naguluppalapadu</div>
           </div>
         </div>
         <p style={{ marginTop: '0.35rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', wordBreak: 'break-word', lineHeight: '1.6' }}>
