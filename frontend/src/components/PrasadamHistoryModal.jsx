@@ -64,7 +64,7 @@ const PrasadamHistoryModal = ({ isOpen, onClose, entries = [] }) => {
               )}
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flex: '1 1 auto', minWidth: '160px' }}>
               <Calendar size={15} style={{ color: 'var(--text-muted)' }} />
               <input
                 type="date"

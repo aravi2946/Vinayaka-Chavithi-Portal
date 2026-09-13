@@ -2590,6 +2590,351 @@ svg.donors-search-icon {
 }
 
 /* ==========================================================================
+   Prasadam Seva Responsive UI Styles
+   ========================================================================== */
+
+.prasadam-header {
+  margin-bottom: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.prasadam-title {
+  color: var(--primary);
+  font-size: clamp(1.35rem, 3.5vw, 2rem);
+  font-weight: 800;
+  margin: 0 0 0.35rem;
+  line-height: 1.25;
+}
+
+.prasadam-subtitle {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  margin: 0;
+  max-width: 650px;
+  line-height: 1.45;
+}
+
+.prasadam-header-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.prasadam-toolbar-card {
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  gap: 0.85rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.prasadam-search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 240px;
+  min-width: 200px;
+  background: var(--bg-primary);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.prasadam-search-box:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.12);
+}
+
+.prasadam-search-input {
+  border: none;
+  background: none;
+  outline: none;
+  width: 100%;
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+.prasadam-clear-search-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.prasadam-clear-search-btn:hover {
+  color: var(--text-main);
+}
+
+.prasadam-date-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.prasadam-date-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.25rem 0.6rem;
+}
+
+.prasadam-date-input {
+  border: none !important;
+  background: transparent !important;
+  padding: 0.2rem 0.25rem !important;
+  height: 32px !important;
+  font-size: 0.85rem !important;
+  box-shadow: none !important;
+  color: var(--text-main);
+  outline: none;
+}
+
+/* Dual View: Desktop Table vs Mobile Cards */
+.desktop-prasadam-view {
+  display: block;
+}
+
+.mobile-prasadam-list {
+  display: none;
+}
+
+/* Desktop Table Column Enhancements */
+.prasadam-table {
+  width: 100%;
+  min-width: 650px;
+}
+
+.prasadam-date-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.84rem;
+  color: var(--text-main);
+  background: hsl(30, 25%, 96%);
+  border: 1px solid hsl(30, 20%, 90%);
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.prasadam-donor-cell {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+
+.prasadam-prayer-icon {
+  font-size: 1.1rem;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.prasadam-donor-name {
+  font-weight: 700;
+  color: var(--text-main);
+  word-break: break-word;
+  line-height: 1.35;
+}
+
+.prasadam-item-pill {
+  display: inline-block;
+  background: hsl(25, 95%, 96%);
+  border: 1px solid hsl(25, 80%, 88%);
+  color: #D84315;
+  font-weight: 700;
+  font-size: 0.86rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  word-break: break-word;
+  line-height: 1.35;
+}
+
+.prasadam-notes-cell {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  word-break: break-word;
+  max-width: 320px;
+}
+
+/* Mobile Responsive Prasadam Card Layout */
+.prasadam-mobile-card {
+  background: var(--bg-surface, #FFFFFF);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+}
+
+.prasadam-mobile-card:hover {
+  border-color: rgba(255, 102, 0, 0.4);
+  box-shadow: 0 4px 14px rgba(216, 67, 21, 0.08);
+}
+
+.prasadam-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px dashed var(--border-color);
+  padding-bottom: 0.55rem;
+}
+
+.prasadam-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.prasadam-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.prasadam-card-donor {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+
+.prasadam-donor-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-main);
+  word-break: break-word;
+  line-height: 1.35;
+}
+
+.prasadam-card-item {
+  background: linear-gradient(135deg, hsl(30, 100%, 98%), hsl(35, 100%, 96%));
+  border: 1px solid hsl(30, 85%, 88%);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+}
+
+.prasadam-item-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #D84315;
+  margin-bottom: 0.15rem;
+}
+
+.prasadam-item-val {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #BF360C;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.prasadam-card-notes {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  background: var(--bg-primary);
+  border-left: 3px solid var(--primary);
+  padding: 0.4rem 0.65rem;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.prasadam-notes-icon {
+  font-size: 0.85rem;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+/* Media Queries for Mobile Responsiveness */
+@media (max-width: 768px) {
+  .prasadam-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .prasadam-header-actions {
+    width: 100%;
+  }
+
+  .prasadam-header-actions .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.65rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .prasadam-toolbar-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+    padding: 0.75rem;
+  }
+
+  .prasadam-search-box {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .prasadam-date-filter-group {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .prasadam-date-input-wrap {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .prasadam-date-input {
+    width: 100% !important;
+  }
+
+  /* Toggle desktop table vs mobile cards */
+  .desktop-prasadam-view {
+    display: none !important;
+  }
+
+  .mobile-prasadam-list {
+    display: flex !important;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+}
+
+/* ==========================================================================
    UTILITY: Table Action Icon Buttons (Edit / Delete / Approve)
    Ensures icon-only buttons stay perfectly square and never shrink when
    adjacent text (donor name, title, etc.) becomes long.

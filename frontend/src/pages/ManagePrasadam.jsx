@@ -152,14 +152,14 @@ const ManagePrasadam = () => {
 
   return (
     <div className="page-container">
-      <div className="action-header">
+      <div className="action-header prasadam-header">
         <div>
-          <h1 style={{ color: 'var(--primary)', fontSize: '2rem' }}>🍚 Prasadam Seva Management</h1>
-          <p style={{ color: 'var(--text-muted)' }}>
+          <h1 className="prasadam-title">🍚 Prasadam Seva Management</h1>
+          <p className="prasadam-subtitle">
             Log and manage daily Prasadam offerings, Annadanam donors, and holy feast items.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <div className="prasadam-header-actions">
           <button className="btn btn-primary btn-sm" onClick={handleOpenAdd}>
             <Plus size={16} /> Log Prasadam
           </button>
@@ -167,64 +167,45 @@ const ManagePrasadam = () => {
       </div>
 
       {/* Filter and Search Bar */}
-      <div
-        className="card"
-        style={{
-          padding: '1rem',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          gap: '1rem',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            flexGrow: 1,
-            minWidth: '220px',
-            background: 'var(--bg-primary)',
-            padding: '0.5rem 0.75rem',
-            borderRadius: 'var(--radius-sm)',
-            border: '1px solid var(--border-color)',
-          }}
-        >
-          <Search size={16} style={{ color: 'var(--text-muted)' }} />
+      <div className="card prasadam-toolbar-card">
+        <div className="prasadam-search-box">
+          <Search size={16} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
           <input
             type="text"
             placeholder="Search donor name or prasadam item..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ border: 'none', background: 'none', outline: 'none', width: '100%', fontSize: '0.9rem' }}
+            className="prasadam-search-input"
           />
           {search && (
             <button
               type="button"
               onClick={() => setSearch('')}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0 }}
+              className="prasadam-clear-search-btn"
+              title="Clear search"
             >
               <X size={14} />
             </button>
           )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Calendar size={16} style={{ color: 'var(--text-muted)' }} />
-          <input
-            type="date"
-            className="form-control"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            style={{ width: 'auto', padding: '0.4rem 0.75rem', height: '38px', fontSize: '0.85rem' }}
-          />
+        <div className="prasadam-date-filter-group">
+          <div className="prasadam-date-input-wrap">
+            <Calendar size={15} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+            <input
+              type="date"
+              className="prasadam-date-input"
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              title="Filter by Seva Date"
+            />
+          </div>
           {dateFilter && (
             <button
               type="button"
               className="btn btn-secondary btn-sm"
               onClick={() => setDateFilter('')}
-              style={{ fontSize: '0.75rem', padding: '0.35rem 0.6rem' }}
+              style={{ fontSize: '0.78rem', padding: '0.35rem 0.65rem', whiteSpace: 'nowrap' }}
             >
               Clear Date
             </button>
@@ -247,70 +228,156 @@ const ManagePrasadam = () => {
           </button>
         </div>
       ) : (
-        <div className="table-responsive">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Donor Name</th>
-                <th>Prasadam Item</th>
-                <th>Notes</th>
-                <th>Logged By</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredEntries.map((item) => (
-                <tr key={item._id}>
-                  <td style={{ whiteSpace: 'nowrap' }}>
-                    <strong>{new Date(item.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</strong>
-                  </td>
-                  <td style={{ fontWeight: 700, color: 'var(--text-main)' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                      <span style={{ color: '#D84315' }}>🙏</span>
-                      {item.donorName}
-                    </span>
-                  </td>
-                  <td style={{ color: 'var(--primary)', fontWeight: 600 }}>
-                    {item.item}
-                  </td>
-                  <td style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                    {item.notes || '-'}
-                  </td>
-                  <td style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                    {item.addedBy || 'Admin'}
-                  </td>
-                  <td className="table-actions-cell" style={{ textAlign: 'right' }}>
-                    <div style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center' }}>
-                      <button
-                        type="button"
-                        onClick={() => handleOpenEdit(item)}
-                        className="btn btn-secondary btn-sm btn-table-action"
-                        title="Edit Record"
-                      >
-                        <Edit2 size={14} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(item._id, item.donorName)}
-                        className="btn btn-danger btn-sm btn-table-action"
-                        title="Delete Record"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
+        <>
+          {/* 1. Desktop & Tablet Table View (Screens >= 768px) */}
+          <div className="table-responsive desktop-prasadam-view">
+            <table className="custom-table prasadam-table">
+              <thead>
+                <tr>
+                  <th style={{ width: '130px', whiteSpace: 'nowrap' }}>Date</th>
+                  <th style={{ minWidth: '220px' }}>Donor Name</th>
+                  <th style={{ minWidth: '180px' }}>Prasadam Item</th>
+                  <th style={{ minWidth: '200px' }}>Notes</th>
+                  <th style={{ width: '110px' }}>Logged By</th>
+                  <th style={{ textAlign: 'right', width: '90px' }}>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {filteredEntries.map((item) => (
+                  <tr key={item._id}>
+                    <td style={{ whiteSpace: 'nowrap' }}>
+                      <span className="prasadam-date-badge">
+                        <Calendar size={13} style={{ color: 'var(--primary)', flexShrink: 0 }} />
+                        <strong>
+                          {new Date(item.date).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
+                        </strong>
+                      </span>
+                    </td>
+                    <td>
+                      <div className="prasadam-donor-cell">
+                        <span className="prasadam-prayer-icon">🙏</span>
+                        <span className="prasadam-donor-name">{item.donorName}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="prasadam-item-pill">
+                        🍚 {item.item}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="prasadam-notes-cell" title={item.notes || ''}>
+                        {item.notes || <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>-</span>}
+                      </div>
+                    </td>
+                    <td>
+                      <span className="badge badge-info" style={{ fontSize: '0.75rem', fontWeight: 600 }}>
+                        {item.addedBy || 'admin'}
+                      </span>
+                    </td>
+                    <td className="table-actions-cell" style={{ textAlign: 'right' }}>
+                      <div style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center' }}>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEdit(item)}
+                          className="btn btn-secondary btn-sm btn-table-action"
+                          title="Edit Record"
+                          aria-label="Edit Record"
+                        >
+                          <Edit2 size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(item._id, item.donorName)}
+                          className="btn btn-danger btn-sm btn-table-action"
+                          title="Delete Record"
+                          aria-label="Delete Record"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* 2. Mobile Responsive Card List (Screens < 768px) */}
+          <div className="mobile-prasadam-list">
+            {filteredEntries.map((item) => (
+              <div key={item._id} className="prasadam-mobile-card">
+                <div className="prasadam-card-header">
+                  <div className="prasadam-card-meta">
+                    <span className="prasadam-date-badge">
+                      <Calendar size={13} style={{ color: 'var(--primary)', flexShrink: 0 }} />
+                      <span>
+                        {new Date(item.date).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    </span>
+                    <span className="badge badge-info" style={{ fontSize: '0.72rem', padding: '0.15rem 0.45rem' }}>
+                      {item.addedBy || 'admin'}
+                    </span>
+                  </div>
+
+                  <div className="prasadam-card-actions">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEdit(item)}
+                      className="btn btn-secondary btn-sm btn-table-action"
+                      title="Edit Record"
+                      aria-label="Edit Record"
+                    >
+                      <Edit2 size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(item._id, item.donorName)}
+                      className="btn btn-danger btn-sm btn-table-action"
+                      title="Delete Record"
+                      aria-label="Delete Record"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="prasadam-card-donor">
+                  <span className="prasadam-prayer-icon">🙏</span>
+                  <span className="prasadam-donor-title">{item.donorName}</span>
+                </div>
+
+                <div className="prasadam-card-item">
+                  <span style={{ fontSize: '1rem', flexShrink: 0 }}>🍚</span>
+                  <div>
+                    <div className="prasadam-item-label">Prasadam Offering</div>
+                    <div className="prasadam-item-val">{item.item}</div>
+                  </div>
+                </div>
+
+                {item.notes && (
+                  <div className="prasadam-card-notes">
+                    <span className="prasadam-notes-icon">📝</span>
+                    <span>{item.notes}</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Add/Edit Modal */}
       {modalOpen && (
         <div className="sponsor-modal-overlay" onClick={() => setModalOpen(false)} role="dialog" aria-modal="true">
-          <div className="sponsor-modal-dialog" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '520px' }}>
+          <div className="sponsor-modal-dialog" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '520px', width: '95%', maxHeight: '90vh', overflowY: 'auto' }}>
             <div className="sponsor-modal-header" style={{ background: 'linear-gradient(135deg, #D84315, #FFA000)' }}>
               <button
                 type="button"
@@ -393,7 +460,7 @@ const ManagePrasadam = () => {
                   />
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.65rem', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.65rem', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
                   <button
                     type="button"
                     className="btn btn-secondary btn-sm"
